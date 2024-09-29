@@ -1,17 +1,18 @@
 'use client'
 
 import React from 'react'
-import { Avatar, Button, ScrollShadow, Spacer, Tooltip } from '@nextui-org/react'
+import { Avatar, Button, ScrollShadow, Skeleton, Spacer, Tooltip } from '@nextui-org/react'
 import { Icon } from '@iconify/react'
 import { useMediaQuery } from 'usehooks-ts'
 import { cn } from '@/lib/utils'
 import { sectionItemsWithTeams } from '../types/SidebarItems'
 import Sidebar from './Sidebar'
-import { Home } from 'lucide-react'
+import { Calendar, Home } from 'lucide-react'
 import { SidebarProvider } from '../contexts/SidebarContext'
 import { useRouter } from 'next/navigation'
 import logoutAction from '../actions/logout.action'
 import getAccessTokenVerifiedOrRefreshIfNeeded from '../actions/verify-and-refresh.action'
+import { useUser } from '../providers/SessionProvider'
 
 /**
  *  This example requires installing the `usehooks-ts` package:
@@ -35,6 +36,7 @@ export default function Component({ children }: { children: React.ReactNode }) {
   const [isCollapsed, setIsCollapsed] = React.useState(true)
   const isMobile = useMediaQuery('(max-width: 768px)')
   const router = useRouter()
+  const { user, loading } = useUser()
 
   const isCompact = isCollapsed || isMobile
 
@@ -62,22 +64,26 @@ export default function Component({ children }: { children: React.ReactNode }) {
               }
             )}
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#ffffff] bg-opacity-40">
-              <Home color="black" />
-            </div>
+              <Calendar color="white" />
             <span
               className={cn('text-small font-bold uppercase text-[#ffffff] opacity-100', {
                 'w-0 opacity-0': isCompact,
               })}
             >
-              Casalago
+              Reservation
             </span>
           </div>
           <Spacer y={8} />
           <div className="flex items-center gap-3 px-3">
-            <Avatar isBordered className="flex-none" size="sm" name="A" />
+            <Avatar isBordered className="flex-none" size="sm" name={user?.username} isDisabled={!user}/>
             <div className={cn('flex max-w-full flex-col', { hidden: isCompact })}>
-              <p className="truncate text-small font-medium text-[#ffffff]">Admin</p>
+              {
+                user ? (
+                  <p className="truncate text-small font-medium text-[#ffffff]">{user?.username}</p>
+                ) : (
+                  <Skeleton className="h-4 w-full" />
+                )
+              }
             </div>
           </div>
           <ScrollShadow className="-mr-6 h-full max-h-full py-6 pr-6">

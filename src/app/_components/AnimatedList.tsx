@@ -18,7 +18,6 @@ export const AnimatedList = React.memo(
 
     useEffect(() => {
       if (childrenArray.length === 0) {
-        console.warn('Children array is empty.')
         return
       }
 

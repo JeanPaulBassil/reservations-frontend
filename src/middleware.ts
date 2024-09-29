@@ -5,7 +5,18 @@ import { Tokens } from './api/models/Tokens'
 import { ServerError } from './api/utils'
 import { ACCESS_TOKEN_COOKIE_NAME, REFRESH_TOKEN_COOKIE_NAME } from './app/constants/auth.constants'
 import { cookies } from 'next/headers'
-import { setAccessTokenCookie, setRefreshTokenCookie, verifyAccessToken } from './app/lib/session'
+import {
+  setAccessTokenCookie,
+  setRefreshTokenCookie,
+  verifyAccessToken,
+  getRoleFromAccessToken,
+} from './app/lib/session'
+
+const roleAccessMap = {
+  ADMIN: ['/companies'],
+  OWNER: ['/entities'],
+  EMPLOYEE: ['/companies'],
+}
 
 export const refreshTokensIfPossible = async (refreshToken: string) => {
   const endpoint = baseUrl + 'auth/refresh'
@@ -69,8 +80,9 @@ export async function middleware(request: NextRequest) {
   const refreshToken = cookieJar.get(REFRESH_TOKEN_COOKIE_NAME)?.value
   const path = request.nextUrl.pathname
 
+  console.log('path', path)
+
   const isSigninPath = path.startsWith('/login')
-  const isEmptyPath = !path.startsWith('/products') && !path.startsWith('/brands') && !path.startsWith('/users') && !path.startsWith('/categories')
 
   if (isSigninPath) {
     const redirectParam = request.nextUrl.searchParams.get('redirect')
@@ -98,10 +110,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  if (isEmptyPath) {
-    return NextResponse.redirect(new URL('/products', request.url))
-  }
-
   if ((!accessToken && !refreshToken) || (accessToken && !refreshToken)) {
     const signinUrl = new URL(`/login?redirect=${encodeURIComponent(request.url)}`, request.url)
     return NextResponse.redirect(signinUrl.href)
@@ -121,6 +129,14 @@ export async function middleware(request: NextRequest) {
 
   if (accessToken && refreshToken) {
     if (await verifyAccessToken(accessToken)) {
+      const userRole = await getRoleFromAccessToken(accessToken)
+      const allowedPaths = roleAccessMap[userRole as keyof typeof roleAccessMap]
+      const hasAccess = allowedPaths.some((allowedPath) => path.startsWith(allowedPath))
+
+      if (!hasAccess) {
+        return NextResponse.redirect(new URL(allowedPaths[0], request.url))
+      }
+
       return NextResponse.next()
     } else {
       return deleteTokensAndGoToLogin(request.url)

@@ -1,43 +1,45 @@
-import { Category, CreateCategory } from './models/Category'
+import { Company, CreateCompany } from './models/Company'
 import { Tokens } from './models/Tokens'
 import { CreateUser, User } from './models/User'
 import { ApiResponse } from './utils'
 import { AbstractApi, ApiRequestParams } from './utils/AbstractApi'
 
-export class CategoryApi extends AbstractApi<Category> {
-  readonly path = 'categories'
+export class CompanyApi extends AbstractApi<Company> {
+  readonly path = 'companies'
   constructor() {
-    super('categories')
+    super('companies')
   }
 
-  async create(category: CreateCategory): Promise<ApiResponse<Category>> {
+  async create(company: CreateCompany): Promise<ApiResponse<Company>> {
     const response = this.doFetch({
       requestOptions: {
         method: 'POST',
-        body: JSON.stringify(category),
+        body: JSON.stringify(company),
       },
-    }) as Promise<ApiResponse<Category>>
+    }) as Promise<ApiResponse<Company>>
+
     return response
   }
 
-  public async getCategories(params: ApiRequestParams): Promise<ApiResponse<Category[]>> {
+  public async getCompanies(): Promise<ApiResponse<Company[]>> {
     const response = (await this.doFetch({
-      queries: params.queries,
       requestOptions: {
         method: 'GET',
       },
-    })) as ApiResponse<Category[]>
+    })) as ApiResponse<Company[]>
+
 
     return response
   }
 
-  public async delete(id: string): Promise<ApiResponse<Category>> {
+  public async deleteCompany(id: string): Promise<ApiResponse<Company>> {
     const response = (await this.doFetch({
       requestOptions: {
         method: 'DELETE',
       },
       pathExtension: id,
-    })) as ApiResponse<Category>
+    })) as ApiResponse<Company>
+
     return response
   }
 }

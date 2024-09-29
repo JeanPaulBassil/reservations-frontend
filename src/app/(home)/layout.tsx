@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import AppLayout from '../_components/AppLayout'
+import { UserProvider } from '../providers/SessionProvider'
 
 export const metadata: Metadata = {
-  title: 'Casalago',
-  description: 'Discover the finest quality wood products in Lebanon',
+  title: 'Reservation',
+  description: 'Reservation system',
 }
 
 export default function RootLayout({
@@ -11,5 +12,5 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  return <AppLayout>{children}</AppLayout>
+  return <UserProvider><AppLayout>{children}</AppLayout></UserProvider>
 }

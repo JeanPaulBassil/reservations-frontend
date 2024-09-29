@@ -5,12 +5,13 @@ import { NextUIProvider } from '@nextui-org/system'
 import ReactQueryClientProvider from '@/providers/ReactQueryProvider'
 import LayoutWrapper from './_components/Notifications'
 import { ToastProvider } from '@/providers/ToastProvider'
-import { SpeedInsights } from '@vercel/speed-insights/next';
+import { SpeedInsights } from '@vercel/speed-insights/next'
+import { UserProvider } from './providers/SessionProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Casalago CMS',
-  description: 'Manage your Casalago website content',
+  title: 'Reservation',
+  description: 'Reservation system',
 }
 
 export default function RootLayout({
@@ -24,7 +25,8 @@ export default function RootLayout({
         <ReactQueryClientProvider>
           <NextUIProvider>
             <LayoutWrapper>
-              <ToastProvider>{children}
+              <ToastProvider>
+                {children}
                 <SpeedInsights />
               </ToastProvider>
             </LayoutWrapper>

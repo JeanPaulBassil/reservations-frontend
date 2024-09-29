@@ -61,6 +61,15 @@ export async function verifyAccessToken(access_token: string) {
   }
 }
 
+export async function getRoleFromAccessToken(access_token: string): Promise<string | null> {
+  try {
+    const { payload } = await jwtVerify(access_token, key, { algorithms: ['HS256'] })
+    return payload.role as string
+  } catch (error) {
+    return null
+  }
+}
+
 export async function decryptAccessToken(access_token: string): Promise<JWTPayload | null> {
   try {
     const { payload } = await jwtVerify(access_token, key, { algorithms: ['HS256'] })
