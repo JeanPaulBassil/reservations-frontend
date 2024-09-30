@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import AppLayout from '../_components/AppLayout'
 import { UserProvider } from '../providers/SessionProvider'
+import { EntityProvider } from '../contexts/EntityContext'
 
 export const metadata: Metadata = {
   title: 'Reservation',
@@ -12,5 +13,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  return <UserProvider><AppLayout>{children}</AppLayout></UserProvider>
+  return (
+    <UserProvider>
+      <EntityProvider>
+        <AppLayout>{children}</AppLayout>
+      </EntityProvider>
+    </UserProvider>
+  )
 }

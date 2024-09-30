@@ -3,8 +3,8 @@ import Widget from '@/app/_components/shared/Widget'
 import { useSidebarContext } from '@/app/contexts/SidebarContext'
 import { Button } from '@nextui-org/button'
 import { useDisclosure } from '@nextui-org/modal'
-import { Plus, Search, Sidebar } from 'lucide-react'
-import React, { useState } from 'react'
+import { Plus, Search, Sidebar, X } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
 import { Input, Spacer, Spinner } from '@nextui-org/react'
 import { useQuery } from '@tanstack/react-query'
 import { ServerError } from '@/api/utils'
@@ -15,12 +15,14 @@ import AddEntityModal from './_components/AddEntityModal'
 import { useUser } from '@/app/providers/SessionProvider'
 import useOrderedQueries from '@/hooks/useQueries'
 import useDebouncedCallback from '@/hooks/useDebounceCallback'
+import { useEntity } from '@/app/contexts/EntityContext'
 
 const page = () => {
   const { onToggle } = useSidebarContext()
   const entityApi = new EntityApi()
   const { user } = useUser()
   const [nameSearch, setNameSearch] = useState<string>('')
+  const { selectedEntityId, setSelectedEntityId } = useEntity()
   const { get: getQueries, set: setQueries } = useOrderedQueries<{
     name: string
   }>({
@@ -40,8 +42,6 @@ const page = () => {
   const {
     data: entities,
     isLoading,
-    isError,
-    error,
   } = useQuery<Entity[], ServerError>({
     queryKey: ['entities', getQueries().name],
     queryFn: async () => {
@@ -49,6 +49,12 @@ const page = () => {
       return response.payload
     },
   })
+
+  useEffect(() => {
+    if (!selectedEntityId && entities && entities.length > 0) {
+      setSelectedEntityId(entities[0].id)
+    }
+  }, [selectedEntityId, entities])
 
   if (!user?.companyId) {
     return <div className="h-screen">
