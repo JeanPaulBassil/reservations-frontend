@@ -66,7 +66,7 @@ const page = () => {
 
   return (
     <div className="h-screen">
-      <AddEntityModal isOpen={isOpenCreateModal} onClose={onCloseCreateModal} />
+      <AddEntityModal isOpen={isOpenCreateModal} onClose={onCloseCreateModal} search={nameSearch}/>
       <Widget className="border-2 border-gray-200 px-4 py-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

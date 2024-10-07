@@ -1,8 +1,5 @@
-import { Chip } from '@nextui-org/react'
-import { Icon } from '@iconify/react'
-import { SidebarItem, SidebarItemType } from '../_components/Sidebar'
-import TeamAvatar from '../_components/TeamAvatar'
-import { Apple, Armchair, Box, Building, TableCellsMerge, Users } from 'lucide-react'
+import { SidebarItem } from '../_components/Sidebar'
+import { Building, Calendar, Table, User, Users } from 'lucide-react'
 import { UserRole } from '@/api/models/User'
 
 export const sectionItems: SidebarItem[] = [
@@ -19,6 +16,34 @@ export const sectionItems: SidebarItem[] = [
     icon: <Building strokeWidth={1} color="#ffffff" />,
     title: 'Entities',
     allowedRoles: [UserRole.OWNER],
+  },
+  {
+    key: 'guests',
+    href: '/guests',
+    icon: <Users strokeWidth={1} color="#ffffff" />,
+    title: 'Guests',
+    allowedRoles: [UserRole.OWNER, UserRole.EMPLOYEE],
+  },
+  {
+    key: 'employees',
+    href: '/employees',
+    icon: <User strokeWidth={1} color="#ffffff" />,
+    title: 'Employees',
+    allowedRoles: [UserRole.OWNER],
+  },
+  {
+    key: 'tables',
+    href: '/tables',
+    icon: <Table strokeWidth={1} color="#ffffff" />,
+    title: 'Tables',
+    allowedRoles: [UserRole.OWNER, UserRole.EMPLOYEE],
+  },
+  {
+    key: 'reservations',
+    href: '/reservations',
+    icon: <Calendar strokeWidth={1} color="#ffffff" />,
+    title: 'Reservations',
+    allowedRoles: [UserRole.OWNER, UserRole.EMPLOYEE],
   },
 ]
 

@@ -1,5 +1,7 @@
-import { EntityApi } from '@/api/entity.api'
-import { CreateEntity } from '@/api/models/Entity'
+import { CompanyApi } from '@/api/company.api'
+import { CreateCompany } from '@/api/models/Company'
+import { CreateEmployee, CreateUser } from '@/api/models/User'
+import { UserApi } from '@/api/user.api'
 import { useToast } from '@/app/contexts/ToastContext'
 import { joiResolver } from '@hookform/resolvers/joi'
 import { Button } from '@nextui-org/button'
@@ -7,21 +9,24 @@ import { Input } from '@nextui-org/input'
 import { Modal, ModalBody, ModalContent, ModalFooter } from '@nextui-org/modal'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import Joi from 'joi'
-import { Plus, X } from 'lucide-react'
-import React from 'react'
+import { Eye, EyeOff, Icon, Lock, Plus, X } from 'lucide-react'
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 type Props = {
   isOpen: boolean
   onClose: () => void
+  selectedEntityId: string
 }
 
-const entitySchema = Joi.object({
-  name: Joi.string().required(),
-  location: Joi.string().required(),
+const employeeSchema = Joi.object({
+  username: Joi.string().required(),
+  password: Joi.string().required(),
 })
 
-const AddEntityModal = ({ isOpen, onClose }: Props) => {
+const AddEmployeeModal = ({ isOpen, onClose, selectedEntityId }: Props) => {
+  const [isVisible, setIsVisible] = useState(false)
+  const toggleVisibility = () => setIsVisible(!isVisible)
   const toast = useToast()
   const queryClient = useQueryClient()
 
@@ -30,27 +35,27 @@ const AddEntityModal = ({ isOpen, onClose }: Props) => {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<CreateEntity>({
-    resolver: joiResolver(entitySchema),
+  } = useForm<CreateEmployee>({
+    resolver: joiResolver(employeeSchema),
   })
 
-  const onSubmit = (data: CreateEntity) => {
-    createEntity(data)
+  const onSubmit = (data: CreateEmployee) => {
+    createEmployee(data)
   }
 
-  const { mutateAsync: createEntity } = useMutation({
-    mutationFn: (data: CreateEntity) => {
-      const entityApi = new EntityApi()
-      return entityApi.create({ ...data })
+  const { mutateAsync: createEmployee } = useMutation({
+    mutationFn: (data: CreateEmployee) => {
+      const userApi = new UserApi()
+      return userApi.createEmployee(data, selectedEntityId)
     },
     onSuccess: () => {
-      toast.success('Entity created successfully')
+      toast.success('Employee created successfully')
     },
     onError: (error) => {
       toast.error(error.message)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['entities'] })
+      queryClient.invalidateQueries({ queryKey: ['employees'] })
       reset()
       onClose()
     },
@@ -73,9 +78,9 @@ const AddEntityModal = ({ isOpen, onClose }: Props) => {
           <div className="flex flex-row items-start justify-between">
             {/* Left */}
             <div className="flex flex-col space-y-2">
-              <h2 className="text-2xl font-normal">Add Entity</h2>
+              <h2 className="text-2xl font-normal">Add Employee</h2>
               <p className="text-small font-light text-gray-500 dark:text-gray-300">
-                Add a new entity to the system
+                Add a new employee to the system
               </p>
             </div>
             {/* Right */}
@@ -90,30 +95,39 @@ const AddEntityModal = ({ isOpen, onClose }: Props) => {
           {/* Modal Content */}
           <ModalBody className="my-4 flex flex-col items-start justify-center px-0">
             <Input
-              label="Entity Name"
-              aria-label="Entity Name"
-              placeholder="Enter the entity name"
+              label="Username"
+              aria-label="Username"
+              placeholder="Enter the username"
               variant="bordered"
               className="w-full"
               isRequired
               isDisabled={isSubmitting}
               radius="sm"
-              {...register('name')}
-              errorMessage={errors.name?.message}
-              isInvalid={!!errors.name}
+              {...register('username')}
+              errorMessage={errors.username?.message}
+              isInvalid={!!errors.username}
             />
             <Input
-              label="Entity Location"
-              aria-label="Entity Location"
-              placeholder="Enter the entity location"
-              variant="bordered"
-              className="w-full"
-              isRequired
-              isDisabled={isSubmitting}
+              endContent={
+                <button type="button" onClick={toggleVisibility}>
+                  {isVisible ? (
+                    <Eye size={24} strokeWidth={1.5} />
+                  ) : (
+                    <EyeOff size={24} strokeWidth={1.5} />
+                  )}
+                </button>
+              }
+              label="Password"
+              aria-label="Password"
               radius="sm"
-              {...register('location')}
-              errorMessage={errors.location?.message}
-              isInvalid={!!errors.location}
+              placeholder="Enter the password"
+              type={isVisible ? 'text' : 'password'}
+              variant="bordered"
+              isDisabled={isSubmitting}
+              isRequired
+              {...register('password')}
+              errorMessage={errors.password?.message}
+              isInvalid={!!errors.password}
             />
           </ModalBody>
 
@@ -131,7 +145,7 @@ const AddEntityModal = ({ isOpen, onClose }: Props) => {
               isLoading={isSubmitting}
               type="submit"
             >
-              Add Entity
+              Add Employee
             </Button>
           </ModalFooter>
         </form>
@@ -140,4 +154,4 @@ const AddEntityModal = ({ isOpen, onClose }: Props) => {
   )
 }
 
-export default AddEntityModal
+export default AddEmployeeModal

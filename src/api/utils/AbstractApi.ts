@@ -34,9 +34,7 @@ export abstract class AbstractApi<T> {
     }
 
     let accessToken: string | undefined
-    console.log("in abstract api")
     if (this.secure) {
-      console.log("in secure")
       accessToken = await getAccessTokenVerifiedOrRefreshIfNeeded()
 
       if (!accessToken) {
@@ -51,7 +49,6 @@ export abstract class AbstractApi<T> {
         })
       }
     }
-    console.log("in try")
     try {
       const response = await fetch(url, {
         ...requestParams?.requestOptions,
@@ -72,7 +69,6 @@ export abstract class AbstractApi<T> {
       const body = await response.json()
       return { payload: body.payload, meta: body.meta }
     } catch (error) {
-      console.log("in catch")
       // If the error is from the backend, it should follow the ResponseError structure
       if (error instanceof ServerError) {
         throw error

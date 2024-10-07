@@ -14,8 +14,8 @@ import {
 
 const roleAccessMap = {
   ADMIN: ['/companies'],
-  OWNER: ['/entities'],
-  EMPLOYEE: ['/companies'],
+  OWNER: ['/entities', '/guests', '/employees', '/tables', '/reservations'],
+  EMPLOYEE: ['/entities', '/guests', '/tables', '/reservations'],
 }
 
 export const refreshTokensIfPossible = async (refreshToken: string) => {
@@ -80,11 +80,10 @@ export async function middleware(request: NextRequest) {
   const refreshToken = cookieJar.get(REFRESH_TOKEN_COOKIE_NAME)?.value
   const path = request.nextUrl.pathname
 
-  console.log('path', path)
-
   const isSigninPath = path.startsWith('/login')
 
   if (isSigninPath) {
+    ("Signin path")
     const redirectParam = request.nextUrl.searchParams.get('redirect')
     if (!accessToken && refreshToken) {
       try {
@@ -131,12 +130,16 @@ export async function middleware(request: NextRequest) {
     if (await verifyAccessToken(accessToken)) {
       const userRole = await getRoleFromAccessToken(accessToken)
       const allowedPaths = roleAccessMap[userRole as keyof typeof roleAccessMap]
-      const hasAccess = allowedPaths.some((allowedPath) => path.startsWith(allowedPath))
+      const normalizePath = (path: string) => path.replace(/\/$/, '') // Remove trailing slashes
+
+      const hasAccess = allowedPaths.some((allowedPath) =>
+        normalizePath(path).startsWith(allowedPath)
+      )
 
       if (!hasAccess) {
         return NextResponse.redirect(new URL(allowedPaths[0], request.url))
       }
-
+      
       return NextResponse.next()
     } else {
       return deleteTokensAndGoToLogin(request.url)

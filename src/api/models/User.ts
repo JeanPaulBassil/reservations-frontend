@@ -15,3 +15,11 @@ export interface CreateUser {
     username: string
     password: string
 }
+
+export interface Employee extends User {
+    entityId: string
+}
+
+export interface CreateEmployee extends CreateUser {
+    entityId: string
+}

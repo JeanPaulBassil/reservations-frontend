@@ -4,10 +4,8 @@ import { NextResponse } from 'next/server'
 export async function GET(request: Request) {
   const authorizationHeader = request.headers.get('Authorization') || ''
   const accessToken = authorizationHeader.split(' ')[1]
-  console.log("Helloooo")
   try {
     const payload = await decryptAccessToken(accessToken)
-    console.log('payload', payload)
     if (!payload) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

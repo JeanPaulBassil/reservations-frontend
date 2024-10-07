@@ -61,7 +61,6 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
   ) => {
     const [selected, setSelected] = React.useState<React.Key>(defaultSelectedKey)
     const { user } = useUser()
-    console.log("in sidebar", user)
     const itemClasses = {
       ...itemClassesProp,
       base: cn(itemClassesProp?.base, {
@@ -105,8 +104,6 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
     }
 
     const actualItems = items.filter((item) => {
-      console.log("item", item)
-      console.log("in actual items", item.allowedRoles, user.role)
       return item.allowedRoles.includes(user.role)
     })
 
