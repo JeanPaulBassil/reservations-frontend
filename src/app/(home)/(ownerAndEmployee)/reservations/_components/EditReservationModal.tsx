@@ -167,6 +167,7 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId }
                       className="max-w-[284px]"
                       label="Date"
                       labelPlacement="outside"
+                      // @ts-expect-error because of the type
                       value={parseDate((new Date(field.value)).toISOString().split('T')[0])}
                       onChange={(value) => {
                         field.onChange(value.toDate(getLocalTimeZone()))
@@ -190,6 +191,7 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId }
                       label="Time"
                       hideTimeZone
                       labelPlacement="outside"
+                      // @ts-expect-error because of the type
                       value={parseAbsoluteToLocal((new Date(field.value)).toISOString())}
                       onChange={(value) => {
                         field.onChange(value.toDate())
