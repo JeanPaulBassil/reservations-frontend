@@ -4,20 +4,36 @@ import { useSidebarContext } from '@/app/contexts/SidebarContext'
 import { Button } from '@nextui-org/button'
 import { useDisclosure } from '@nextui-org/modal'
 import {
+  Ban,
+  Calendar,
+  CircleIcon,
+  Clock,
   DeleteIcon,
   EditIcon,
   EyeIcon,
+  Hand,
+  Hourglass,
+  List,
   PencilIcon,
   Plus,
   Search,
   Sidebar,
+  Trash,
   TrashIcon,
+  Users,
+  UtensilsCrossed,
   X,
 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import {
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
   getKeyValue,
   Input,
+  Select,
+  SelectItem,
   Spacer,
   Spinner,
   Table,
@@ -42,10 +58,13 @@ import { useRouter } from 'next/navigation'
 import { useToast } from '@/app/contexts/ToastContext'
 import EditGuestModal from './_components/EditReservationModal'
 import { ReservationApi } from '@/api/reservation.api'
-import { Reservation } from '@/api/models/Reservation'
+import { Reservation, ReservationStatus } from '@/api/models/Reservation'
 import EditReservationModal from './_components/EditReservationModal'
 import AddReservationModal from './_components/AddReservationModal'
 import { format } from 'date-fns'
+import { useForm } from 'react-hook-form'
+import Joi from 'joi'
+import { joiResolver } from '@hookform/resolvers/joi'
 
 const page = () => {
   const router = useRouter()
@@ -78,17 +97,14 @@ const page = () => {
     enabled: !!selectedEntityId,
   })
 
-  const { mutate: deleteReservation } = useMutation({
-    mutationFn: async (reservationId: string) => {
-      await reservationApi.deleteReservation(reservationId)
-    },
-    onSuccess: () => {
-      toast.success('Reservation deleted successfully')
+  const { mutate: updateReservationStatus } = useMutation<void, ServerError, { reservationId: string, status: ReservationStatus }>({
+    mutationFn: async ({ reservationId, status }) => {
+      await reservationApi.update({ status }, reservationId)
     },
     onError: (error) => {
       toast.error(error.message)
     },
-    onMutate: async (reservationId: string) => {
+    onMutate: async ({ reservationId, status }) => {
       await queryClient.cancelQueries({
         queryKey: ['reservations', selectedEntityId],
       })
@@ -98,10 +114,15 @@ const page = () => {
       ]) as Reservation[]
       queryClient.setQueryData(
         ['reservations', selectedEntityId],
-        previousReservations.filter((c) => c.id !== reservationId)
+        previousReservations.map((c) =>
+          c.id === reservationId ? { ...c, status } : c
+        )
       )
 
       return { previousReservations }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['reservations', selectedEntityId] })
     },
   })
 
@@ -113,82 +134,121 @@ const page = () => {
     return format(date, 'hh:mm a')
   }
 
+  const onUpdateStatus = (key: ReservationStatus, reservationId: string) => {
+    updateReservationStatus({ reservationId, status: key })
+  }
+
+  const reservationStatuses = [
+    {
+      key: ReservationStatus.PENDING,
+      label: 'Pending',
+      icon: <Hourglass size={16} color="gray" />,
+      color: 'bg-gray-100',
+    },
+    {
+      key: ReservationStatus.SEATED,
+      label: 'Seated',
+      icon: <UtensilsCrossed size={16} color="green" />,
+      color: 'bg-green-100',
+    },
+    {
+      key: ReservationStatus.LEFT,
+      label: 'Left',
+      icon: <Hand size={16} color="black" />,
+      color: 'bg-gray-100',
+    },
+    {
+      key: ReservationStatus.NO_SHOW,
+      label: 'No Show',
+      icon: <Ban size={16} color="red" />,
+      color: 'bg-red-100',
+    },
+    {
+      key: ReservationStatus.LATE,
+      label: 'Late',
+      icon: <Clock size={16} color="orange" />,
+      color: 'bg-orange-100',
+    },
+    {
+      key: ReservationStatus.CANCELLED,
+      label: 'Cancelled',
+      icon: <X size={16} color="red" />,
+      color: 'bg-red-100',
+    },
+    {
+      key: ReservationStatus.DELETED,
+      label: 'Deleted',
+      icon: <Trash size={16} color="gray" />,
+      color: 'bg-gray-100',
+    },
+    {
+      key: ReservationStatus.WAITLISTED,
+      label: 'Waitlisted',
+      icon: <List size={16} color="blue" />,
+      color: 'bg-blue-100',
+    },
+  ]
+
   const renderCell = React.useCallback((reservation: Reservation, columnKey: string) => {
     const cellValue = reservation[columnKey as keyof Reservation]
-    console.log('cellValue', reservation)
     switch (columnKey) {
       case 'guest':
-        return (
-          <User
-            name={reservation.guest.name}
-            description={reservation.guest.phone}
-          />
-        )
+        return <User name={reservation.guest.name} description={reservation.guest.phone} />
       case 'table':
         return (
           <div className="relative flex items-center gap-2">
+            <UtensilsCrossed size={16} />
             <h2>{reservation.table.tableNumber}</h2>
-          </div>
-        )
-      case 'status':
-        return (
-          <div className="relative flex items-center gap-2">
-            <h2>{reservation.status}</h2>
           </div>
         )
       case 'numberOfGuests':
         return (
           <div className="relative flex items-center gap-2">
+            <Users size={16} />
             <h2>{reservation.numberOfGuests}</h2>
           </div>
         )
       case 'date':
         return (
           <div className="relative flex items-center gap-2">
+            <Calendar size={16} />
             <h2>{formatDate(reservation.date)}</h2>
           </div>
         )
       case 'time':
         return (
           <div className="relative flex items-center gap-2">
+            <Clock size={16} />
             <h2>{formatTime(reservation.startTime)}</h2>
           </div>
         )
-      case 'actions':
+      case 'status':
         return (
-          <div className="relative flex items-center gap-2">
-            <Tooltip content="Edit user" size="sm">
+          <Dropdown>
+            <DropdownTrigger key={reservation.id}>
               <Button
-                color="success"
-                isIconOnly
-                size="sm"
                 radius="sm"
+                color='default'
                 variant="light"
-                className="cursor-pointer text-lg text-default-400 active:opacity-50"
-                onClick={() => {
-                  setReservation(reservation)
-                  onOpenEditModal()
-                }}
-              >
-                <PencilIcon size={20} />
-              </Button>
-            </Tooltip>
-            <Tooltip color="danger" content="Delete user" size="sm">
-              <Button
-                onClick={() => {
-                  deleteReservation(reservation.id)
-                }}
-                color="danger"
+                startContent={reservationStatuses.find((s) => s.key === reservation?.status)?.icon}
                 isIconOnly
-                size="sm"
-                radius="sm"
-                variant="light"
-                className="cursor-pointer text-lg text-danger active:opacity-50"
-              >
-                <TrashIcon size={20} />
-              </Button>
-            </Tooltip>
-          </div>
+              />
+            </DropdownTrigger>
+            <DropdownMenu
+              aria-label="Static Actions"
+              items={reservationStatuses}
+              onAction={(key) => onUpdateStatus(key as ReservationStatus, reservation.id)}
+            >
+              {(status) => (
+                <DropdownItem
+                  startContent={status.icon}
+                  key={status.key}
+                >
+                  {status.label}
+                </DropdownItem>
+              )}
+            </DropdownMenu>
+          </Dropdown>
         )
       default:
         return cellValue
@@ -212,8 +272,20 @@ const page = () => {
 
   const columns = [
     {
+      key: 'date',
+      label: 'Date',
+    },
+    {
+      key: 'time',
+      label: 'Time',
+    },
+    {
       key: 'guest',
       label: 'Guest',
+    },
+    {
+      key: 'numberOfGuests',
+      label: 'Number of Guests',
     },
     {
       key: 'table',
@@ -222,23 +294,6 @@ const page = () => {
     {
       key: 'status',
       label: 'Status',
-    },
-    {
-      key: 'numberOfGuests',
-      label: 'Number of Guests',
-    },
-    {
-      key: 'date',
-      label: 'Date',
-    },
-    {
-      key: 'time',
-      label: 'Time',
-    },
-    
-    {
-      key: 'actions',
-      label: 'Actions',
     },
   ]
 
@@ -291,7 +346,14 @@ const page = () => {
             <h2>Error fetching reservations, please contact support</h2>
           </div>
         ) : (
-          <Table aria-label="Example table with dynamic content" className="mt-5" removeWrapper>
+          <Table
+            aria-label="Example table with dynamic content"
+            className="mt-5"
+            removeWrapper
+            classNames={{
+              th: 'bg-[#ffffff] border-b-2 border-gray-200',
+            }}
+          >
             <TableHeader columns={columns}>
               {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
             </TableHeader>
@@ -304,7 +366,14 @@ const page = () => {
               }
             >
               {(item) => (
-                <TableRow key={item.id}>
+                <TableRow
+                  key={item.id}
+                  className={`cursor-pointer transition-colors duration-200 ${reservationStatuses.find((s) => s.key === item.status)?.color}`}
+                  onClick={() => {
+                    setReservation(item)
+                    onOpenEditModal()
+                  }}
+                >
                   {/* @ts-expect-error */}
                   {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
                 </TableRow>
