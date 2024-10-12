@@ -81,7 +81,7 @@ const page = () => {
   }>({
     status: '',
   })
-  
+
   const {
     isOpen: isOpenCreateModal,
     onOpen: onOpenCreateModal,
@@ -121,6 +121,7 @@ const page = () => {
       const previousReservations = queryClient.getQueryData<Reservation[]>([
         'reservations',
         selectedEntityId,
+        getQueries(),
       ]) as Reservation[]
       queryClient.setQueryData(
         ['reservations', selectedEntityId, getQueries()],
@@ -366,7 +367,7 @@ const page = () => {
       <Widget className="flex h-[calc(100vh-6rem)] flex-col border-2 border-gray-200 px-5 pt-4">
         <div className="flex items-center justify-end">
           <Select
-            defaultSelectedKeys={[getQueries().status ?? reservationStatusFilterValues[0].key]}
+            defaultSelectedKeys={[getQueries().status ? getQueries().status : reservationStatusFilterValues[0].key]}
             variant="bordered"
             size="sm"
             radius="sm"
@@ -377,7 +378,7 @@ const page = () => {
               setQueries({
                 ...getQueries(),
                 // @ts-expect-error Selection type is not typed
-                status: key.anchorKey === 'all' ? undefined : (key.anchorKey as ReservationStatus),
+                status: key.anchorKey === 'all' ? '' : (key.anchorKey as ReservationStatus),
               })
             }
             startContent={
