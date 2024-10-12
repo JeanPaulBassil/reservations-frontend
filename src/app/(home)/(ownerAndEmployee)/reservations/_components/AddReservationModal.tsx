@@ -1,6 +1,4 @@
-import { GuestApi } from '@/api/guest.api'
-import { CreateGuest } from '@/api/models/Guest'
-import { CreateReservation, ReservationSource, ReservationStatus } from '@/api/models/Reservation'
+import { CreateReservation, ReservationSource } from '@/api/models/Reservation'
 import { Table } from '@/api/models/Table'
 import { ReservationApi } from '@/api/reservation.api'
 import { TableApi } from '@/api/table.api'
@@ -11,40 +9,31 @@ import {
   getLocalTimeZone,
   parseAbsoluteToLocal,
   parseDate,
-  ZonedDateTime,
 } from '@internationalized/date'
 import { Button } from '@nextui-org/button'
 import { Input, Textarea } from '@nextui-org/input'
 import { Modal, ModalBody, ModalContent, ModalFooter } from '@nextui-org/modal'
 import {
   DatePicker,
-  DateValue,
   Select,
   SelectItem,
-  Switch,
   TimeInput,
-  Tooltip,
-  Selection,
 } from '@nextui-org/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import Joi from 'joi'
 import {
   Calendar,
-  Check,
-  DoorOpen,
   FileText,
   Mail,
   Pencil,
   Phone,
   Plus,
-  Table as TableIcon,
   User,
   Users,
   X,
 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { useDateFormatter } from '@react-aria/i18n'
 import { reservationSources } from './data'
 
 type Props = {
@@ -57,7 +46,7 @@ type Props = {
 }
 
 const reservationSchema = Joi.object({
-  tableId: Joi.string().required(),
+  tableId: Joi.string().optional().allow(''),
   guestName: Joi.string().required(),
   guestEmail: Joi.string().optional().email({ tlds: false }).allow(''),
   guestPhone: Joi.string().required(),
@@ -92,8 +81,6 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
     },
   })
 
-  console.log(errors)
-
   const onSubmit = (data: CreateReservation) => {
     createReservation(data)
   }
@@ -101,8 +88,6 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
   const {
     data: tables,
     isLoading,
-    isError,
-    error,
   } = useQuery<Table[], ServerError>({
     queryKey: ['tables', entityId],
     queryFn: async () => {
@@ -229,7 +214,6 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
                 className="max-w-xs"
                 isLoading={isLoading}
                 isDisabled={isLoading}
-                defaultSelectedKeys={[selectItems[0]?.key]}
                 {...register('tableId')}
                 errorMessage={errors.tableId?.message}
                 isInvalid={!!errors.tableId}

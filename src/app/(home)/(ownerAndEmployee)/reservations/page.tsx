@@ -207,7 +207,7 @@ const page = () => {
         return (
           <div className="relative flex items-center gap-2">
             <UtensilsCrossed size={16} />
-            <h2>{reservation.table.tableNumber}</h2>
+            <h2>{reservation.table?.tableNumber ?? 'No Table'}</h2>
           </div>
         )
       case 'numberOfGuests':

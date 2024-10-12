@@ -5,8 +5,8 @@ import { CircleIcon } from "lucide-react"
 
 export interface Reservation {
   id: string
-  table: Table
-  tableId: string
+  table?: Table
+  tableId?: string
   guest: Guest
   guestId: string
   date: Date
@@ -38,7 +38,7 @@ export enum ReservationSource {
 }
 
 export interface CreateReservation {
-  tableId: string
+  tableId?: string
   guestName: string
   guestEmail?: string
   guestPhone: string
