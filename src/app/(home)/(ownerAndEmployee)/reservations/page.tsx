@@ -65,6 +65,7 @@ import { format } from 'date-fns'
 import { useForm } from 'react-hook-form'
 import Joi from 'joi'
 import { joiResolver } from '@hookform/resolvers/joi'
+import { reservationSources } from './_components/data'
 
 const page = () => {
   const router = useRouter()
@@ -222,6 +223,13 @@ const page = () => {
             <h2>{formatTime(reservation.startTime)}</h2>
           </div>
         )
+      case 'reservationSource':
+        return (
+          <div className="flex items-center gap-2">
+            {reservationSources.find((s) => s.key === reservation.source)?.icon}
+            <h2>{reservationSources.find((s) => s.key === reservation.source)?.label}</h2>
+          </div>
+        )
       case 'status':
         return (
           <Dropdown>
@@ -282,6 +290,10 @@ const page = () => {
     {
       key: 'guest',
       label: 'Guest',
+    },
+    {
+      key: 'reservationSource',
+      label: 'Source',
     },
     {
       key: 'numberOfGuests',

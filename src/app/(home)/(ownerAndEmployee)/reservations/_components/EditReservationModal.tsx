@@ -19,6 +19,7 @@ import Joi from 'joi'
 import { DoorOpen, FileText, Mail, Pencil, Phone, Plus, User, Users, X } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { reservationSources } from './data'
 
 type Props = {
   isOpen: boolean
@@ -33,7 +34,7 @@ const reservationSchema = Joi.object({
   startTime: Joi.date().required(),
   numberOfGuests: Joi.number().required(),
   note: Joi.string().optional().allow(''),
-  isWalkIn: Joi.boolean().required(),
+  source: Joi.string().required(),
 })
 
 const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId }: Props) => {
@@ -55,7 +56,7 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId }
       startTime: reservation?.startTime || new Date(),
       numberOfGuests: reservation?.numberOfGuests || 1,
       note: reservation?.note || '',
-      isWalkIn: reservation?.isWalkIn || false,
+      source: reservation?.source || reservationSources[0].key,
       tableId: reservation?.tableId || '',
     },
   })
@@ -105,7 +106,7 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId }
         startTime: reservation.startTime,
         numberOfGuests: reservation.numberOfGuests,
         note: reservation.note,
-        isWalkIn: reservation.isWalkIn,
+        source: reservation.source,
       })
     }
   }, [reservation, reset])
@@ -168,7 +169,7 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId }
                       label="Date"
                       labelPlacement="outside"
                       // @ts-expect-error because of the type
-                      value={parseDate((new Date(field.value)).toISOString().split('T')[0])}
+                      value={parseDate(new Date(field.value).toISOString().split('T')[0])}
                       onChange={(value) => {
                         field.onChange(value.toDate(getLocalTimeZone()))
                       }}
@@ -192,7 +193,7 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId }
                       hideTimeZone
                       labelPlacement="outside"
                       // @ts-expect-error because of the type
-                      value={parseAbsoluteToLocal((new Date(field.value)).toISOString())}
+                      value={parseAbsoluteToLocal(new Date(field.value).toISOString())}
                       onChange={(value) => {
                         field.onChange(value.toDate())
                       }}
@@ -243,36 +244,26 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId }
                   errorMessage={errors.numberOfGuests?.message}
                   isInvalid={!!errors.numberOfGuests}
                 />
-                <Controller
-                  control={control}
-                  name="isWalkIn"
-                  render={({ field }) => {
-                    return (
-                      <Tooltip
-                        content={field.value ? 'Is Walk-In' : 'Is Not Walk-In'}
-                        placement="right-end"
-                        offset={50}
-                      >
-                        <Switch
-                          isSelected={field.value}
-                          onChange={(checked) => {
-                            field.onChange(checked)
-                          }}
-                          isDisabled={isSubmitting}
-                          size="lg"
-                          color="success"
-                          thumbIcon={({ isSelected, className }) =>
-                            isSelected ? (
-                              <DoorOpen size={16} strokeWidth={1.5} />
-                            ) : (
-                              <Phone size={16} strokeWidth={1.5} />
-                            )
-                          }
-                        ></Switch>
-                      </Tooltip>
-                    )
-                  }}
-                />
+                <Select
+                  variant="bordered"
+                  size="md"
+                  radius="sm"
+                  labelPlacement="outside"
+                  className="w-full"
+                  isLoading={isLoading}
+                  isDisabled={isLoading}
+                  defaultSelectedKeys={[reservationSources.find((s) => s.key === reservation?.source)?.key ?? reservationSources[0].key]}
+                  {...register('source')}
+                  errorMessage={errors.source?.message}
+                  isInvalid={!!errors.source}
+                  disallowEmptySelection
+                >
+                  {reservationSources.map((source) => (
+                    <SelectItem key={source.key} startContent={source.icon}>
+                      {source.label}
+                    </SelectItem>
+                  ))}
+                </Select>
               </div>
             </div>
           </ModalBody>

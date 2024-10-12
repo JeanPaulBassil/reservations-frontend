@@ -1,6 +1,6 @@
 import { GuestApi } from '@/api/guest.api'
 import { CreateGuest } from '@/api/models/Guest'
-import { CreateReservation } from '@/api/models/Reservation'
+import { CreateReservation, ReservationSource } from '@/api/models/Reservation'
 import { Table } from '@/api/models/Table'
 import { ReservationApi } from '@/api/reservation.api'
 import { TableApi } from '@/api/table.api'
@@ -45,6 +45,7 @@ import {
 import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useDateFormatter } from '@react-aria/i18n'
+import { reservationSources } from './data'
 
 type Props = {
   isOpen: boolean
@@ -63,7 +64,7 @@ const reservationSchema = Joi.object({
   startTime: Joi.date().required(),
   numberOfGuests: Joi.number().required(),
   note: Joi.string().optional().allow(''),
-  isWalkIn: Joi.boolean().required(),
+  source: Joi.string().required(),
 })
 
 const AddReservationModal = ({ isOpen, onClose, entityId }: Props) => {
@@ -78,18 +79,17 @@ const AddReservationModal = ({ isOpen, onClose, entityId }: Props) => {
     formState: { errors, isSubmitting },
     reset,
     control,
-    getValues,
-    setValue,
-    watch,
   } = useForm<CreateReservation>({
     resolver: joiResolver(reservationSchema),
     defaultValues: {
       entityId,
       date: new Date(),
       startTime: new Date(),
-      isWalkIn: false,
+      source: ReservationSource.WALK_IN,
     },
   })
+
+  console.log(errors)
 
   const onSubmit = (data: CreateReservation) => {
     createReservation(data)
@@ -295,7 +295,7 @@ const AddReservationModal = ({ isOpen, onClose, entityId }: Props) => {
                 errorMessage={errors.note?.message}
                 isInvalid={!!errors.note}
               />
-              <div className="flex w-full flex-col gap-2">
+              <div className="flex w-full flex-col gap-1">
                 <Input
                   placeholder="Number of Guests"
                   startContent={<Users />}
@@ -307,36 +307,26 @@ const AddReservationModal = ({ isOpen, onClose, entityId }: Props) => {
                   errorMessage={errors.numberOfGuests?.message}
                   isInvalid={!!errors.numberOfGuests}
                 />
-                <Controller
-                  control={control}
-                  name="isWalkIn"
-                  render={({ field }) => {
-                    return (
-                      <Tooltip
-                        content={field.value ? 'Is Walk-In' : 'Is Not Walk-In'}
-                        placement="right-end"
-                        offset={50}
-                      >
-                        <Switch
-                          isSelected={field.value}
-                          onChange={(checked) => {
-                            field.onChange(checked)
-                          }}
-                          isDisabled={isSubmitting}
-                          size="lg"
-                          color="success"
-                          thumbIcon={({ isSelected, className }) =>
-                            isSelected ? (
-                              <DoorOpen size={16} strokeWidth={1.5} />
-                            ) : (
-                              <Phone size={16} strokeWidth={1.5} />
-                            )
-                          }
-                        ></Switch>
-                      </Tooltip>
-                    )
-                  }}
-                />
+                <Select
+                  variant="bordered"
+                  size="md"
+                  radius="sm"
+                  labelPlacement="outside"
+                  className="max-w-xs"
+                  isLoading={isLoading}
+                  isDisabled={isLoading}
+                  defaultSelectedKeys={[reservationSources[0].key]}
+                  {...register('source')}
+                  errorMessage={errors.source?.message}
+                  isInvalid={!!errors.source}
+                  disallowEmptySelection
+                >
+                  {reservationSources.map((source) => (
+                    <SelectItem key={source.key} startContent={source.icon}>
+                      {source.label}
+                    </SelectItem>
+                  ))}
+                </Select>
               </div>
             </div>
           </ModalBody>

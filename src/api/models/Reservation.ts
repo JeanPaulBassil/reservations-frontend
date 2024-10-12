@@ -13,7 +13,7 @@ export interface Reservation {
   startTime: Date
   numberOfGuests: number
   note?: string
-  isWalkIn: boolean
+  source: ReservationSource
   status: ReservationStatus
   createdAt: Date
   updatedAt: Date
@@ -31,6 +31,12 @@ export enum ReservationStatus {
   WAITLISTED = 'WAITLISTED',
 }
 
+export enum ReservationSource {
+  WALK_IN = 'WALK_IN',
+  PHONE = 'PHONE',
+  OTHER = 'OTHER',
+}
+
 export interface CreateReservation {
   tableId: string
   guestName: string
@@ -42,7 +48,7 @@ export interface CreateReservation {
   startTime: Date
   numberOfGuests: number
   note?: string
-  isWalkIn: boolean
+  source: ReservationSource
 }
 
 export interface UpdateReservation {
@@ -53,6 +59,6 @@ export interface UpdateReservation {
   startTime?: Date
   numberOfGuests?: number
   note?: string
-  isWalkIn?: boolean
+  source?: ReservationSource
   status?: ReservationStatus
 }
