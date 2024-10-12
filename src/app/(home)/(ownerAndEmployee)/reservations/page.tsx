@@ -77,9 +77,11 @@ const page = () => {
   const { user } = useUser()
   const { selectedEntityId } = useEntity()
   const { get: getQueries, set: setQueries } = useOrderedQueries<{
-    status?: ReservationStatus
-  }>({})
-
+    status: string
+  }>({
+    status: '',
+  })
+  
   const {
     isOpen: isOpenCreateModal,
     onOpen: onOpenCreateModal,
@@ -111,6 +113,21 @@ const page = () => {
     },
     onError: (error) => {
       toast.error(error.message)
+    },
+    onMutate: async ({ reservationId, status }) => {
+      await queryClient.cancelQueries({
+        queryKey: ['reservations', selectedEntityId, getQueries()],
+      })
+      const previousReservations = queryClient.getQueryData<Reservation[]>([
+        'reservations',
+        selectedEntityId,
+      ]) as Reservation[]
+      queryClient.setQueryData(
+        ['reservations', selectedEntityId, getQueries()],
+        previousReservations.map((c) => (c.id === reservationId ? { ...c, status } : c))
+      )
+
+      return { previousReservations }
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['reservations', selectedEntityId, getQueries()] })

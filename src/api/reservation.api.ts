@@ -24,11 +24,17 @@ export class ReservationApi extends AbstractApi<Reservation> {
     return response
   }
 
-  public async getReservations(entityId: string, queries: { status?: ReservationStatus }): Promise<ApiResponse<Reservation[]>> {
+  public async getReservations(entityId: string, queries: { status?: string }): Promise<ApiResponse<Reservation[]>> {
+    const queriesCopy = { ...queries }
+
+    if (queriesCopy.status === 'ALL') {
+      delete queriesCopy.status
+    }
+
     const response = (await this.doFetch({
       queries: {
         entityId,
-        ...queries,
+        ...queriesCopy,
       },
       requestOptions: {
         method: 'GET',

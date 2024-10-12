@@ -52,7 +52,7 @@ type Props = {
   onClose: () => void
   entityId: string
   queries: {
-    status?: ReservationStatus
+    status?: string
   }
 }
 

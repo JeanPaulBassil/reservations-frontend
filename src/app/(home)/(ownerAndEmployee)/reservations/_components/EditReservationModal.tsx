@@ -27,7 +27,7 @@ type Props = {
   reservation: Reservation
   selectedEntityId: string
   queries: {
-    status?: ReservationStatus
+    status?: string
   }
 }
 
