@@ -76,6 +76,9 @@ const page = () => {
   const [reservation, setReservation] = useState<Reservation | null>(null)
   const { user } = useUser()
   const { selectedEntityId } = useEntity()
+  const { get: getQueries, set: setQueries } = useOrderedQueries<{
+    status?: ReservationStatus
+  }>({})
 
   const {
     isOpen: isOpenCreateModal,
@@ -90,15 +93,19 @@ const page = () => {
   } = useDisclosure()
 
   const { data: reservations, isLoading } = useQuery<Reservation[], ServerError>({
-    queryKey: ['reservations', selectedEntityId],
+    queryKey: ['reservations', selectedEntityId, getQueries()],
     queryFn: async () => {
-      const response = await reservationApi.getReservations(selectedEntityId ?? '')
+      const response = await reservationApi.getReservations(selectedEntityId ?? '', getQueries())
       return response.payload
     },
     enabled: !!selectedEntityId,
   })
 
-  const { mutate: updateReservationStatus } = useMutation<void, ServerError, { reservationId: string, status: ReservationStatus }>({
+  const { mutate: updateReservationStatus } = useMutation<
+    void,
+    ServerError,
+    { reservationId: string; status: ReservationStatus }
+  >({
     mutationFn: async ({ reservationId, status }) => {
       await reservationApi.update({ status }, reservationId)
     },
@@ -107,23 +114,21 @@ const page = () => {
     },
     onMutate: async ({ reservationId, status }) => {
       await queryClient.cancelQueries({
-        queryKey: ['reservations', selectedEntityId],
+        queryKey: ['reservations', selectedEntityId, getQueries()],
       })
       const previousReservations = queryClient.getQueryData<Reservation[]>([
         'reservations',
         selectedEntityId,
       ]) as Reservation[]
       queryClient.setQueryData(
-        ['reservations', selectedEntityId],
-        previousReservations.map((c) =>
-          c.id === reservationId ? { ...c, status } : c
-        )
+        ['reservations', selectedEntityId, getQueries()],
+        previousReservations.map((c) => (c.id === reservationId ? { ...c, status } : c))
       )
 
       return { previousReservations }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['reservations', selectedEntityId] })
+      queryClient.invalidateQueries({ queryKey: ['reservations', selectedEntityId, getQueries()] })
     },
   })
 
@@ -232,11 +237,11 @@ const page = () => {
         )
       case 'status':
         return (
-          <Dropdown>
+          <Dropdown closeOnSelect>
             <DropdownTrigger key={reservation.id}>
               <Button
                 radius="sm"
-                color='default'
+                color="default"
                 variant="light"
                 startContent={reservationStatuses.find((s) => s.key === reservation?.status)?.icon}
                 isIconOnly
@@ -248,10 +253,7 @@ const page = () => {
               onAction={(key) => onUpdateStatus(key as ReservationStatus, reservation.id)}
             >
               {(status) => (
-                <DropdownItem
-                  startContent={status.icon}
-                  key={status.key}
-                >
+                <DropdownItem startContent={status.icon} key={status.key}>
                   {status.label}
                 </DropdownItem>
               )}
@@ -309,6 +311,11 @@ const page = () => {
     },
   ]
 
+  const reservationStatusFilterValues = [
+    { key: 'all', label: 'All', icon: <List size={16} color="blue" />, color: 'bg-blue-100' },
+    ...reservationStatuses,
+  ]
+
   return (
     <div className="h-screen">
       <EditReservationModal
@@ -316,11 +323,13 @@ const page = () => {
         onClose={onCloseEditModal}
         reservation={reservation as Reservation}
         selectedEntityId={selectedEntityId ?? ''}
+        queries={getQueries()}
       />
       <AddReservationModal
         isOpen={isOpenCreateModal}
         onClose={onCloseCreateModal}
         entityId={selectedEntityId ?? ''}
+        queries={getQueries()}
       />
       <Widget className="border-2 border-gray-200 px-4 py-2">
         <div className="flex items-center justify-between">
@@ -353,9 +362,42 @@ const page = () => {
       </Widget>
       <Spacer y={2} />
       <Widget className="flex h-[calc(100vh-6rem)] flex-col border-2 border-gray-200 px-5 pt-4">
-        {!reservations ? (
+        <div className="flex items-center justify-end">
+          <Select
+            defaultSelectedKeys={[getQueries().status ?? reservationStatusFilterValues[0].key]}
+            variant="bordered"
+            size="sm"
+            radius="sm"
+            className="max-w-[200px]"
+            labelPlacement="outside"
+            label="Filter by Status"
+            onSelectionChange={(key) =>
+              setQueries({
+                ...getQueries(),
+                // @ts-expect-error Selection type is not typed
+                status: key.anchorKey === 'all' ? undefined : (key.anchorKey as ReservationStatus),
+              })
+            }
+            startContent={
+              reservationStatusFilterValues.find((s) => s.key === getQueries().status)?.icon ?? (
+                <List size={16} color="blue" />
+              )
+            }
+          >
+            {reservationStatusFilterValues.map((status) => (
+              <SelectItem key={status.key} startContent={status.icon}>
+                {status.label}
+              </SelectItem>
+            ))}
+          </Select>
+        </div>
+        {!reservations && !isLoading ? (
           <div className="flex h-[calc(100vh-6rem)] w-full items-center justify-center">
             <h2>Error fetching reservations, please contact support</h2>
+          </div>
+        ) : isLoading ? (
+          <div className="flex h-[calc(100vh-6rem)] w-full items-center justify-center">
+            <Spinner color="success" />
           </div>
         ) : (
           <Table

@@ -1,7 +1,7 @@
 import { Company, CreateCompany } from './models/Company'
 import { CreateEntity, Entity, UpdateEntity } from './models/Entity'
 import { CreateGuest, Guest, UpdateGuest } from './models/Guest'
-import { CreateReservation, Reservation, UpdateReservation } from './models/Reservation'
+import { CreateReservation, Reservation, ReservationStatus, UpdateReservation } from './models/Reservation'
 import { Tokens } from './models/Tokens'
 import { CreateUser, User } from './models/User'
 import { ApiResponse } from './utils'
@@ -24,10 +24,11 @@ export class ReservationApi extends AbstractApi<Reservation> {
     return response
   }
 
-  public async getReservations(entityId: string): Promise<ApiResponse<Reservation[]>> {
+  public async getReservations(entityId: string, queries: { status?: ReservationStatus }): Promise<ApiResponse<Reservation[]>> {
     const response = (await this.doFetch({
       queries: {
         entityId,
+        ...queries,
       },
       requestOptions: {
         method: 'GET',

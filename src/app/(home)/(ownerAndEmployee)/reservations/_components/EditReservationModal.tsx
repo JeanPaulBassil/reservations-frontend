@@ -2,7 +2,7 @@ import { EntityApi } from '@/api/entity.api'
 import { GuestApi } from '@/api/guest.api'
 import { CreateEntity, Entity, UpdateEntity } from '@/api/models/Entity'
 import { Guest, UpdateGuest } from '@/api/models/Guest'
-import { Reservation, UpdateReservation } from '@/api/models/Reservation'
+import { Reservation, ReservationStatus, UpdateReservation } from '@/api/models/Reservation'
 import { Table } from '@/api/models/Table'
 import { ReservationApi } from '@/api/reservation.api'
 import { TableApi } from '@/api/table.api'
@@ -26,6 +26,9 @@ type Props = {
   onClose: () => void
   reservation: Reservation
   selectedEntityId: string
+  queries: {
+    status?: ReservationStatus
+  }
 }
 
 const reservationSchema = Joi.object({
@@ -37,7 +40,7 @@ const reservationSchema = Joi.object({
   source: Joi.string().required(),
 })
 
-const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId }: Props) => {
+const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId, queries }: Props) => {
   const toast = useToast()
   const queryClient = useQueryClient()
   const tableApi = new TableApi()
@@ -61,8 +64,6 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId }
     },
   })
 
-  console.log('errors', errors)
-
   const onSubmit = (data: UpdateReservation) => {
     updateReservation(data)
   }
@@ -79,7 +80,7 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId }
       toast.error(error.message)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['reservations', selectedEntityId] })
+      queryClient.invalidateQueries({ queryKey: ['reservations', selectedEntityId, queries] })
       reset()
       onClose()
     },

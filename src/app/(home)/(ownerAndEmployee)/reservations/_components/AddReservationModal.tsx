@@ -1,6 +1,6 @@
 import { GuestApi } from '@/api/guest.api'
 import { CreateGuest } from '@/api/models/Guest'
-import { CreateReservation, ReservationSource } from '@/api/models/Reservation'
+import { CreateReservation, ReservationSource, ReservationStatus } from '@/api/models/Reservation'
 import { Table } from '@/api/models/Table'
 import { ReservationApi } from '@/api/reservation.api'
 import { TableApi } from '@/api/table.api'
@@ -51,6 +51,9 @@ type Props = {
   isOpen: boolean
   onClose: () => void
   entityId: string
+  queries: {
+    status?: ReservationStatus
+  }
 }
 
 const reservationSchema = Joi.object({
@@ -67,7 +70,7 @@ const reservationSchema = Joi.object({
   source: Joi.string().required(),
 })
 
-const AddReservationModal = ({ isOpen, onClose, entityId }: Props) => {
+const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
   const toast = useToast()
   const queryClient = useQueryClient()
   const tableApi = new TableApi()
@@ -112,8 +115,7 @@ const AddReservationModal = ({ isOpen, onClose, entityId }: Props) => {
     mutationFn: (data: CreateReservation) => {
       const reservationApi = new ReservationApi()
       data.entityId = entityId
-      console.log('etityId', data.entityId)
-      return reservationApi.create({ ...data })
+      return reservationApi.create({ ...data, ...queries })
     },
     onSuccess: () => {
       onClose()
@@ -124,7 +126,7 @@ const AddReservationModal = ({ isOpen, onClose, entityId }: Props) => {
       toast.error(error.message)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['reservations', entityId] })
+      queryClient.invalidateQueries({ queryKey: ['reservations', entityId, queries] })
     },
   })
 
