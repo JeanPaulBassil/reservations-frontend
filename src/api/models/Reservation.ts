@@ -1,4 +1,4 @@
-import { DateValue } from "@nextui-org/react"
+import { CalendarDate, DateValue } from "@nextui-org/react"
 import { Guest } from "./Guest"
 import { Table } from "./Table"
 import { CircleIcon } from "lucide-react"
@@ -61,4 +61,9 @@ export interface UpdateReservation {
   note?: string
   source?: ReservationSource
   status?: ReservationStatus
+}
+
+export interface ReservationQuery {
+  status?: ReservationStatus
+  date: CalendarDate
 }

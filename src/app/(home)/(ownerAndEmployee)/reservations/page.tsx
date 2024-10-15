@@ -1,37 +1,31 @@
 'use client'
 import Widget from '@/app/_components/shared/Widget'
 import { useSidebarContext } from '@/app/contexts/SidebarContext'
-import { Button } from '@nextui-org/button'
+import { Button, ButtonGroup } from '@nextui-org/button'
 import { useDisclosure } from '@nextui-org/modal'
 import {
   Ban,
   Calendar,
-  CircleIcon,
+  ChevronLeft,
+  ChevronRight,
   Clock,
-  DeleteIcon,
-  EditIcon,
-  EyeIcon,
   Hand,
   Hourglass,
   List,
-  PencilIcon,
   Plus,
-  Search,
   Sidebar,
   Trash,
-  TrashIcon,
   Users,
   UtensilsCrossed,
   X,
 } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import {
+  DatePicker,
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
-  getKeyValue,
-  Input,
   Select,
   SelectItem,
   Spacer,
@@ -42,30 +36,23 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-  Tooltip,
   User,
 } from '@nextui-org/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ServerError } from '@/api/utils'
 import { useUser } from '@/app/providers/SessionProvider'
 import useOrderedQueries from '@/hooks/useQueries'
-import useDebouncedCallback from '@/hooks/useDebounceCallback'
 import { useEntity } from '@/app/contexts/EntityContext'
-import { GuestApi } from '@/api/guest.api'
-import { Guest } from '@/api/models/Guest'
-import AddGuestModal from './_components/AddReservationModal'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/app/contexts/ToastContext'
-import EditGuestModal from './_components/EditReservationModal'
 import { ReservationApi } from '@/api/reservation.api'
-import { Reservation, ReservationStatus } from '@/api/models/Reservation'
+import { Reservation, ReservationQuery, ReservationStatus } from '@/api/models/Reservation'
 import EditReservationModal from './_components/EditReservationModal'
 import AddReservationModal from './_components/AddReservationModal'
 import { format } from 'date-fns'
-import { useForm } from 'react-hook-form'
-import Joi from 'joi'
-import { joiResolver } from '@hookform/resolvers/joi'
 import { reservationSources } from './_components/data'
+import { parseDate, getLocalTimeZone } from '@internationalized/date'
+import { useDateFormatter } from '@react-aria/i18n'
 
 const page = () => {
   const router = useRouter()
@@ -76,11 +63,11 @@ const page = () => {
   const [reservation, setReservation] = useState<Reservation | null>(null)
   const { user } = useUser()
   const { selectedEntityId } = useEntity()
-  const { get: getQueries, set: setQueries } = useOrderedQueries<{
-    status: string
-  }>({
-    status: '',
+  const { get: getQueries, set: setQueries } = useOrderedQueries<ReservationQuery>({
+    date: parseDate(new Date().toLocaleDateString('en-CA')),
   })
+
+  let formatter = useDateFormatter({ dateStyle: 'full' })
 
   const {
     isOpen: isOpenCreateModal,
@@ -202,7 +189,15 @@ const page = () => {
     const cellValue = reservation[columnKey as keyof Reservation]
     switch (columnKey) {
       case 'guest':
-        return <User name={reservation.guest.name} description={reservation.guest.phone} />
+        return (
+          <User
+            name={reservation.guest.name}
+            description={reservation.guest.phone}
+            avatarProps={{
+              className: 'hidden',
+            }}
+          />
+        )
       case 'table':
         return (
           <div className="relative flex items-center gap-2">
@@ -217,13 +212,6 @@ const page = () => {
             <h2>{reservation.numberOfGuests}</h2>
           </div>
         )
-      case 'date':
-        return (
-          <div className="relative flex items-center gap-2">
-            <Calendar size={16} />
-            <h2>{formatDate(reservation.date)}</h2>
-          </div>
-        )
       case 'time':
         return (
           <div className="relative flex items-center gap-2">
@@ -235,7 +223,6 @@ const page = () => {
         return (
           <div className="flex items-center gap-2">
             {reservationSources.find((s) => s.key === reservation.source)?.icon}
-            <h2>{reservationSources.find((s) => s.key === reservation.source)?.label}</h2>
           </div>
         )
       case 'status':
@@ -285,10 +272,6 @@ const page = () => {
 
   const columns = [
     {
-      key: 'date',
-      label: 'Date',
-    },
-    {
       key: 'time',
       label: 'Time',
     },
@@ -297,16 +280,16 @@ const page = () => {
       label: 'Guest',
     },
     {
-      key: 'reservationSource',
-      label: 'Source',
-    },
-    {
       key: 'numberOfGuests',
       label: 'Number of Guests',
     },
     {
       key: 'table',
       label: 'Table',
+    },
+    {
+      key: 'reservationSource',
+      label: 'Source',
     },
     {
       key: 'status',
@@ -365,15 +348,97 @@ const page = () => {
       </Widget>
       <Spacer y={2} />
       <Widget className="flex h-[calc(100vh-6rem)] flex-col border-2 border-gray-200 px-5 pt-4">
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-end gap-2">
+          <div className="flex items-center gap-2">
+            <ButtonGroup>
+              <Button
+                variant="light"
+                size="sm"
+                radius="sm"
+                startContent={<ChevronLeft size={16} />}
+                onClick={() =>
+                  setQueries({
+                    ...getQueries(),
+                    date: parseDate(
+                      new Date(
+                        getQueries()
+                          // @ts-expect-error Date is not typed
+                          .date.toDate()
+                          // @ts-expect-error Date is not typed
+                          .setDate(getQueries().date.toDate().getDate() - 1)
+                      ).toLocaleDateString('en-CA')
+                    ),
+                  })
+                }
+                isIconOnly
+              ></Button>
+              <Button
+                variant="light"
+                size="sm"
+                radius="sm"
+                startContent={<Calendar size={16} />}
+                onClick={() =>
+                  setQueries({
+                    ...getQueries(),
+                    date: parseDate(
+                      new Date(
+                        getQueries()
+                          // @ts-expect-error Date is not typed
+                          .date.toDate()
+                          .setDate(new Date().getDate())
+                      ).toLocaleDateString('en-CA')
+                    ),
+                  })
+                }
+              >
+                Today
+              </Button>
+              <Button
+                variant="light"
+                size="sm"
+                radius="sm"
+                startContent={<ChevronRight size={16} />}
+                onClick={() =>
+                  setQueries({
+                    ...getQueries(),
+                    date: parseDate(
+                      new Date(
+                        getQueries()
+                          // @ts-expect-error Date is not typed
+                          .date.toDate()
+                          // @ts-expect-error Date is not typed
+                          .setDate(getQueries().date.toDate().getDate() + 1)
+                      ).toLocaleDateString('en-CA')
+                    ),
+                  })
+                }
+                isIconOnly
+              />
+            </ButtonGroup>
+            <DatePicker
+              className="max-w-[200px]"
+              variant="bordered"
+              size="sm"
+              radius="sm"
+              showMonthAndYearPickers
+              value={getQueries().date}
+              onChange={(date) =>
+                setQueries({
+                  ...getQueries(),
+                  date: date,
+                })
+              }
+            />
+          </div>
           <Select
-            defaultSelectedKeys={[getQueries().status ? getQueries().status : reservationStatusFilterValues[0].key]}
+            // @ts-expect-error Selection type is not typed
+            defaultSelectedKeys={[
+              getQueries().status ? getQueries().status : reservationStatusFilterValues[0].key,
+            ]}
             variant="bordered"
             size="sm"
             radius="sm"
             className="max-w-[200px]"
-            labelPlacement="outside"
-            label="Filter by Status"
             onSelectionChange={(key) =>
               setQueries({
                 ...getQueries(),
@@ -394,6 +459,7 @@ const page = () => {
             ))}
           </Select>
         </div>
+
         {!reservations && !isLoading ? (
           <div className="flex h-[calc(100vh-6rem)] w-full items-center justify-center">
             <h2>Error fetching reservations, please contact support</h2>
