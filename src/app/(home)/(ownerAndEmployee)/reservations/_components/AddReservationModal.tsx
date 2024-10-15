@@ -1,4 +1,4 @@
-import { CreateReservation, ReservationSource } from '@/api/models/Reservation'
+import { CreateReservation, ReservationQuery, ReservationSource } from '@/api/models/Reservation'
 import { Table } from '@/api/models/Table'
 import { ReservationApi } from '@/api/reservation.api'
 import { TableApi } from '@/api/table.api'
@@ -40,9 +40,7 @@ type Props = {
   isOpen: boolean
   onClose: () => void
   entityId: string
-  queries: {
-    status?: string
-  }
+  queries: ReservationQuery
 }
 
 const reservationSchema = Joi.object({
@@ -100,7 +98,7 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
     mutationFn: (data: CreateReservation) => {
       const reservationApi = new ReservationApi()
       data.entityId = entityId
-      return reservationApi.create({ ...data, ...queries })
+      return reservationApi.create(data)
     },
     onSuccess: () => {
       onClose()

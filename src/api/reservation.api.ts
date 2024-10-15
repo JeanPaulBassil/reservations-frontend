@@ -1,9 +1,5 @@
-import { Company, CreateCompany } from './models/Company'
-import { CreateEntity, Entity, UpdateEntity } from './models/Entity'
-import { CreateGuest, Guest, UpdateGuest } from './models/Guest'
-import { CreateReservation, Reservation, ReservationQuery, ReservationStatus, UpdateReservation } from './models/Reservation'
-import { Tokens } from './models/Tokens'
-import { CreateUser, User } from './models/User'
+import { CalendarDate } from '@internationalized/date'
+import { CreateReservation, Reservation, ReservationQuery, UpdateReservation } from './models/Reservation'
 import { ApiResponse } from './utils'
 import { AbstractApi, ApiRequestParams } from './utils/AbstractApi'
 
@@ -14,10 +10,14 @@ export class ReservationApi extends AbstractApi<Reservation> {
   }
 
   async create(reservation: CreateReservation): Promise<ApiResponse<Reservation>> {
+    const reservationDate = reservation.date as unknown as CalendarDate
     const response = this.doFetch({
       requestOptions: {
         method: 'POST',
-        body: JSON.stringify(reservation),
+        body: JSON.stringify({
+          ...reservation,
+          date: new Date(reservationDate.toString()),
+        }),
       },
     }) as Promise<ApiResponse<Reservation>>
 

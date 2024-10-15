@@ -122,10 +122,6 @@ const page = () => {
     },
   })
 
-  const formatDate = (date: Date) => {
-    return format(date, 'MM/dd/yyyy')
-  }
-
   const formatTime = (date: Date) => {
     return format(date, 'hh:mm a')
   }
