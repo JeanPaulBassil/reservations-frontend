@@ -1,5 +1,6 @@
 import { CompanyApi } from '@/api/company.api'
 import { CreateCompany } from '@/api/models/Company'
+import { AddTableForm, Table } from '@/api/models/Table'
 import { CreateEmployee, CreateUser } from '@/api/models/User'
 import { TableApi } from '@/api/table.api'
 import { UserApi } from '@/api/user.api'
@@ -10,24 +11,22 @@ import { Input } from '@nextui-org/input'
 import { Modal, ModalBody, ModalContent, ModalFooter } from '@nextui-org/modal'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import Joi from 'joi'
-import { Eye, EyeOff, Icon, Lock, Plus, X } from 'lucide-react'
-import React, { useState } from 'react'
+import { Eye, EyeOff, Icon, Lock, Pen, Plus, X } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 type Props = {
   isOpen: boolean
   onClose: () => void
-  selectedEntityId: string
+  table?: Table
 }
 
-const tablesSchema = Joi.object({
-  numberOfTables: Joi.number().required(),
-  startNumber: Joi.number().required(),
+const tableSchema = Joi.object({
+  tableNumber: Joi.number().required(),
+  numberOfSeats: Joi.number().required(),
 })
 
-const AddMultipleTablesModal = ({ isOpen, onClose, selectedEntityId }: Props) => {
-  const [isVisible, setIsVisible] = useState(false)
-  const toggleVisibility = () => setIsVisible(!isVisible)
+const EditTableModal = ({ isOpen, onClose, table }: Props) => {
   const toast = useToast()
   const queryClient = useQueryClient()
 
@@ -36,31 +35,42 @@ const AddMultipleTablesModal = ({ isOpen, onClose, selectedEntityId }: Props) =>
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<{ numberOfTables: number; startNumber: number }>({
-    resolver: joiResolver(tablesSchema),
+  } = useForm<{ tableNumber: number; numberOfSeats: number }>({
+    resolver: joiResolver(tableSchema),
+    defaultValues: {
+      tableNumber: table?.tableNumber,
+      numberOfSeats: table?.numberOfSeats,
+    },
   })
 
-  const onSubmit = (data: { numberOfTables: number; startNumber: number }) => {
-    createEmployee(data)
+  const onSubmit = (data: AddTableForm) => {
+    updateTable(data)
   }
 
-  const { mutateAsync: createEmployee } = useMutation({
-    mutationFn: (data: { numberOfTables: number; startNumber: number }) => {
+  const { mutateAsync: updateTable } = useMutation({
+    mutationFn: (data: AddTableForm) => {
       const tableApi = new TableApi()
-      return tableApi.addMultipleTables(selectedEntityId, data.numberOfTables, data.startNumber)
+      return tableApi.updateTable(table?.id ?? '', data.numberOfSeats, data.tableNumber)
     },
     onSuccess: () => {
-      toast.success('Tables created successfully')
+      toast.success('Table updated successfully')
+      reset()
+      onClose()
     },
     onError: (error) => {
       toast.error(error.message)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['tables', selectedEntityId] })
-      reset()
-      onClose()
+      queryClient.invalidateQueries({ queryKey: ['tables', table?.entityId ?? ''] })
     },
   })
+
+  useEffect(() => {
+    reset({
+      tableNumber: table?.tableNumber,
+      numberOfSeats: table?.numberOfSeats,
+    })
+  }, [table])
 
   return (
     <Modal
@@ -79,9 +89,9 @@ const AddMultipleTablesModal = ({ isOpen, onClose, selectedEntityId }: Props) =>
           <div className="flex flex-row items-start justify-between">
             {/* Left */}
             <div className="flex flex-col space-y-2">
-              <h2 className="text-2xl font-normal">Add Multiple Tables</h2>
+              <h2 className="text-2xl font-normal">Edit Table</h2>
               <p className="text-small font-light text-gray-500 dark:text-gray-300">
-                Add multiple tables to the system
+                Edit a table to the system
               </p>
             </div>
             {/* Right */}
@@ -96,30 +106,30 @@ const AddMultipleTablesModal = ({ isOpen, onClose, selectedEntityId }: Props) =>
           {/* Modal Content */}
           <ModalBody className="my-4 flex flex-col items-start justify-center px-0">
             <Input
-              label="Number of Tables"
-              aria-label="Number of Tables"
-              placeholder="Enter the number of tables"
+              label="Table Number"
+              aria-label="Table Number"
+              placeholder="Enter the table number"
               variant="bordered"
               className="w-full"
               isRequired
               isDisabled={isSubmitting}
               radius="sm"
-              {...register('numberOfTables')}
-              errorMessage={errors.numberOfTables?.message}
-              isInvalid={!!errors.numberOfTables}
+              {...register('tableNumber')}
+              errorMessage={errors.tableNumber?.message}
+              isInvalid={!!errors.tableNumber}
             />
             <Input
-              label="Start Number"
-              aria-label="Start Number"
-              placeholder="Enter the start number"
+              label="Number of Seats"
+              aria-label="Number of Seats"
+              placeholder="Enter the number of seats"
               variant="bordered"
               className="w-full"
               isRequired
               isDisabled={isSubmitting}
               radius="sm"
-              {...register('startNumber')}
-              errorMessage={errors.startNumber?.message}
-              isInvalid={!!errors.startNumber}
+              {...register('numberOfSeats')}
+              errorMessage={errors.numberOfSeats?.message}
+              isInvalid={!!errors.numberOfSeats}
             />
           </ModalBody>
           <ModalFooter className="px-0">
@@ -132,11 +142,11 @@ const AddMultipleTablesModal = ({ isOpen, onClose, selectedEntityId }: Props) =>
               radius="sm"
               size="sm"
               className="bg-[#417D7A] text-white"
-              startContent={<Plus />}
+              startContent={<Pen />}
               isLoading={isSubmitting}
               type="submit"
             >
-              Add Tables
+              Edit Table
             </Button>
           </ModalFooter>
         </form>
@@ -145,4 +155,4 @@ const AddMultipleTablesModal = ({ isOpen, onClose, selectedEntityId }: Props) =>
   )
 }
 
-export default AddMultipleTablesModal
+export default EditTableModal

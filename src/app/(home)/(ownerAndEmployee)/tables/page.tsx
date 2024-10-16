@@ -11,10 +11,11 @@ import { Employee } from '@/api/models/User'
 import { ServerError } from '@/api/utils'
 import { useEntity } from '@/app/contexts/EntityContext'
 import EmployeeProfile from './_components/TableProfile'
-import AddEmployeeModal from './_components/AddMultipleTablesModal'
+import AddEmployeeModal from './_components/AddTableModal'
 import { Table } from '@/api/models/Table'
 import { TableApi } from '@/api/table.api'
 import TableProfile from './_components/TableProfile'
+import AddTableModal from './_components/AddTableModal'
 
 const page = () => {
   const { onToggle } = useSidebarContext()
@@ -42,7 +43,7 @@ const page = () => {
 
   return (
     <div className="h-screen">
-      <AddEmployeeModal
+      <AddTableModal
         isOpen={isOpenCreateModal}
         onClose={onCloseCreateModal}
         selectedEntityId={selectedEntityId ?? ''}
@@ -79,8 +80,8 @@ const page = () => {
         </div>
       </Widget>
       <Spacer y={2} />
-      <Widget className="flex h-[calc(100vh-6rem)] flex-col border-2 border-gray-200 px-5 pt-4">
-        <div className="flex flex-wrap gap-4">
+      <Widget className="flex h-[calc(100vh-6rem)] overflow-y-auto flex-col border-2 border-gray-200 px-5">
+        <div className="flex flex-wrap gap-x-4 -gap-y-4">
           {isLoading ? (
             <div className="flex h-[calc(100vh-8rem)] w-full items-center justify-center">
               <Spinner color="success" />

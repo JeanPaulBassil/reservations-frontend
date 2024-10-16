@@ -8,10 +8,16 @@ export class TableApi extends AbstractApi<Table> {
     super('tables')
   }
 
-  async addTable(entityId: string): Promise<ApiResponse<Table>> {
+  async addTable(
+    entityId: string,
+    numberOfSeats: number,
+    tableNumber: number
+  ): Promise<ApiResponse<Table>> {
     const response = this.doFetch({
       queries: {
         entityId,
+        numberOfSeats: numberOfSeats.toString(),
+        tableNumber: tableNumber.toString(),
       },
       requestOptions: {
         method: 'POST',
@@ -21,21 +27,18 @@ export class TableApi extends AbstractApi<Table> {
     return response
   }
 
-  async addMultipleTables(
-    entityId: string,
-    numberOfTables: number,
-    startNumber: number,
-  ): Promise<ApiResponse<Table[]>> {
+  async updateTable(
+    id: string,
+    numberOfSeats: number,
+    tableNumber: number
+  ): Promise<ApiResponse<Table>> {
     const response = this.doFetch({
-      queries: {
-        entityId,
-        numberOfTables: numberOfTables.toString(),
-        startingTableNumber: startNumber.toString(),
-      },
       requestOptions: {
-        method: 'POST',
+        method: 'PUT',
+        body: JSON.stringify({ numberOfSeats, tableNumber }),
       },
-    }) as Promise<ApiResponse<Table[]>>
+      pathExtension: id,
+    }) as Promise<ApiResponse<Table>>
 
     return response
   }
