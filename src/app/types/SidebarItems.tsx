@@ -4,6 +4,13 @@ import { UserRole } from '@/api/models/User'
 
 export const sectionItems: SidebarItem[] = [
   {
+    key: 'reservations',
+    href: '/reservations',
+    icon: <Calendar strokeWidth={1} color="#ffffff" />,
+    title: 'Reservations',
+    allowedRoles: [UserRole.OWNER, UserRole.EMPLOYEE],
+  },
+  {
     key: 'companies',
     href: '/companies',
     icon: <Building strokeWidth={1} color="#ffffff" />,
@@ -36,13 +43,6 @@ export const sectionItems: SidebarItem[] = [
     href: '/tables',
     icon: <Table strokeWidth={1} color="#ffffff" />,
     title: 'Tables',
-    allowedRoles: [UserRole.OWNER, UserRole.EMPLOYEE],
-  },
-  {
-    key: 'reservations',
-    href: '/reservations',
-    icon: <Calendar strokeWidth={1} color="#ffffff" />,
-    title: 'Reservations',
     allowedRoles: [UserRole.OWNER, UserRole.EMPLOYEE],
   },
 ]
