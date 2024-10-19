@@ -22,6 +22,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import Joi from 'joi'
 import {
+  Armchair,
   Calendar,
   FileText,
   Mail,
@@ -141,9 +142,9 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
           <div className="flex flex-row items-start justify-between">
             {/* Left */}
             <div className="flex flex-col space-y-2">
-              <h2 className="text-2xl font-normal">Add Guest</h2>
+              <h2 className="text-2xl font-normal">Add Reservation</h2>
               <p className="text-small font-light text-gray-500 dark:text-gray-300">
-                Add a new guest to the system
+                Add a new reservation to the system
               </p>
             </div>
             {/* Right */}
@@ -157,6 +158,49 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
 
           {/* Modal Content */}
           <ModalBody className="my-4 flex flex-col items-start justify-center px-0">
+          <div className="flex w-full flex-row gap-2">
+              <Input
+                placeholder="Guest Name"
+                startContent={<User />}
+                variant="bordered"
+                className="w-full"
+                isRequired
+                labelPlacement="outside"
+                label="Guest Name"
+                isDisabled={isSubmitting}
+                radius="sm"
+                {...register('guestName')}
+                errorMessage={errors.guestName?.message}
+                isInvalid={!!errors.guestName}
+              />
+              <Input
+                placeholder="Guest Phone"
+                startContent={<Phone />}
+                variant="bordered"
+                className="w-full"
+                isRequired
+                labelPlacement="outside"
+                label="Guest Phone"
+                isDisabled={isSubmitting}
+                radius="sm"
+                {...register('guestPhone')}
+                errorMessage={errors.guestPhone?.message}
+                isInvalid={!!errors.guestPhone}
+              />
+              <Input
+                placeholder="Guest Email"
+                startContent={<Mail />}
+                variant="bordered"
+                className="w-full"
+                isDisabled={isSubmitting}
+                labelPlacement="outside"
+                label="Guest Email"
+                radius="sm"
+                {...register('guestEmail')}
+                errorMessage={errors.guestEmail?.message}
+                isInvalid={!!errors.guestEmail}
+              />
+            </div>
             <div className="flex w-full flex-row gap-2">
               <Controller
                 control={control}
@@ -168,8 +212,6 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
                       size="md"
                       radius="sm"
                       className="max-w-[284px]"
-                      label="Date"
-                      labelPlacement="outside"
                       value={parseDate(field.value.toISOString().split('T')[0])}
                       onChange={(value) => {
                         field.onChange(value.toDate(getLocalTimeZone()))
@@ -190,9 +232,7 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
                       size="md"
                       radius="sm"
                       className="max-w-[284px]"
-                      label="Time"
                       hideTimeZone
-                      labelPlacement="outside"
                       value={parseAbsoluteToLocal(field.value.toISOString())}
                       onChange={(value) => {
                         field.onChange(value.toDate())
@@ -207,55 +247,19 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
                 variant="bordered"
                 size="md"
                 radius="sm"
-                labelPlacement="outside"
-                label="Select a Table"
                 className="max-w-xs"
                 isLoading={isLoading}
                 isDisabled={isLoading}
                 {...register('tableId')}
                 errorMessage={errors.tableId?.message}
                 isInvalid={!!errors.tableId}
+                placeholder="Select a Table"
+                startContent={<Armchair />}
               >
                 {selectItems?.map((item) => <SelectItem key={item.key}>{item.label}</SelectItem>)}
               </Select>
             </div>
-            <div className="flex w-full flex-row gap-2">
-              <Input
-                placeholder="Guest Name"
-                startContent={<User />}
-                variant="bordered"
-                className="w-full"
-                isRequired
-                isDisabled={isSubmitting}
-                radius="sm"
-                {...register('guestName')}
-                errorMessage={errors.guestName?.message}
-                isInvalid={!!errors.guestName}
-              />
-              <Input
-                placeholder="Guest Phone"
-                startContent={<Phone />}
-                variant="bordered"
-                className="w-full"
-                isRequired
-                isDisabled={isSubmitting}
-                radius="sm"
-                {...register('guestPhone')}
-                errorMessage={errors.guestPhone?.message}
-                isInvalid={!!errors.guestPhone}
-              />
-              <Input
-                placeholder="Guest Email"
-                startContent={<Mail />}
-                variant="bordered"
-                className="w-full"
-                isDisabled={isSubmitting}
-                radius="sm"
-                {...register('guestEmail')}
-                errorMessage={errors.guestEmail?.message}
-                isInvalid={!!errors.guestEmail}
-              />
-            </div>
+            
             <div className="flex w-full flex-row gap-2">
               <Textarea
                 startContent={<Pencil />}
@@ -294,6 +298,7 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
                 <Select
                   variant="bordered"
                   size="md"
+                  placeholder="Select a Source"
                   radius="sm"
                   labelPlacement="outside"
                   className="max-w-xs"

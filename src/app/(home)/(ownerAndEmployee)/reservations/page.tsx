@@ -4,6 +4,7 @@ import { useSidebarContext } from '@/app/contexts/SidebarContext'
 import { Button, ButtonGroup } from '@nextui-org/button'
 import { useDisclosure } from '@nextui-org/modal'
 import {
+  Armchair,
   Ban,
   Calendar,
   ChevronLeft,
@@ -140,7 +141,7 @@ const page = () => {
     {
       key: ReservationStatus.SEATED,
       label: 'Seated',
-      icon: <UtensilsCrossed size={16} color="green" />,
+      icon: <Armchair size={16} color="green" />,
       color: 'bg-green-100',
     },
     {
