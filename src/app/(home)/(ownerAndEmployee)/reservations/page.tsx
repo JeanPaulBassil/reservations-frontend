@@ -20,8 +20,9 @@ import {
   UtensilsCrossed,
   X,
 } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import {
+  Chip,
   DatePicker,
   Dropdown,
   DropdownItem,
@@ -90,6 +91,22 @@ const page = () => {
     },
     enabled: !!selectedEntityId,
   })
+
+  const numberOfGuests = useMemo(
+    () =>
+      reservations?.reduce((acc, reservation) => {
+        return acc + reservation.numberOfGuests
+      }, 0),
+    [reservations]
+  )
+
+  const numberOfTables = useMemo(
+    () =>
+      reservations?.reduce((acc, reservation) => {
+        return acc + (reservation.table?.id ? 1 : 0)
+      }, 0),
+    [reservations]
+  )
 
   const { mutate: updateReservationStatus } = useMutation<
     void,
@@ -345,116 +362,126 @@ const page = () => {
       </Widget>
       <Spacer y={2} />
       <Widget className="flex h-[calc(100vh-6rem)] flex-col border-2 border-gray-200 px-5 pt-4">
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <ButtonGroup>
-              <Button
-                variant="light"
+            <Chip variant="bordered" startContent={<Users size={16} />}>
+              {numberOfGuests} guests
+            </Chip>
+            <Chip variant="bordered" startContent={<UtensilsCrossed size={16} />}>
+              {numberOfTables} tables
+            </Chip>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
+              <ButtonGroup>
+                <Button
+                  variant="light"
+                  size="sm"
+                  radius="sm"
+                  startContent={<ChevronLeft size={16} />}
+                  onClick={() =>
+                    setQueries({
+                      ...getQueries(),
+                      date: parseDate(
+                        new Date(
+                          getQueries()
+                            // @ts-expect-error Date is not typed
+                            .date.toDate()
+                            // @ts-expect-error Date is not typed
+                            .setDate(getQueries().date.toDate().getDate() - 1)
+                        ).toLocaleDateString('en-CA')
+                      ),
+                    })
+                  }
+                  isIconOnly
+                ></Button>
+                <Button
+                  variant="light"
+                  size="sm"
+                  radius="sm"
+                  startContent={<Calendar size={16} />}
+                  onClick={() =>
+                    setQueries({
+                      ...getQueries(),
+                      date: parseDate(
+                        new Date(
+                          getQueries()
+                            // @ts-expect-error Date is not typed
+                            .date.toDate()
+                            .setDate(new Date().getDate())
+                        ).toLocaleDateString('en-CA')
+                      ),
+                    })
+                  }
+                >
+                  Today
+                </Button>
+                <Button
+                  variant="light"
+                  size="sm"
+                  radius="sm"
+                  startContent={<ChevronRight size={16} />}
+                  onClick={() =>
+                    setQueries({
+                      ...getQueries(),
+                      date: parseDate(
+                        new Date(
+                          getQueries()
+                            // @ts-expect-error Date is not typed
+                            .date.toDate()
+                            // @ts-expect-error Date is not typed
+                            .setDate(getQueries().date.toDate().getDate() + 1)
+                        ).toLocaleDateString('en-CA')
+                      ),
+                    })
+                  }
+                  isIconOnly
+                />
+              </ButtonGroup>
+              <DatePicker
+                className="max-w-[200px]"
+                variant="bordered"
                 size="sm"
                 radius="sm"
-                startContent={<ChevronLeft size={16} />}
-                onClick={() =>
+                showMonthAndYearPickers
+                value={getQueries().date}
+                onChange={(date) =>
                   setQueries({
                     ...getQueries(),
-                    date: parseDate(
-                      new Date(
-                        getQueries()
-                          // @ts-expect-error Date is not typed
-                          .date.toDate()
-                          // @ts-expect-error Date is not typed
-                          .setDate(getQueries().date.toDate().getDate() - 1)
-                      ).toLocaleDateString('en-CA')
-                    ),
+                    date: date,
                   })
                 }
-                isIconOnly
-              ></Button>
-              <Button
-                variant="light"
-                size="sm"
-                radius="sm"
-                startContent={<Calendar size={16} />}
-                onClick={() =>
-                  setQueries({
-                    ...getQueries(),
-                    date: parseDate(
-                      new Date(
-                        getQueries()
-                          // @ts-expect-error Date is not typed
-                          .date.toDate()
-                          .setDate(new Date().getDate())
-                      ).toLocaleDateString('en-CA')
-                    ),
-                  })
-                }
-              >
-                Today
-              </Button>
-              <Button
-                variant="light"
-                size="sm"
-                radius="sm"
-                startContent={<ChevronRight size={16} />}
-                onClick={() =>
-                  setQueries({
-                    ...getQueries(),
-                    date: parseDate(
-                      new Date(
-                        getQueries()
-                          // @ts-expect-error Date is not typed
-                          .date.toDate()
-                          // @ts-expect-error Date is not typed
-                          .setDate(getQueries().date.toDate().getDate() + 1)
-                      ).toLocaleDateString('en-CA')
-                    ),
-                  })
-                }
-                isIconOnly
               />
-            </ButtonGroup>
-            <DatePicker
-              className="max-w-[200px]"
+            </div>
+            <Select
+              // @ts-expect-error Selection type is not typed
+              defaultSelectedKeys={[
+                getQueries().status ? getQueries().status : reservationStatusFilterValues[0].key,
+              ]}
               variant="bordered"
               size="sm"
               radius="sm"
-              showMonthAndYearPickers
-              value={getQueries().date}
-              onChange={(date) =>
+              className="w-[200px]"
+              onSelectionChange={(key) =>
                 setQueries({
                   ...getQueries(),
-                  date: date,
+                  // @ts-expect-error Selection type is not typed
+                  status: key.anchorKey === 'all' ? '' : (key.anchorKey as ReservationStatus),
                 })
               }
-            />
+              startContent={
+                reservationStatusFilterValues.find((s) => s.key === getQueries().status)?.icon ?? (
+                  <List size={16} color="blue" />
+                )
+              }
+            >
+              {reservationStatusFilterValues.map((status) => (
+                <SelectItem key={status.key} startContent={status.icon}>
+                  {status.label}
+                </SelectItem>
+              ))}
+            </Select>
           </div>
-          <Select
-            // @ts-expect-error Selection type is not typed
-            defaultSelectedKeys={[
-              getQueries().status ? getQueries().status : reservationStatusFilterValues[0].key,
-            ]}
-            variant="bordered"
-            size="sm"
-            radius="sm"
-            className="max-w-[200px]"
-            onSelectionChange={(key) =>
-              setQueries({
-                ...getQueries(),
-                // @ts-expect-error Selection type is not typed
-                status: key.anchorKey === 'all' ? '' : (key.anchorKey as ReservationStatus),
-              })
-            }
-            startContent={
-              reservationStatusFilterValues.find((s) => s.key === getQueries().status)?.icon ?? (
-                <List size={16} color="blue" />
-              )
-            }
-          >
-            {reservationStatusFilterValues.map((status) => (
-              <SelectItem key={status.key} startContent={status.icon}>
-                {status.label}
-              </SelectItem>
-            ))}
-          </Select>
         </div>
 
         {!reservations && !isLoading ? (
