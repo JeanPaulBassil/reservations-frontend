@@ -13,6 +13,7 @@ import {
   Hand,
   Hourglass,
   List,
+  Percent,
   Plus,
   Sidebar,
   Trash,
@@ -38,6 +39,7 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
+  Tooltip,
   User,
 } from '@nextui-org/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -55,12 +57,15 @@ import { parseDate, getLocalTimeZone } from '@internationalized/date'
 import { useDateFormatter } from '@react-aria/i18n'
 import EditReservationModal from '../_components/EditReservationModal'
 import AddReservationModal from '../_components/AddReservationModal'
+import { TableApi } from '@/api/table.api'
+import { Table as TableType } from '@/api/models/Table'
 
 const ListView = () => {
   const router = useRouter()
   const queryClient = useQueryClient()
   const toast = useToast()
   const reservationApi = new ReservationApi()
+  const tableApi = new TableApi()
   const [reservation, setReservation] = useState<Reservation | null>(null)
   const { user } = useUser()
   const { selectedEntityId } = useEntity()
@@ -82,6 +87,30 @@ const ListView = () => {
     },
     enabled: !!selectedEntityId,
   })
+
+  const { data: tables } = useQuery<TableType[], ServerError>({
+    queryKey: ['tables', selectedEntityId],
+    queryFn: async () => {
+      const response = await tableApi.getTables(selectedEntityId ?? '')
+      return response.payload
+    },
+  })
+
+  const numberOfFreeSeats = useMemo(() => {
+    return tables?.reduce((acc, table) => {
+      return acc + table.numberOfSeats
+    }, 0)
+  }, [tables])
+
+  const occupiedSeats = useMemo(() => {
+    return reservations?.reduce((acc, reservation) => {
+      return acc + reservation.numberOfGuests
+    }, 0)
+  }, [reservations])
+
+  const occupancyPercentage = useMemo(() => {
+    return ((occupiedSeats ?? 0) / (numberOfFreeSeats ?? 0)) * 100
+  }, [occupiedSeats, numberOfFreeSeats])
 
   const numberOfGuests = useMemo(
     () =>
@@ -319,12 +348,21 @@ const ListView = () => {
       <Widget className="flex h-[calc(100vh-6rem)] flex-col border-2 border-gray-200 px-5 pt-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Chip variant="bordered" startContent={<Users size={16} />}>
-              {numberOfGuests} guests
-            </Chip>
-            <Chip variant="bordered" startContent={<UtensilsCrossed size={16} />}>
-              {numberOfTables} tables
-            </Chip>
+            <Tooltip content="Number of Guests" size="sm" radius="sm">
+              <Chip variant="bordered" startContent={<Users size={16} />} radius="sm">
+                <span className="cursor-default text-sm">{numberOfGuests} guests</span>
+              </Chip>
+            </Tooltip>
+            <Tooltip content="Number of Tables" size="sm" radius="sm">
+              <Chip variant="bordered" startContent={<UtensilsCrossed size={16} />} radius="sm">
+                <span className="cursor-default text-sm">{numberOfTables} tables</span>
+              </Chip>
+            </Tooltip>
+            <Tooltip content="Occupancy Percentage" size="sm" radius="sm">
+              <Chip variant="bordered" startContent={<Percent size={16} />} radius="sm">
+                <span className="cursor-default text-sm">{occupancyPercentage.toFixed(2)}</span>
+              </Chip>
+            </Tooltip>
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-2">
