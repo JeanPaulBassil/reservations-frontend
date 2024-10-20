@@ -1,4 +1,5 @@
 import { Company } from "./Company"
+import { Reservation } from "./Reservation"
 
 export interface Entity {
     id: string
@@ -7,6 +8,7 @@ export interface Entity {
     companyId: string
     createdAt: Date
     updatedAt: Date
+    reservations: Reservation[]
 }
 
 export interface CreateEntity {

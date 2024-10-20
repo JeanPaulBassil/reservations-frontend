@@ -65,4 +65,13 @@ export class ReservationApi extends AbstractApi<Reservation> {
 
     return response
   }
+
+  public async getReservationsPerMonth(entityId: string, month: number): Promise<ApiResponse<Reservation[]>> {
+    const response = (await this.doFetch({
+      queries: { entityId, month: month.toString() },
+      requestOptions: { method: 'GET' },
+    })) as ApiResponse<Reservation[]>
+
+    return response
+  }
 }

@@ -29,3 +29,7 @@ const twMerge = extendTailwindMerge({
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+export function toCapitalCase(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
+}

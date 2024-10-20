@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import {
   Card,
   CardHeader,
@@ -28,6 +28,8 @@ import DoughnutChart from './DoughnutChart'
 import { ChartOptions } from 'chart.js'
 import EditEntityModal from './EditEntityModal'
 import { useEntity } from '@/app/contexts/EntityContext'
+import { ReservationStatus } from '@/api/models/Reservation'
+import { toCapitalCase } from '@/lib/utils'
 
 export default function EntityProfile({ entity }: { entity: Entity }) {
   const entityApi = new EntityApi()
@@ -63,15 +65,55 @@ export default function EntityProfile({ entity }: { entity: Entity }) {
   const onEditEntity = () => {
     onEditOpen()
   }
-  // Set data and options for the doughnut chart
+
+  const statusColors: Record<ReservationStatus, string> = useMemo(() => {
+    return {
+      CONFIRMED: '#6be38b',
+      CANCELLED: '#e36b6b',
+      PENDING: '#f7e56f',
+      SEATED: '#6bc9e3',
+      LEFT: '#7d6be3',
+      NO_SHOW: '#aa90ad',
+      LATE: '#ed9740',
+      DELETED: '#a6ada8',
+      WAITLISTED: '#ae47de',
+    }
+  }, [])
+
+  const reservationStatuses = useMemo(
+    () => entity.reservations?.map((reservation) => reservation.status),
+    [entity.reservations]
+  )
+  const reservationStatusesCount = useMemo(() => {
+    const allStatuses: Record<ReservationStatus, number> = Object.keys(statusColors).reduce(
+      (acc, status) => {
+        acc[status as ReservationStatus] = 0
+        return acc
+      },
+      {} as Record<ReservationStatus, number>
+    )
+
+    reservationStatuses?.forEach((status) => {
+      allStatuses[status] = (allStatuses[status] || 0) + 1
+    })
+
+    return allStatuses
+  }, [reservationStatuses])
+
   const data = {
-    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple'],
+    labels: Object.keys(reservationStatusesCount).filter(
+      (status) => reservationStatusesCount[status as ReservationStatus] > 0
+    ).map((status) => toCapitalCase(status)),
     datasets: [
       {
-        label: '# of Votes',
-        data: [12, 19, 3, 5, 2],
-        backgroundColor: ['red', 'blue', 'yellow', 'green', 'purple'],
-        borderColor: ['red', 'blue', 'yellow', 'green', 'purple'],
+        label: '# of Reservations',
+        data: Object.values(reservationStatusesCount).filter((count) => count > 0),
+        backgroundColor: Object.keys(reservationStatusesCount)
+          .filter((status) => reservationStatusesCount[status as ReservationStatus] > 0)
+          .map((status) => statusColors[status as ReservationStatus]),
+        borderColor: Object.keys(reservationStatusesCount)
+          .filter((status) => reservationStatusesCount[status as ReservationStatus] > 0)
+          .map((status) => statusColors[status as ReservationStatus]),
         borderWidth: 1,
       },
     ],
@@ -162,7 +204,7 @@ export default function EntityProfile({ entity }: { entity: Entity }) {
         className="flex items-center justify-center"
         style={{ height: '300px', width: '300px' }}
       >
-        <DoughnutChart data={data} options={options} />
+        {reservationStatusesCount && <DoughnutChart data={data} options={options} />}
       </CardBody>
     </Card>
   )

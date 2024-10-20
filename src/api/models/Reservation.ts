@@ -19,6 +19,12 @@ export interface Reservation {
   updatedAt: Date
 }
 
+export type CalendarReservationSummary = {
+  date: string
+  totalReservations: number
+  totalGuests: number
+}
+
 export enum ReservationStatus {
   PENDING = 'PENDING',
   CONFIRMED = 'CONFIRMED',

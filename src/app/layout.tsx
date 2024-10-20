@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import './calendarStyles.scss'
 import { NextUIProvider } from '@nextui-org/system'
 import ReactQueryClientProvider from '@/providers/ReactQueryProvider'
 import LayoutWrapper from './_components/Notifications'
