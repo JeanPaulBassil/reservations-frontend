@@ -18,8 +18,9 @@ export interface CreateGuest {
 }
 
 export interface UpdateGuest {
-    name: string
-    email: string
-    phone: string
-    description: string
+    name?: string
+    email?: string
+    phone?: string
+    description?: string
+    isBlacklisted?: boolean
 }

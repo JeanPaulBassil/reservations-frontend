@@ -116,7 +116,7 @@ const CalendarView = (props: Props) => {
     const summaryMap: { [key: string]: CalendarReservationSummary } = {}
 
     reservations.forEach((reservation) => {
-      // Extract the date part of the reservation's date
+      // @ts-expect-error Date not typed
       const dateKey = reservation.date.split('T')[0]
 
       if (!summaryMap[dateKey]) {
@@ -185,6 +185,7 @@ const CalendarView = (props: Props) => {
                               getQueries()
                                 // @ts-expect-error Date is not typed
                                 .date.toDate()
+                                // @ts-expect-error Date is not typed
                                 .setDate(getQueries().date.toDate().getDate() - 30)
                             ).toLocaleDateString('en-CA')
                           ),
