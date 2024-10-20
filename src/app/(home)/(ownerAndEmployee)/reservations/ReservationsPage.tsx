@@ -55,6 +55,7 @@ export default function ReservationsPage() {
     onClose: onCloseCreateModal,
   } = useDisclosure()
 
+  
   const tabs = useMemo(() => {
     return [
       {
@@ -115,12 +116,12 @@ export default function ReservationsPage() {
               startContent={<Plus />}
             />
           </div>
-          <div className="w-full pl-2">
+          <div className="hidden sm:block w-full pl-2">
             <Tabs
               tabs={tabs}
               selectedTab={selectedTab}
               setTab={(tabId: string) => {
-              setSelectedTab(tabId as TabPage)
+                setSelectedTab(tabId as TabPage)
               }}
             />
           </div>
