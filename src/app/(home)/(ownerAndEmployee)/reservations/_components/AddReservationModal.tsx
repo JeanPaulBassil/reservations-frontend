@@ -5,15 +5,13 @@ import { TableApi } from '@/api/table.api'
 import { ServerError } from '@/api/utils/ResponseError'
 import { useToast } from '@/app/contexts/ToastContext'
 import { joiResolver } from '@hookform/resolvers/joi'
-import {
-  getLocalTimeZone,
-  parseAbsoluteToLocal,
-  parseDate,
-} from '@internationalized/date'
+import { getLocalTimeZone, parseAbsoluteToLocal, parseDate } from '@internationalized/date'
 import { Button } from '@nextui-org/button'
 import { Input, Textarea } from '@nextui-org/input'
 import { Modal, ModalBody, ModalContent, ModalFooter } from '@nextui-org/modal'
 import {
+  Autocomplete,
+  AutocompleteItem,
   DatePicker,
   Select,
   SelectItem,
@@ -36,6 +34,10 @@ import {
 import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { reservationSources } from './data'
+import { GuestApi } from '@/api/guest.api'
+import { Guest } from '@/api/models/Guest'
+import useOrderedQueries from '@/hooks/useQueries'
+import useDebouncedCallback from '@/hooks/useDebounceCallback'
 
 type Props = {
   isOpen: boolean
@@ -62,7 +64,32 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
   const toast = useToast()
   const queryClient = useQueryClient()
   const tableApi = new TableApi()
+  const guestsApi = new GuestApi()
   const [selectItems, setSelectItems] = useState<{ key: string; label: string }[]>([])
+  const [existingGuestSelected, setExistingGuestSelected] = useState<boolean>(false)
+
+  const { get: getPhoneQueries, set: setPhoneQueries } = useOrderedQueries<{
+    phoneSearch: string
+  }>({
+    phoneSearch: '',
+  })
+
+  const { data: guests, isLoading: isLoadingGuests } = useQuery<Guest[], ServerError>({
+    queryKey: ['guests', entityId, getPhoneQueries().phoneSearch],
+    queryFn: async () => {
+      const response = await guestsApi.getGuests(
+        '',
+        entityId ?? '',
+        false,
+        getPhoneQueries().phoneSearch
+      )
+      return response.payload
+    },
+  })
+
+  const debouncePhoneSearch = useDebouncedCallback((value: string) => {
+    setPhoneQueries({ phoneSearch: value })
+  }, 500)
 
   const {
     register,
@@ -84,10 +111,7 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
     createReservation(data)
   }
 
-  const {
-    data: tables,
-    isLoading,
-  } = useQuery<Table[], ServerError>({
+  const { data: tables, isLoading } = useQuery<Table[], ServerError>({
     queryKey: ['tables', entityId],
     queryFn: async () => {
       const response = await tableApi.getTables(entityId ?? '')
@@ -125,6 +149,7 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
     }
   }, [tables])
 
+  console.log('errors', errors)
   return (
     <Modal
       classNames={{
@@ -135,6 +160,7 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
       isOpen={isOpen}
       onClose={onClose}
       radius="sm"
+      isDismissable={false}
     >
       <ModalContent>
         <form onSubmit={handleSubmit(onSubmit)} className="px-10 py-8">
@@ -158,7 +184,39 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
 
           {/* Modal Content */}
           <ModalBody className="my-4 flex flex-col items-start justify-center px-0">
-          <div className="flex w-full flex-row gap-2">
+            <div className="flex w-full flex-row gap-2">
+              <Autocomplete
+                label="Guest Phone"
+                placeholder="Search a guest"
+                className="max-w-xs"
+                defaultItems={guests?.map((guest) => ({
+                  key: guest.phone,
+                  label: guest.phone,
+                }))}
+                variant="bordered"
+                radius="sm"
+                labelPlacement="outside"
+                isRequired
+                size="md"
+                {...register('guestPhone')}
+                errorMessage={errors.guestPhone?.message}
+                isInvalid={!!errors.guestPhone}
+                onSelectionChange={(value) => {
+                  const guest = guests?.find((guest) => guest.phone === value)
+                  if (guest) {
+                    reset({
+                      guestPhone: guest.phone,
+                      guestName: guest.name,
+                      guestEmail: guest.email,
+                      entityId,
+                      startTime: new Date(),
+                    })
+                  }
+                  setExistingGuestSelected(!!guest)
+                }}
+              >
+                {(item) => <AutocompleteItem key={item.key}>{item.label}</AutocompleteItem>}
+              </Autocomplete>
               <Input
                 placeholder="Guest Name"
                 startContent={<User />}
@@ -167,32 +225,19 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
                 isRequired
                 labelPlacement="outside"
                 label="Guest Name"
-                isDisabled={isSubmitting}
+                isDisabled={isSubmitting || isLoadingGuests || existingGuestSelected}
                 radius="sm"
                 {...register('guestName')}
                 errorMessage={errors.guestName?.message}
                 isInvalid={!!errors.guestName}
               />
-              <Input
-                placeholder="Guest Phone"
-                startContent={<Phone />}
-                variant="bordered"
-                className="w-full"
-                isRequired
-                labelPlacement="outside"
-                label="Guest Phone"
-                isDisabled={isSubmitting}
-                radius="sm"
-                {...register('guestPhone')}
-                errorMessage={errors.guestPhone?.message}
-                isInvalid={!!errors.guestPhone}
-              />
+
               <Input
                 placeholder="Guest Email"
                 startContent={<Mail />}
                 variant="bordered"
                 className="w-full"
-                isDisabled={isSubmitting}
+                isDisabled={isSubmitting || isLoadingGuests || existingGuestSelected}
                 labelPlacement="outside"
                 label="Guest Email"
                 radius="sm"
@@ -259,7 +304,7 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
                 {selectItems?.map((item) => <SelectItem key={item.key}>{item.label}</SelectItem>)}
               </Select>
             </div>
-            
+
             <div className="flex w-full flex-row gap-2">
               <Textarea
                 startContent={<Pencil />}

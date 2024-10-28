@@ -82,6 +82,7 @@ const EditTableModal = ({ isOpen, onClose, table }: Props) => {
       isOpen={isOpen}
       onClose={onClose}
       radius="sm"
+      isDismissable={false}
     >
       <ModalContent>
         <form onSubmit={handleSubmit(onSubmit)} className="px-10 py-8">
