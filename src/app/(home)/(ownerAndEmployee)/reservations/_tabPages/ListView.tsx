@@ -250,7 +250,7 @@ const ListView = () => {
         return (
           <div className="relative flex items-center gap-2">
             <Clock size={16} />
-            <h2>{formatTime(reservation.startTime)}</h2>
+            <h2>{formatTime(reservation.date)}</h2>
           </div>
         )
       case 'reservationSource':
@@ -337,7 +337,7 @@ const ListView = () => {
   ]
 
   return (
-    <div className="h-screen">
+    <div className="flex h-[calc(100vh-6.5rem)] w-full flex-col overflow-hidden">
       <EditReservationModal
         isOpen={isOpenEditModal}
         onClose={onCloseEditModal}
@@ -345,9 +345,11 @@ const ListView = () => {
         selectedEntityId={selectedEntityId ?? ''}
         queries={getQueries()}
       />
-      <Widget className="flex h-[calc(100vh-6rem)] flex-col border-2 border-gray-200 px-5 pt-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+
+      {/* Filters and Widget Header */}
+      <Widget className="flex w-full h-full max-w-full flex-col border-2 border-gray-200 px-5 py-4">
+        <div className="flex w-full items-center justify-center md:justify-between">
+          <div className="hidden w-full flex-wrap items-center gap-2 md:flex">
             <Tooltip content="Number of Guests" size="sm" radius="sm">
               <Chip variant="bordered" startContent={<Users size={16} />} radius="sm">
                 <span className="cursor-default text-sm">{numberOfGuests} guests</span>
@@ -360,94 +362,90 @@ const ListView = () => {
             </Tooltip>
             <Tooltip content="Occupancy Percentage" size="sm" radius="sm">
               <Chip variant="bordered" startContent={<Percent size={16} />} radius="sm">
-                <span className="cursor-default text-sm">{occupancyPercentage.toFixed(2)}</span>
+                <span className="cursor-default text-sm">{occupancyPercentage.toFixed(2)}%</span>
               </Chip>
             </Tooltip>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2">
-              <ButtonGroup>
-                <Button
-                  variant="light"
-                  size="sm"
-                  radius="sm"
-                  startContent={<ChevronLeft size={16} />}
-                  onClick={() =>
-                    setQueries({
-                      ...getQueries(),
-                      date: parseDate(
-                        new Date(
-                          getQueries()
-                            // @ts-expect-error Date is not typed
-                            .date.toDate()
-                            // @ts-expect-error Date is not typed
-                            .setDate(getQueries().date.toDate().getDate() - 1)
-                        ).toLocaleDateString('en-CA')
-                      ),
-                    })
-                  }
-                  isIconOnly
-                ></Button>
-                <Button
-                  variant="light"
-                  size="sm"
-                  radius="sm"
-                  startContent={<Calendar size={16} />}
-                  onClick={() =>
-                    setQueries({
-                      ...getQueries(),
-                      date: parseDate(
-                        new Date(
-                          getQueries()
-                            // @ts-expect-error Date is not typed
-                            .date.toDate()
-                            .setDate(new Date().getDate())
-                        ).toLocaleDateString('en-CA')
-                      ),
-                    })
-                  }
-                >
-                  Today
-                </Button>
-                <Button
-                  variant="light"
-                  size="sm"
-                  radius="sm"
-                  startContent={<ChevronRight size={16} />}
-                  onClick={() =>
-                    setQueries({
-                      ...getQueries(),
-                      date: parseDate(
-                        new Date(
-                          getQueries()
-                            // @ts-expect-error Date is not typed
-                            .date.toDate()
-                            // @ts-expect-error Date is not typed
-                            .setDate(getQueries().date.toDate().getDate() + 1)
-                        ).toLocaleDateString('en-CA')
-                      ),
-                    })
-                  }
-                  isIconOnly
-                />
-              </ButtonGroup>
-              <DatePicker
-                className="max-w-[200px]"
-                variant="bordered"
+          <div className="flex flex-col items-center gap-2 md:flex-row">
+            <ButtonGroup>
+              <Button
+                variant="light"
                 size="sm"
                 radius="sm"
-                showMonthAndYearPickers
-                value={getQueries().date}
-                onChange={(date) =>
+                startContent={<ChevronLeft size={16} />}
+                onClick={() =>
                   setQueries({
                     ...getQueries(),
-                    date: date,
+                    date: parseDate(
+                      new Date(
+                        getQueries()
+                          // @ts-expect-error ts is dumb
+                          .date.toDate()
+                          // @ts-expect-error ts is dumb
+                          .setDate(getQueries().date.toDate().getDate() - 1)
+                      ).toLocaleDateString('en-CA')
+                    ),
                   })
                 }
+                isIconOnly
               />
-            </div>
+              <Button
+                variant="light"
+                size="sm"
+                radius="sm"
+                startContent={<Calendar size={16} />}
+                onClick={() =>
+                  setQueries({
+                    ...getQueries(),
+                    date: parseDate(
+                      new Date(
+                        // @ts-expect-error ts is dumb
+                        getQueries().date.toDate().setDate(new Date().getDate())
+                      ).toLocaleDateString('en-CA')
+                    ),
+                  })
+                }
+              >
+                Today
+              </Button>
+              <Button
+                variant="light"
+                size="sm"
+                radius="sm"
+                startContent={<ChevronRight size={16} />}
+                onClick={() =>
+                  setQueries({
+                    ...getQueries(),
+                    date: parseDate(
+                      new Date(
+                        getQueries()
+                          // @ts-expect-error ts is dumb
+                          .date.toDate()
+                          // @ts-expect-error ts is dumb
+                          .setDate(getQueries().date.toDate().getDate() + 1)
+                      ).toLocaleDateString('en-CA')
+                    ),
+                  })
+                }
+                isIconOnly
+              />
+            </ButtonGroup>
+            <DatePicker
+              className="max-w-[200px]"
+              variant="bordered"
+              size="sm"
+              radius="sm"
+              showMonthAndYearPickers
+              value={getQueries().date}
+              onChange={(date) =>
+                setQueries({
+                  ...getQueries(),
+                  date: date,
+                })
+              }
+            />
             <Select
-              // @ts-expect-error Selection type is not typed
+              // @ts-expect-error ts is dumb
               defaultSelectedKeys={[
                 getQueries().status ? getQueries().status : reservationStatusFilterValues[0].key,
               ]}
@@ -458,7 +456,7 @@ const ListView = () => {
               onSelectionChange={(key) =>
                 setQueries({
                   ...getQueries(),
-                  // @ts-expect-error Selection type is not typed
+                  // @ts-expect-error ts is dumb
                   status: key.anchorKey === 'all' ? '' : (key.anchorKey as ReservationStatus),
                 })
               }
@@ -476,52 +474,56 @@ const ListView = () => {
             </Select>
           </div>
         </div>
-
-        {!reservations && !isLoading ? (
-          <div className="flex h-[calc(100vh-6rem)] w-full items-center justify-center">
-            <h2>Error fetching reservations, please contact support</h2>
-          </div>
-        ) : isLoading ? (
-          <div className="flex h-[calc(100vh-6rem)] w-full items-center justify-center">
-            <Spinner color="success" />
-          </div>
-        ) : (
-          <Table
-            aria-label="Example table with dynamic content"
-            className="mt-5"
-            removeWrapper
-            classNames={{
-              th: 'bg-[#ffffff] border-b-2 border-gray-200',
-            }}
-          >
-            <TableHeader columns={columns}>
-              {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
-            </TableHeader>
-            <TableBody
-              items={reservations}
-              emptyContent={
-                <div className="flex w-full items-center justify-center">
-                  <h2>No reservations found</h2>
-                </div>
-              }
+        <div className="w-full flex-1 overflow-x-auto">
+          {!reservations && !isLoading ? (
+            <div className="flex h-full w-full items-center justify-center">
+              <h2>Error fetching reservations, please contact support</h2>
+            </div>
+          ) : isLoading ? (
+            <div className="flex h-full w-full items-center justify-center">
+              <Spinner color="success" />
+            </div>
+          ) : (
+            <Table
+              aria-label="Example table with dynamic content"
+              classNames={{
+                th: 'bg-[#ffffff] border-b-2 border-gray-200',
+                wrapper: 'p-0 mt-5',
+              }}
+              className="w-full"
+              radius="sm"
             >
-              {(item) => (
-                <TableRow
-                  key={item.id}
-                  className={`cursor-pointer transition-colors duration-200 ${reservationStatuses.find((s) => s.key === item.status)?.color}`}
-                  onClick={() => {
-                    setReservation(item)
-                    onOpenEditModal()
-                  }}
-                >
-                  {/* @ts-expect-error */}
-                  {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        )}
+              <TableHeader columns={columns}>
+                {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
+              </TableHeader>
+              <TableBody
+                items={reservations}
+                emptyContent={
+                  <div className="flex w-full items-center justify-center">
+                    <h2>No reservations found</h2>
+                  </div>
+                }
+              >
+                {(item) => (
+                  <TableRow
+                    key={item.id}
+                    className={`cursor-pointer transition-colors duration-200 ${reservationStatuses.find((s) => s.key === item.status)?.color}`}
+                    onClick={() => {
+                      setReservation(item)
+                      onOpenEditModal()
+                    }}
+                  >
+                    {/* @ts-expect-error ts is dumb */}
+                    {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          )}
+        </div>
       </Widget>
+
+      {/* Table Container with Horizontal Scroll */}
     </div>
   )
 }

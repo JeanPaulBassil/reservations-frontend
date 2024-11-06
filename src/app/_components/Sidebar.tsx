@@ -81,6 +81,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
             startContent={isCompact ? null : item.icon ? item.icon : item.startContent ?? null}
             textValue={item.title}
             title={isCompact ? null : item.title}
+            className={item.key === 'reservations' ? 'mb-10' : ''}
           >
             {isCompact ? (
               <Tooltip content={item.title} placement="right">

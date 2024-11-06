@@ -80,7 +80,7 @@ export default function ReservationsPage() {
   }
 
   return (
-    <div className="text-secondary-950 flex h-full w-full flex-grow flex-col items-start dark:text-white">
+    <div className="text-secondary-950 flex h-full max-w-full flex-grow flex-col items-start dark:text-white">
       <AddGuestModal
         isOpen={isOpenCreateModal}
         onClose={onCloseCreateModal}

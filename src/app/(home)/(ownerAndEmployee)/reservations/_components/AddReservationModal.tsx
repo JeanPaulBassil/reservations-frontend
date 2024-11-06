@@ -97,6 +97,8 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
     formState: { errors, isSubmitting },
     reset,
     control,
+    watch,
+    setValue,
   } = useForm<CreateReservation>({
     resolver: joiResolver(reservationSchema),
     defaultValues: {
@@ -149,7 +151,34 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
     }
   }, [tables])
 
+  const guestPhoneValue = watch('guestPhone', '')
+
+  // Generate the autocomplete items, including the extra option if needed
+  const autocompleteItems = React.useMemo(() => {
+    const items =
+      guests?.map((guest) => ({
+        key: guest.phone,
+        label: guest.phone,
+        isNew: false,
+      })) || []
+
+    // Check if the current input value matches any existing guest phone numbers
+    const isExistingGuest = items.some((item) => item.label === guestPhoneValue)
+
+    // If not, add an extra option to use the current input value
+    if (guestPhoneValue && !isExistingGuest) {
+      items.push({
+        key: 'new',
+        label: `${guestPhoneValue}`,
+        isNew: true,
+      })
+    }
+
+    return items
+  }, [guests, guestPhoneValue])
+
   console.log('errors', errors)
+  console.log('guestPhone', watch('guestPhone'))
   return (
     <Modal
       classNames={{
@@ -185,38 +214,57 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
           {/* Modal Content */}
           <ModalBody className="my-4 flex flex-col items-start justify-center px-0">
             <div className="flex w-full flex-row gap-2">
-              <Autocomplete
-                label="Guest Phone"
-                placeholder="Search a guest"
-                className="max-w-xs"
-                defaultItems={guests?.map((guest) => ({
-                  key: guest.phone,
-                  label: guest.phone,
-                }))}
-                variant="bordered"
-                radius="sm"
-                labelPlacement="outside"
-                isRequired
-                size="md"
-                {...register('guestPhone')}
-                errorMessage={errors.guestPhone?.message}
-                isInvalid={!!errors.guestPhone}
-                onSelectionChange={(value) => {
-                  const guest = guests?.find((guest) => guest.phone === value)
-                  if (guest) {
-                    reset({
-                      guestPhone: guest.phone,
-                      guestName: guest.name,
-                      guestEmail: guest.email,
-                      entityId,
-                      startTime: new Date(),
-                    })
-                  }
-                  setExistingGuestSelected(!!guest)
-                }}
-              >
-                {(item) => <AutocompleteItem key={item.key}>{item.label}</AutocompleteItem>}
-              </Autocomplete>
+              <Controller
+                control={control}
+                name="guestPhone"
+                render={({ field }) => (
+                  <Autocomplete
+                    {...field}
+                    label="Guest Phone"
+                    placeholder="Guest Phone"
+                    className="max-w-xs"
+                    variant="bordered"
+                    radius="sm"
+                    labelPlacement="outside"
+                    isRequired
+                    size="md"
+                    value={guestPhoneValue}
+                    errorMessage={errors.guestPhone?.message}
+                    isInvalid={!!errors.guestPhone}
+                    onInputChange={(value) => {
+                      field.onChange(value)
+                      debouncePhoneSearch(value)
+                    }}
+                    onSelectionChange={(key) => {
+                      if (key === 'new') {
+                        // User wants to use the entered value
+                        setValue('guestPhone', guestPhoneValue, { shouldValidate: true })
+                        setExistingGuestSelected(false)
+                      } else {
+                        // An existing guest was selected
+                        const selectedGuest = guests?.find((guest) => guest.phone === key)
+                        if (selectedGuest) {
+                          setValue('guestPhone', selectedGuest.phone, { shouldValidate: true })
+                          setValue('guestName', selectedGuest.name, { shouldValidate: true })
+                          setValue('guestEmail', selectedGuest.email, { shouldValidate: true })
+                          setExistingGuestSelected(true)
+                        }
+                      }
+                    }}
+                    items={autocompleteItems}
+                  >
+                    {(item) => (
+                      <AutocompleteItem key={item.key} textValue={item.label}>
+                        {item.isNew ? (
+                          <span className="text-blue-500">{item.label}</span>
+                        ) : (
+                          item.label
+                        )}
+                      </AutocompleteItem>
+                    )}
+                  </Autocomplete>
+                )}
+              />
               <Input
                 placeholder="Guest Name"
                 startContent={<User />}
