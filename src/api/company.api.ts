@@ -1,4 +1,4 @@
-import { Company, CreateCompany } from './models/Company'
+import { Company, CreateCompany, UpdateCompany } from './models/Company'
 import { Tokens } from './models/Tokens'
 import { CreateUser, User } from './models/User'
 import { ApiResponse } from './utils'
@@ -21,7 +21,7 @@ export class CompanyApi extends AbstractApi<Company> {
     return response
   }
 
-  public async getCompanies(): Promise<ApiResponse<Company[]>> {
+  public async getCompanies(queries: ApiRequestParams): Promise<ApiResponse<Company[]>> {
     const response = (await this.doFetch({
       requestOptions: {
         method: 'GET',
@@ -36,6 +36,18 @@ export class CompanyApi extends AbstractApi<Company> {
     const response = (await this.doFetch({
       requestOptions: {
         method: 'DELETE',
+      },
+      pathExtension: id,
+    })) as ApiResponse<Company>
+
+    return response
+  }
+
+  public async update(id: string, data: UpdateCompany): Promise<ApiResponse<Company>> {
+    const response = (await this.doFetch({
+      requestOptions: {
+        method: 'PATCH',
+        body: JSON.stringify(data),
       },
       pathExtension: id,
     })) as ApiResponse<Company>

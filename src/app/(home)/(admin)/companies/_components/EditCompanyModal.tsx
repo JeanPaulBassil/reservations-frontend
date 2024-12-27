@@ -1,8 +1,9 @@
 import { CompanyApi } from '@/api/company.api'
-import { CreateCompany } from '@/api/models/Company'
+import { Company, CreateCompany, UpdateCompany } from '@/api/models/Company'
 import { CreateUser } from '@/api/models/User'
 import { UserApi } from '@/api/user.api'
 import { useToast } from '@/app/contexts/ToastContext'
+import useAppMutation from '@/app/hooks/useAppHook'
 import { joiResolver } from '@hookform/resolvers/joi'
 import { Button } from '@nextui-org/button'
 import { Input } from '@nextui-org/input'
@@ -10,23 +11,23 @@ import { Modal, ModalBody, ModalContent, ModalFooter } from '@nextui-org/modal'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import Joi from 'joi'
 import { Eye, EyeOff, Icon, Lock, Plus, X } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 type Props = {
   isOpen: boolean
   onClose: () => void
+  companyToUpdate: Company | null
+  setCompanyToUpdate: (company: Company | null) => void
 }
 
 const companySchema = Joi.object({
   adminUsername: Joi.string().required(),
-  adminPassword: Joi.string().required(),
   name: Joi.string().required(),
 })
 
-const AddCompanyModal = ({ isOpen, onClose }: Props) => {
-  const [isVisible, setIsVisible] = useState(false)
-  const toggleVisibility = () => setIsVisible(!isVisible)
+const companyApi = new CompanyApi()
+const EditCompanyModal = ({ isOpen, onClose, companyToUpdate, setCompanyToUpdate }: Props) => {
   const toast = useToast()
   const queryClient = useQueryClient()
 
@@ -35,31 +36,40 @@ const AddCompanyModal = ({ isOpen, onClose }: Props) => {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<CreateCompany>({
+  } = useForm<UpdateCompany>({
     resolver: joiResolver(companySchema),
   })
 
-  const onSubmit = (data: CreateCompany) => {
-    createCompany(data)
+  const useUpdateCompany = () => {
+    return useAppMutation<Company, UpdateCompany & { id: string }, Company>({
+      mutationFn: async ({ id, ...data }) => {
+        const response = await companyApi.update(id, data)
+        return response.payload
+      },
+      queryKey: ['companies'],
+      successMessage: 'Company updated successfully!',
+      onSuccessCallback: () => {
+        onClose()
+        setCompanyToUpdate(null)
+      },
+      errorMessage: 'Failed to update company. Please try again.',
+    })
   }
 
-  const { mutateAsync: createCompany } = useMutation({
-    mutationFn: (data: CreateCompany) => {
-      const companyApi = new CompanyApi()
-      return companyApi.create(data)
-    },
-    onSuccess: () => {
-      toast.success('Company created successfully')
-    },
-    onError: (error) => {
-      toast.error(error.message)
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['companies'] })
-      reset()
-      onClose()
-    },
-  })
+  const { mutateAsync: updateCompany, isPending: isUpdatingCompany } = useUpdateCompany()
+
+  const onSubmit = (data: UpdateCompany) => {
+    updateCompany({ id: companyToUpdate?.id.toString() ?? '', ...data })
+  }
+
+  useEffect(() => {
+    if (companyToUpdate) {
+      reset({
+        name: companyToUpdate.name,
+        adminUsername: companyToUpdate.users[0].username,
+      })
+    }
+  }, [companyToUpdate])
 
   return (
     <Modal
@@ -79,9 +89,9 @@ const AddCompanyModal = ({ isOpen, onClose }: Props) => {
           <div className="flex flex-row items-start justify-between">
             {/* Left */}
             <div className="flex flex-col space-y-2">
-              <h2 className="text-2xl font-normal">Add Company</h2>
+              <h2 className="text-2xl font-normal">Update Company</h2>
               <p className="text-small font-light text-gray-500 dark:text-gray-300">
-                Add a new company to the system
+                Update the company details
               </p>
             </div>
             {/* Right */}
@@ -124,30 +134,6 @@ const AddCompanyModal = ({ isOpen, onClose }: Props) => {
               errorMessage={errors.adminUsername?.message}
               isInvalid={!!errors.adminUsername}
             />
-            <Input
-              endContent={
-                <button type="button" onClick={toggleVisibility}>
-                  {isVisible ? (
-                    <Eye size={24} strokeWidth={1.5} />
-                  ) : (
-                    <EyeOff size={24} strokeWidth={1.5} />
-                  )}
-                </button>
-              }
-              autoComplete="none"
-              aria-autocomplete="none"
-              label="Admin Password"
-              aria-label="Admin Password"
-              radius="sm"
-              placeholder="Enter the admin password"
-              type={isVisible ? 'text' : 'password'}
-              variant="bordered"
-              isDisabled={isSubmitting}
-              isRequired
-              {...register('adminPassword')}
-              errorMessage={errors.adminPassword?.message}
-              isInvalid={!!errors.adminPassword}
-            />
           </ModalBody>
 
           <ModalFooter className="px-0">
@@ -164,7 +150,7 @@ const AddCompanyModal = ({ isOpen, onClose }: Props) => {
               isLoading={isSubmitting}
               type="submit"
             >
-              Add Company
+              Update Company
             </Button>
           </ModalFooter>
         </form>
@@ -173,4 +159,4 @@ const AddCompanyModal = ({ isOpen, onClose }: Props) => {
   )
 }
 
-export default AddCompanyModal
+export default EditCompanyModal

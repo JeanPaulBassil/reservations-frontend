@@ -1,3 +1,4 @@
+import { Entity } from "./Entity"
 import { User } from "./User"
 
 export interface Company {
@@ -6,10 +7,16 @@ export interface Company {
     createdAt: Date
     updatedAt: Date
     users: User[]
+    entities: Entity[]
 }
 
 export interface CreateCompany {
     adminUsername: string
     adminPassword: string
     name: string
+}
+
+export interface UpdateCompany {
+    name: string
+    adminUsername: string
 }
