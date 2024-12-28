@@ -26,7 +26,7 @@ export default function Component({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider onToggle={onToggle}>
-      <div className="flex h-screen w-screen overflow-hidden">
+      <div className="flex h-[100dvh] w-screen overflow-hidden">
         {/* Sidebar with responsive behavior */}
         <div
           className={cn(
