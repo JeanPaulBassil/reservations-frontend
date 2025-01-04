@@ -46,4 +46,15 @@ export class ShiftApi extends AbstractApi<Shift> {
 
     return response
   }
+
+  async deleteShift(id: string): Promise<ApiResponse<Shift>> {
+    const response = this.doFetch({
+      requestOptions: {
+        method: 'DELETE',
+      },
+      pathExtension: `${id}`,
+    }) as Promise<ApiResponse<Shift>>
+
+    return response
+  }
 }

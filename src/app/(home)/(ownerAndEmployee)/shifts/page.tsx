@@ -21,6 +21,8 @@ import SelectNumberOfRows from '@/app/_components/shared/SelectNumberOfRows'
 import { columns } from '../../(admin)/companies/CompaniesClientPage'
 import Table from '@/app/_components/shared/Table'
 import EditShiftModal from './_components/EditShiftModal'
+import DeletionConfirmationModal from '../../(admin)/companies/_components/DeleteConfirmationModal'
+import useAppMutation from '@/app/hooks/useAppHook'
 
 const shiftApi = new ShiftApi()
 
@@ -37,8 +39,14 @@ const page = () => {
     onOpen: onOpenEditShiftModal,
     onClose: onCloseEditShiftModal,
   } = useDisclosure()
+  const {
+    isOpen: isOpenDeleteModal,
+    onOpen: onOpenDeleteModal,
+    onClose: onCloseDeleteModal,
+  } = useDisclosure()
   const [nameSearch, setNameSearch] = useState('')
   const [shiftBeingEdited, setShiftBeingEdited] = useState<Shift | null>(null)
+  const [shiftToDelete, setShiftToDelete] = useState<Shift | null>(null)
 
   const { get: getQueries, set: setQueries } = useOrderedQueries<{
     name: string
@@ -114,8 +122,8 @@ const page = () => {
             label: 'Delete',
             icon: <Trash className="text-primary" width={18} strokeWidth={1.2} />,
             onClick: () => {
-              // setShiftToDelete(shift)
-              // onOpenDeleteModal()
+              setShiftToDelete(shift)
+              onOpenDeleteModal()
             },
           },
         ],
@@ -126,6 +134,23 @@ const page = () => {
   const setPage = (value: number) => {
     setQueries({ page: value.toString() })
   }
+
+  const useDeleteShift = () => {
+    return useAppMutation<Shift, { id: string }, Shift>({
+      mutationFn: async (data) => {
+        const response = await shiftApi.deleteShift(data.id)
+        return response.payload
+      },
+      queryKey: ['shifts'],
+      successMessage: 'Shift deleted successfully!',
+      onSuccessCallback: () => {
+        onCloseDeleteModal()
+      },
+      errorMessage: 'Failed to delete shift. Please try again.',
+    })
+  }
+
+  const { mutateAsync: deleteShift, isPending: isDeletingShift } = useDeleteShift()
 
   return (
     <div className="h-screen">
@@ -139,6 +164,14 @@ const page = () => {
         isOpen={isOpenAddShiftModal}
         onClose={onCloseAddShiftModal}
         entityId={selectedEntityId}
+      />
+      <DeletionConfirmationModal
+        isOpen={isOpenDeleteModal}
+        onClose={onCloseDeleteModal}
+        onDelete={() => deleteShift({ id: shiftToDelete?.id ?? '' })}
+        isLoading={isDeletingShift}
+        message="Are you sure you want to delete this shift?"
+        assetBeingDeleted="shift"
       />
       <Widget className="border-2 border-gray-200 px-4 py-2">
         <div className="flex items-center justify-between">
