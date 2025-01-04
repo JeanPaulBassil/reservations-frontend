@@ -166,7 +166,6 @@ const CompaniesClientPage = () => {
 
   const { mutateAsync: deleteCompany, isPending: isDeletingCompany } = useDeleteCompany()
 
-  console.log(companies)
   return (
     <div className="h-screen">
       <DeleteConfirmationModal

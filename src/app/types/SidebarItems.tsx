@@ -1,5 +1,5 @@
 import { SidebarItem } from '../_components/Sidebar'
-import { Building, Calendar, Table, User, Users } from 'lucide-react'
+import { Building, Calendar, Clock, Table, User, Users } from 'lucide-react'
 import { UserRole } from '@/api/models/User'
 
 export const sectionItems: SidebarItem[] = [
@@ -43,6 +43,13 @@ export const sectionItems: SidebarItem[] = [
     href: '/tables',
     icon: <Table strokeWidth={1} color="#ffffff" />,
     title: 'Tables',
+    allowedRoles: [UserRole.OWNER, UserRole.EMPLOYEE],
+  },
+  {
+    key: 'shifts',
+    href: '/shifts',
+    icon: <Clock strokeWidth={1} color="#ffffff" />,
+    title: 'Shifts',
     allowedRoles: [UserRole.OWNER, UserRole.EMPLOYEE],
   },
 ]

@@ -14,8 +14,8 @@ import {
 
 const roleAccessMap = {
   ADMIN: ['/companies'],
-  OWNER: ['/entities', '/guests', '/employees', '/tables', '/reservations'],
-  EMPLOYEE: ['/entities', '/guests', '/tables', '/reservations'],
+  OWNER: ['/entities', '/guests', '/employees', '/tables', '/reservations', '/shifts'],
+  EMPLOYEE: ['/entities', '/guests', '/tables', '/reservations', '/shifts'],
 }
 
 export const refreshTokensIfPossible = async (refreshToken: string) => {

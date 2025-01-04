@@ -1,15 +1,13 @@
 'use client'
 
 import {
-  Accordion,
-  AccordionItem,
   Spinner,
   type ListboxProps,
   type ListboxSectionProps,
   type Selection,
 } from '@nextui-org/react'
 import React from 'react'
-import { Listbox, Tooltip, ListboxItem, ListboxSection } from '@nextui-org/react'
+import { Listbox, Tooltip, ListboxItem } from '@nextui-org/react'
 import { cn } from '@/lib/utils'
 import { UserRole } from '@/api/models/User'
 import { useUser } from '../providers/SessionProvider'
@@ -98,7 +96,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
 
     if (!user) {
       return (
-        <div className="flex items-center justify-center h-full">
+        <div className="flex h-full items-center justify-center">
           <Spinner />
         </div>
       )
