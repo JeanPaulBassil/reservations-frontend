@@ -35,13 +35,13 @@ export class ShiftApi extends AbstractApi<Shift> {
     return response
   }
 
-  async editShift(id: string, editShiftDto: EditShift): Promise<ApiResponse<Shift>> {
+  async editShift(editShiftDto: EditShift): Promise<ApiResponse<Shift>> {
     const response = this.doFetch({ 
       requestOptions: {
         method: 'PUT',
         body: JSON.stringify(editShiftDto),
       },
-      pathExtension: `${id}`,
+      pathExtension: `${editShiftDto.id}`,
     }) as Promise<ApiResponse<Shift>>
 
     return response

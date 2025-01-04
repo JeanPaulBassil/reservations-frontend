@@ -1,43 +1,14 @@
-import { CreateReservation, ReservationQuery, ReservationSource } from '@/api/models/Reservation'
-import { Table } from '@/api/models/Table'
-import { ReservationApi } from '@/api/reservation.api'
-import { TableApi } from '@/api/table.api'
-import { ServerError } from '@/api/utils/ResponseError'
-import { useToast } from '@/app/contexts/ToastContext'
 import { joiResolver } from '@hookform/resolvers/joi'
-import { getLocalTimeZone, parseAbsoluteToLocal, parseDate } from '@internationalized/date'
+import { parseAbsoluteToLocal } from '@internationalized/date'
 import { Button } from '@nextui-org/button'
-import { Input, Textarea } from '@nextui-org/input'
+import { Input } from '@nextui-org/input'
 import { Modal, ModalBody, ModalContent, ModalFooter } from '@nextui-org/modal'
-import {
-  Autocomplete,
-  AutocompleteItem,
-  DatePicker,
-  Select,
-  SelectItem,
-  TimeInput,
-} from '@nextui-org/react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { TimeInput } from '@nextui-org/react'
 import Joi from 'joi'
-import {
-  Armchair,
-  Calendar,
-  FileText,
-  Mail,
-  Pencil,
-  Phone,
-  Plus,
-  User,
-  Users,
-  X,
-} from 'lucide-react'
-import React, { useEffect, useState } from 'react'
+import { Pencil, X } from 'lucide-react'
+import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { GuestApi } from '@/api/guest.api'
-import { Guest } from '@/api/models/Guest'
-import useOrderedQueries from '@/hooks/useQueries'
-import useDebouncedCallback from '@/hooks/useDebounceCallback'
-import { CreateShift, CreateShiftInput, EditShift, EditShiftInput, Shift } from '@/api/models/Shift'
+import { EditShift, EditShiftInput, Shift } from '@/api/models/Shift'
 import { ShiftApi } from '@/api/shift.api'
 import useAppMutation from '@/app/hooks/useAppHook'
 
@@ -55,12 +26,26 @@ const shiftSchema = Joi.object({
     minute: Joi.number().required(),
     second: Joi.number().required(),
     millisecond: Joi.number().required(),
+    calendar: Joi.optional(),
+    day: Joi.optional(),
+    month: Joi.optional(),
+    year: Joi.optional(),
+    era: Joi.optional(),
+    offset: Joi.optional(),
+    timeZone: Joi.optional(),
   }).required(),
   endHour: Joi.object({
     hour: Joi.number().required(),
     minute: Joi.number().required(),
     second: Joi.number().required(),
     millisecond: Joi.number().required(),
+    calendar: Joi.optional(),
+    day: Joi.optional(),
+    month: Joi.optional(),
+    year: Joi.optional(),
+    era: Joi.optional(),
+    offset: Joi.optional(),
+    timeZone: Joi.optional(),
   }).required(),
   title: Joi.string().required(),
 })
@@ -68,10 +53,7 @@ const shiftSchema = Joi.object({
 const shiftApi = new ShiftApi()
 
 const EditShiftModal = ({ isOpen, onClose, entityId, shiftBeingEdited }: Props) => {
-  const toast = useToast()
-  const queryClient = useQueryClient()
-  const [selectItems, setSelectItems] = useState<{ key: string; label: string }[]>([])
-  const [existingGuestSelected, setExistingGuestSelected] = useState<boolean>(false)
+  const currentTime = new Date()
 
   const {
     register,
@@ -80,30 +62,20 @@ const EditShiftModal = ({ isOpen, onClose, entityId, shiftBeingEdited }: Props) 
     reset,
     control,
     setValue,
+    watch,
   } = useForm<EditShiftInput>({
     resolver: joiResolver(shiftSchema),
     defaultValues: {
       entityId: entityId ?? '',
-      startHour: shiftBeingEdited?.startHour ?? 0,
-      endHour: shiftBeingEdited?.endHour ?? 0,
+      startHour: currentTime,
+      endHour: currentTime,
       title: shiftBeingEdited?.title ?? '',
     },
   })
 
-  useEffect(() => {
-    if (entityId) {
-      setValue('entityId', entityId)
-    }
-    if (shiftBeingEdited) {
-      // setValue('startHour', new TimeValue(shiftBeingEdited.startHour))
-      // setValue('endHour', new TimeValue(shiftBeingEdited.endHour))
-      setValue('title', shiftBeingEdited.title)
-    }
-  }, [entityId, shiftBeingEdited])
-
   const onSubmit = (data: EditShiftInput) => {
     const shift: EditShift = {
-      id: data.id ?? '',
+      id: shiftBeingEdited?.id ?? '',
       startHour: data.startHour.hour,
       endHour: data.endHour.hour,
       startMinute: data.startHour.minute,
@@ -117,7 +89,7 @@ const EditShiftModal = ({ isOpen, onClose, entityId, shiftBeingEdited }: Props) 
   const useEditShift = () => {
     return useAppMutation<Shift, EditShift, Shift>({
       mutationFn: async (data) => {
-        const response = await shiftApi.editShift(data.id ?? '', data)
+        const response = await shiftApi.editShift(data)
         return response.payload
       },
       queryKey: ['shifts'],
@@ -131,6 +103,48 @@ const EditShiftModal = ({ isOpen, onClose, entityId, shiftBeingEdited }: Props) 
   }
 
   const { mutateAsync: editShift, isPending: isEditingShift } = useEditShift()
+
+  useEffect(() => {
+    if (entityId) {
+      setValue('entityId', entityId)
+    }
+    if (shiftBeingEdited) {
+      console.log('updating shift title to', shiftBeingEdited.title)
+      setValue('title', shiftBeingEdited.title)
+
+      let startHr =
+        shiftBeingEdited.startHour < 10
+          ? `0${shiftBeingEdited.startHour}`
+          : shiftBeingEdited.startHour
+      const startMin =
+        shiftBeingEdited.startMinute < 10
+          ? `0${shiftBeingEdited.startMinute}`
+          : shiftBeingEdited.startMinute
+      let endHr =
+        shiftBeingEdited.endHour < 10 ? `0${shiftBeingEdited.endHour}` : shiftBeingEdited.endHour
+      const endMin =
+        shiftBeingEdited.endMinute < 10
+          ? `0${shiftBeingEdited.endMinute}`
+          : shiftBeingEdited.endMinute
+      // Adjust for timezone offset
+      const tzOffset = new Date().getTimezoneOffset() / 60 - 1 // Get timezone offset in hours plus one more hour
+
+      // Add timezone offset to get correct local time
+      const adjustedStartHr = Number(startHr) + tzOffset
+      const adjustedEndHr = Number(endHr) + tzOffset
+
+      // Format with leading zeros if needed
+      const formattedStartHr = adjustedStartHr < 10 ? `0${adjustedStartHr}` : adjustedStartHr
+      const formattedEndHr = adjustedEndHr < 10 ? `0${adjustedEndHr}` : adjustedEndHr
+
+      // Use adjusted hours in the time strings
+      startHr = formattedStartHr.toString()
+      endHr = formattedEndHr.toString()
+
+      setValue('startHour', parseAbsoluteToLocal(`2024-04-08T${startHr}:${startMin}:22Z`))
+      setValue('endHour', parseAbsoluteToLocal(`2024-04-08T${endHr}:${endMin}:22Z`))
+    }
+  }, [shiftBeingEdited, setValue, entityId])
 
   return (
     <Modal
@@ -171,7 +185,8 @@ const EditShiftModal = ({ isOpen, onClose, entityId, shiftBeingEdited }: Props) 
               radius="sm"
               size="md"
               label="Title"
-              {...register('title')}
+              value={watch('title')}
+              onChange={(e) => setValue('title', e.target.value)}
               isRequired
             />
             <div className="flex w-full flex-row gap-2">
@@ -187,6 +202,7 @@ const EditShiftModal = ({ isOpen, onClose, entityId, shiftBeingEdited }: Props) 
                     value={field.value}
                     onChange={field.onChange}
                     isRequired
+                    hideTimeZone
                   />
                 )}
               />
@@ -202,6 +218,7 @@ const EditShiftModal = ({ isOpen, onClose, entityId, shiftBeingEdited }: Props) 
                     value={field.value}
                     onChange={field.onChange}
                     isRequired
+                    hideTimeZone
                   />
                 )}
               />
@@ -226,11 +243,11 @@ const EditShiftModal = ({ isOpen, onClose, entityId, shiftBeingEdited }: Props) 
               radius="sm"
               size="sm"
               className="bg-[#417D7A] text-white"
-              startContent={<Plus />}
+              startContent={<Pencil size={18} strokeWidth={1.2} />}
               isLoading={isSubmitting}
               type="submit"
             >
-              Add Shift
+              Edit Shift
             </Button>
           </ModalFooter>
         </form>

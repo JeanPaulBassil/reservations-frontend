@@ -20,6 +20,7 @@ import ErrorBlock from '@/app/_components/shared/ErrorBlock'
 import SelectNumberOfRows from '@/app/_components/shared/SelectNumberOfRows'
 import { columns } from '../../(admin)/companies/CompaniesClientPage'
 import Table from '@/app/_components/shared/Table'
+import EditShiftModal from './_components/EditShiftModal'
 
 const shiftApi = new ShiftApi()
 
@@ -31,7 +32,13 @@ const page = () => {
     onOpen: onOpenAddShiftModal,
     onClose: onCloseAddShiftModal,
   } = useDisclosure()
+  const {
+    isOpen: isOpenEditShiftModal,
+    onOpen: onOpenEditShiftModal,
+    onClose: onCloseEditShiftModal,
+  } = useDisclosure()
   const [nameSearch, setNameSearch] = useState('')
+  const [shiftBeingEdited, setShiftBeingEdited] = useState<Shift | null>(null)
 
   const { get: getQueries, set: setQueries } = useOrderedQueries<{
     name: string
@@ -99,8 +106,8 @@ const page = () => {
             label: 'Edit',
             icon: <Pencil className="text-primary" width={18} strokeWidth={1.2} />,
             onClick: () => {
-              // setShiftToUpdate(shift)
-              // onOpenEditModal()
+              setShiftBeingEdited(shift)
+              onOpenEditShiftModal()
             },
           },
           {
@@ -122,6 +129,12 @@ const page = () => {
 
   return (
     <div className="h-screen">
+      <EditShiftModal
+        isOpen={isOpenEditShiftModal}
+        onClose={onCloseEditShiftModal}
+        entityId={selectedEntityId}
+        shiftBeingEdited={shiftBeingEdited}
+      />
       <AddShiftModal
         isOpen={isOpenAddShiftModal}
         onClose={onCloseAddShiftModal}
