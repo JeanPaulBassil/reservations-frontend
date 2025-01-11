@@ -5,6 +5,7 @@ import { UserApi } from '@/api/user.api'
 import { useToast } from '@/app/contexts/ToastContext'
 import { joiResolver } from '@hookform/resolvers/joi'
 import { Button } from '@nextui-org/button'
+import { Checkbox } from '@nextui-org/checkbox'
 import { Input } from '@nextui-org/input'
 import { Modal, ModalBody, ModalContent, ModalFooter } from '@nextui-org/modal'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -22,6 +23,7 @@ const companySchema = Joi.object({
   adminUsername: Joi.string().required(),
   adminPassword: Joi.string().required(),
   name: Joi.string().required(),
+  isTableObligatory: Joi.boolean().required(),
 })
 
 const AddCompanyModal = ({ isOpen, onClose }: Props) => {
@@ -37,6 +39,9 @@ const AddCompanyModal = ({ isOpen, onClose }: Props) => {
     reset,
   } = useForm<CreateCompany>({
     resolver: joiResolver(companySchema),
+    defaultValues: {
+      isTableObligatory: false,
+    },
   })
 
   const onSubmit = (data: CreateCompany) => {
@@ -95,35 +100,37 @@ const AddCompanyModal = ({ isOpen, onClose }: Props) => {
 
           {/* Modal Content */}
           <ModalBody className="my-4 flex flex-col items-start justify-center px-0">
-            <Input
-              label="Company Name"
-              aria-label="Company Name"
-              placeholder="Enter the company name"
-              variant="bordered"
-              className="w-full"
-              isRequired
-              autoComplete="off"
-              isDisabled={isSubmitting}
-              radius="sm"
-              {...register('name')}
-              errorMessage={errors.name?.message}
-              isInvalid={!!errors.name}
-            />
-            <Input
-              label="Admin Username"
-              aria-label="Admin Username"
-              placeholder="Enter the admin username"
-              variant="bordered"
-              className="w-full"
-              isRequired
-              isDisabled={isSubmitting}
-              radius="sm"
-              autoComplete="none"
-              aria-autocomplete="none"
-              {...register('adminUsername')}
-              errorMessage={errors.adminUsername?.message}
-              isInvalid={!!errors.adminUsername}
-            />
+            <div className="flex w-full gap-2">
+              <Input
+                label="Company Name"
+                aria-label="Company Name"
+                placeholder="Enter the company name"
+                variant="bordered"
+                className="w-full"
+                isRequired
+                autoComplete="off"
+                isDisabled={isSubmitting}
+                radius="sm"
+                {...register('name')}
+                errorMessage={errors.name?.message}
+                isInvalid={!!errors.name}
+              />
+              <Input
+                label="Admin Username"
+                aria-label="Admin Username"
+                placeholder="Enter the admin username"
+                variant="bordered"
+                className="w-full"
+                isRequired
+                isDisabled={isSubmitting}
+                radius="sm"
+                autoComplete="none"
+                aria-autocomplete="none"
+                {...register('adminUsername')}
+                errorMessage={errors.adminUsername?.message}
+                isInvalid={!!errors.adminUsername}
+              />
+            </div>
             <Input
               endContent={
                 <button type="button" onClick={toggleVisibility}>
@@ -148,6 +155,9 @@ const AddCompanyModal = ({ isOpen, onClose }: Props) => {
               errorMessage={errors.adminPassword?.message}
               isInvalid={!!errors.adminPassword}
             />
+            <Checkbox {...register('isTableObligatory')} size="sm">
+              Tables are obligatory
+            </Checkbox>
           </ModalBody>
 
           <ModalFooter className="px-0">

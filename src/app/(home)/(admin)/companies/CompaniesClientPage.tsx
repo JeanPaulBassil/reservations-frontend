@@ -25,7 +25,6 @@ import { ApiResponse, ServerError } from '@/api/utils'
 import { CompanyApi } from '@/api/company.api'
 import { Company } from '@/api/models/Company'
 import AddCompanyModal from './_components/AddCompanyModal'
-import CompanyProfile from './_components/CompanyProfile'
 import ErrorBlock from '@/app/_components/shared/ErrorBlock'
 import Table from '@/app/_components/shared/Table'
 import SelectNumberOfRows from '@/app/_components/shared/SelectNumberOfRows'
@@ -98,7 +97,16 @@ const CompaniesClientPage = () => {
     return companies.payload.map((company: Company) => {
       return {
         id: Number(company.id),
-        name: company.name,
+        name: (
+          <div className="flex items-center gap-2">
+            <div>{company.name}</div>
+            {company.companySettings.isTableObligatory && (
+              <Chip size="sm" variant="dot" color="success">
+                Tables Obligatory
+              </Chip>
+            )}
+          </div>
+        ),
         ownerUsername: company.users.find((user) => user.role === UserRole.OWNER)?.username,
         numberOfEntities: company.entities?.length || 0,
         actions: [

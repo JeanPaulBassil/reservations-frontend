@@ -38,6 +38,7 @@ type TabPage = 'Calendar' | 'List'
 export default function ReservationsPage() {
   const { onToggle } = useSidebarContext()
   const { selectedEntityId } = useEntity()
+
   const { get: getQueries, set: setQueries } = useOrderedQueries<ReservationQuery>({
     date: parseDate(new Date().toLocaleDateString('en-CA')),
   })

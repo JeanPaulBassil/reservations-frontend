@@ -22,10 +22,10 @@ export class EntityApi extends AbstractApi<Entity> {
     return response
   }
 
-  public async getEntities(nameSearch: string): Promise<ApiResponse<Entity[]>> {
+  public async getEntities(nameSearch?: string): Promise<ApiResponse<Entity[]>> {
     const response = (await this.doFetch({
       queries: {
-        nameSearch,
+        nameSearch: nameSearch || '',
       },
       requestOptions: {
         method: 'GET',

@@ -6,6 +6,7 @@ import { useToast } from '@/app/contexts/ToastContext'
 import useAppMutation from '@/app/hooks/useAppHook'
 import { joiResolver } from '@hookform/resolvers/joi'
 import { Button } from '@nextui-org/button'
+import { Checkbox } from '@nextui-org/checkbox'
 import { Input } from '@nextui-org/input'
 import { Modal, ModalBody, ModalContent, ModalFooter } from '@nextui-org/modal'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -24,6 +25,7 @@ type Props = {
 const companySchema = Joi.object({
   adminUsername: Joi.string().required(),
   name: Joi.string().required(),
+  isTableObligatory: Joi.boolean().required(),
 })
 
 const companyApi = new CompanyApi()
@@ -36,6 +38,7 @@ const EditCompanyModal = ({ isOpen, onClose, companyToUpdate, setCompanyToUpdate
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
+    watch,
   } = useForm<UpdateCompany>({
     resolver: joiResolver(companySchema),
   })
@@ -67,9 +70,12 @@ const EditCompanyModal = ({ isOpen, onClose, companyToUpdate, setCompanyToUpdate
       reset({
         name: companyToUpdate.name,
         adminUsername: companyToUpdate.users[0].username,
+        isTableObligatory: companyToUpdate.companySettings.isTableObligatory,
       })
     }
   }, [companyToUpdate])
+
+  console.log('watchIStables', watch('isTableObligatory'))
 
   return (
     <Modal
@@ -134,6 +140,9 @@ const EditCompanyModal = ({ isOpen, onClose, companyToUpdate, setCompanyToUpdate
               errorMessage={errors.adminUsername?.message}
               isInvalid={!!errors.adminUsername}
             />
+            <Checkbox {...register('isTableObligatory')} size="sm">
+              Tables are obligatory
+            </Checkbox>
           </ModalBody>
 
           <ModalFooter className="px-0">
