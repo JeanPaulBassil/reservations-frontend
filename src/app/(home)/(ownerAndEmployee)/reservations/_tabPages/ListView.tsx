@@ -109,6 +109,10 @@ const ListView = () => {
   }, [reservations])
 
   const occupancyPercentage = useMemo(() => {
+
+    if (!numberOfFreeSeats || !occupiedSeats) {
+      return 0
+    }
     return ((occupiedSeats ?? 0) / (numberOfFreeSeats ?? 0)) * 100
   }, [occupiedSeats, numberOfFreeSeats])
 
@@ -335,6 +339,8 @@ const ListView = () => {
     { key: 'all', label: 'All', icon: <List size={16} color="blue" />, color: 'bg-blue-100' },
     ...reservationStatuses,
   ]
+  
+  console.log("occupency percentage", occupancyPercentage)
 
   return (
     <div className="flex h-[calc(100vh-6.5rem)] w-full flex-col overflow-hidden">

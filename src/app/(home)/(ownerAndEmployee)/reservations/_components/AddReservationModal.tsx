@@ -102,7 +102,6 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
 
   useEffect(() => {
     if (tablesAreObligatory) {
-      console.log('tablesAreObligatory', tablesAreObligatory)
       setValue('tablesAreObligatory', true)
     }
   }, [tablesAreObligatory])
