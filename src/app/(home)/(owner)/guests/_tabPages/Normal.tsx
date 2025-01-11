@@ -7,6 +7,7 @@ import {
   Ban,
   Copy,
   DeleteIcon,
+  Download,
   EditIcon,
   EyeIcon,
   PencilIcon,
@@ -63,12 +64,6 @@ const Normal = () => {
   const debounceSearch = useDebouncedCallback((value: string) => {
     setQueries({ search: value })
   }, 500)
-
-  const {
-    isOpen: isOpenCreateModal,
-    onOpen: onOpenCreateModal,
-    onClose: onCloseCreateModal,
-  } = useDisclosure()
 
   const {
     isOpen: isOpenEditModal,
@@ -317,6 +312,38 @@ const Normal = () => {
             }}
             value={search}
           />
+          <Button
+            radius="sm"
+            variant="bordered"
+            startContent={<Download size={16} />}
+            onClick={() => {
+              if (!guests) return
+              
+              const headers = columns.map(col => col.label)
+              const data = guests.map(guest => [
+                guest.name,
+                guest.email,
+                guest.phone
+              ])
+
+              const csvContent = [
+                headers.join(','),
+                ...data.map(row => row.join(','))
+              ].join('\n')
+
+              const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+              const link = document.createElement('a')
+              const url = URL.createObjectURL(blob)
+              link.setAttribute('href', url)
+              link.setAttribute('download', 'guests.csv')
+              link.style.visibility = 'hidden'
+              document.body.appendChild(link)
+              link.click()
+              document.body.removeChild(link)
+            }}
+          >
+            Export
+          </Button>
         </div>
         <div className="flex flex-wrap gap-4">
           {!guests ? (
