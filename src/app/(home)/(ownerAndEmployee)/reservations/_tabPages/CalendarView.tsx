@@ -106,11 +106,6 @@ const CalendarView = (props: Props) => {
     },
   ]
 
-  const reservationStatusFilterValues = [
-    { key: 'all', label: 'All', icon: <List size={16} color="blue" />, color: 'bg-blue-100' },
-    ...reservationStatuses,
-  ]
-
   function getReservationsSummaryByDay(reservations: Reservation[]): CalendarReservationSummary[] {
     // Create a map to store reservation summaries per date
     const summaryMap: { [key: string]: CalendarReservationSummary } = {}

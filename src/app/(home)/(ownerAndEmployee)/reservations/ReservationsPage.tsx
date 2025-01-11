@@ -127,7 +127,7 @@ export default function ReservationsPage() {
       <Spacer y={2} />
 
       {/* Dynamic Tab Content */}
-      <div className="w-full overflow-x-auto">
+      <div className="h-full w-full overflow-x-auto">
         {tabs.find((tab) => tab.id === selectedTab)?.component}
       </div>
     </div>
