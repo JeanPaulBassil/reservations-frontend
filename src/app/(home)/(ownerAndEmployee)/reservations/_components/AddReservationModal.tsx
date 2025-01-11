@@ -21,11 +21,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import Joi from 'joi'
 import {
   Armchair,
-  Calendar,
   FileText,
   Mail,
   Pencil,
-  Phone,
   Plus,
   User,
   Users,
@@ -38,6 +36,8 @@ import { GuestApi } from '@/api/guest.api'
 import { Guest } from '@/api/models/Guest'
 import useOrderedQueries from '@/hooks/useQueries'
 import useDebouncedCallback from '@/hooks/useDebounceCallback'
+import { CompanyApi } from '@/api/company.api'
+import { EntityApi } from '@/api/entity.api'
 
 type Props = {
   isOpen: boolean
@@ -47,7 +47,11 @@ type Props = {
 }
 
 const reservationSchema = Joi.object({
-  tableId: Joi.string().optional().allow(''),
+  tableId: Joi.string().when('tablesAreObligatory', {
+    is: true,
+    then: Joi.string().required(),
+    otherwise: Joi.string().optional().allow(''),
+  }),
   guestName: Joi.string().required(),
   guestEmail: Joi.string().optional().email({ tlds: false }).allow(''),
   guestPhone: Joi.string().required(),
@@ -87,6 +91,22 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
     },
   })
 
+  const entityApi = new EntityApi()
+  const { data: tablesAreObligatory } = useQuery<boolean, ServerError>({
+    queryKey: ['tablesAreObligatory', entityId],
+    queryFn: async () => {
+      const response = await entityApi.getTableRequiredByEntityId(entityId ?? '')
+      return response.payload
+    },
+  })
+
+  useEffect(() => {
+    if (tablesAreObligatory) {
+      console.log('tablesAreObligatory', tablesAreObligatory)
+      setValue('tablesAreObligatory', true)
+    }
+  }, [tablesAreObligatory])
+
   const debouncePhoneSearch = useDebouncedCallback((value: string) => {
     setPhoneQueries({ phoneSearch: value })
   }, 500)
@@ -106,6 +126,7 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
       date: new Date(),
       startTime: new Date(),
       source: ReservationSource.WALK_IN,
+      tablesAreObligatory: false,
     },
   })
 
@@ -177,8 +198,6 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
     return items
   }, [guests, guestPhoneValue])
 
-  console.log('errors', errors)
-  console.log('guestPhone', watch('guestPhone'))
   return (
     <Modal
       classNames={{

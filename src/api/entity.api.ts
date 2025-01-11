@@ -5,7 +5,7 @@ import { CreateUser, User } from './models/User'
 import { ApiResponse } from './utils'
 import { AbstractApi, ApiRequestParams } from './utils/AbstractApi'
 
-export class EntityApi extends AbstractApi<Entity> {
+export class EntityApi extends AbstractApi<Entity | boolean> {
   readonly path = 'entities'
   constructor() {
     super('entities')
@@ -32,7 +32,6 @@ export class EntityApi extends AbstractApi<Entity> {
       },
     })) as ApiResponse<Entity[]>
 
-
     return response
   }
 
@@ -55,6 +54,22 @@ export class EntityApi extends AbstractApi<Entity> {
       },
       pathExtension: id,
     })) as ApiResponse<Entity>
+
+    return response
+  }
+
+  // @Get(":id/table-required")
+  // async getTableRequiredByEntityId(@Param("id") id: string) {
+  //   return this.entityService.getTableRequredByEntityId(id);
+  // }
+
+  public async getTableRequiredByEntityId(id: string): Promise<ApiResponse<boolean>> {
+    const response = (await this.doFetch({
+      requestOptions: {
+        method: 'GET',
+      },
+      pathExtension: `${id}/table-required`,
+    })) as ApiResponse<boolean>
 
     return response
   }

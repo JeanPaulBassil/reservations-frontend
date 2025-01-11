@@ -44,6 +44,7 @@ export enum ReservationSource {
 }
 
 export interface CreateReservation {
+  tablesAreObligatory: boolean
   tableId?: string
   guestName: string
   guestEmail?: string
