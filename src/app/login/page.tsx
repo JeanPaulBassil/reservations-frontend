@@ -73,57 +73,6 @@ function LoginComponent() {
   }
 
   return (
-    // <div className="flex h-screen w-screen items-center justify-center bg-gradient-to-br from-[#ffd2d2] via-[#abfffb] to-[#a8fffb] p-2 sm:p-4 lg:p-8">
-    //   <div className="flex w-full max-w-sm flex-col gap-4 rounded-md bg-background/60 px-8 pb-10 pt-6 shadow-small backdrop-blur-md backdrop-saturate-150 dark:bg-default-100/50">
-    //     <p className="pb-2 text-xl font-medium">Log In</p>
-    //     <form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
-    //       <Input
-    //         classNames={inputClasses}
-    //         label="Email Address"
-    //         radius="sm"
-    //         placeholder="Enter your email"
-    //         type="text"
-    //         {...register('username')}
-    //         errorMessage={errors.username?.message}
-    //         isInvalid={!!errors.username}
-    //         isRequired
-    //         isDisabled={isSubmitting}
-    //         variant="bordered"
-    //       />
-    //       <Input
-    //         classNames={inputClasses}
-    //         endContent={
-    //           <button type="button" onClick={toggleVisibility}>
-    //             {isVisible ? (
-    //               <Icon
-    //                 className="pointer-events-none text-2xl text-foreground/50"
-    //                 icon="solar:eye-closed-linear"
-    //               />
-    //             ) : (
-    //               <Icon
-    //                 className="pointer-events-none text-2xl text-foreground/50"
-    //                 icon="solar:eye-bold"
-    //               />
-    //             )}
-    //           </button>
-    //         }
-    //         label="Password"
-    //         radius="sm"
-    //         placeholder="Enter your password"
-    //         type={isVisible ? 'text' : 'password'}
-    //         variant="bordered"
-    //         {...register('password')}
-    //         errorMessage={errors.password?.message}
-    //         isInvalid={!!errors.password}
-    //         isRequired
-    //         isDisabled={isSubmitting}
-    //       />
-    //       <Button className={buttonClasses} isLoading={isSubmitting} radius="sm" type="submit">
-    //         Log In
-    //       </Button>
-    //     </form>
-    //   </div>
-    // </div>
     <div className="relative flex h-screen w-screen">
       {/* Brand Logo */}
       <div className="absolute left-2 top-5 lg:left-5">
