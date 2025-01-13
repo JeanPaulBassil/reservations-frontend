@@ -9,6 +9,7 @@ export interface Company {
   users: User[]
   entities: Entity[]
   companySettings: CompanySettings
+  isBlocked: boolean
 }
 
 export interface CompanySettings {

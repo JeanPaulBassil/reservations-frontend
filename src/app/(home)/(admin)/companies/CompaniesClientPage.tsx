@@ -3,7 +3,7 @@ import Widget from '@/app/_components/shared/Widget'
 import { useSidebarContext } from '@/app/contexts/SidebarContext'
 import { Button } from '@nextui-org/button'
 import { useDisclosure } from '@nextui-org/modal'
-import { Link, Loader2, Pen, Pencil, Plus, Search, SearchIcon, Sidebar, Trash } from 'lucide-react'
+import { Link, Loader2, Lock, Pen, Pencil, Plus, Search, SearchIcon, Sidebar, Trash, Unlock } from 'lucide-react'
 import React, { useCallback, useMemo, useState } from 'react'
 import {
   Chip,
@@ -111,6 +111,13 @@ const CompaniesClientPage = () => {
         numberOfEntities: company.entities?.length || 0,
         actions: [
           {
+            label: company.isBlocked ? 'Unblock' : 'Block',
+            icon: company.isBlocked ? <Unlock className="text-primary" width={18} strokeWidth={1.2} /> : <Lock className="text-primary" width={18} strokeWidth={1.2} />,
+            onClick: () => {
+              toggleCompanyBlock({ id: company.id })
+            },
+          },
+          {
             label: 'Edit',
             icon: <Pencil className="text-primary" width={18} strokeWidth={1.2} />,
             onClick: () => {
@@ -130,6 +137,20 @@ const CompaniesClientPage = () => {
       }
     })
   }, [companies])
+
+  const useToggleCompanyBlock = () => {
+    return useAppMutation<Company, { id: string }, Company>({
+      mutationFn: async ({ id }) => {
+        const response = await companyApi.toggleCompanyBlock(id)
+        return response.payload
+      },
+      queryKey: ['companies'],
+      successMessage: 'Company blocked successfully!',
+      errorMessage: 'Failed to block company. Please try again.',
+    })
+  }
+
+  const { mutateAsync: toggleCompanyBlock, isPending: isTogglingCompanyBlock } = useToggleCompanyBlock()
 
   const columns = useMemo(() => {
     return [

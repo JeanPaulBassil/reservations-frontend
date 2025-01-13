@@ -28,7 +28,6 @@ export class CompanyApi extends AbstractApi<Company> {
       },
     })) as ApiResponse<Company[]>
 
-
     return response
   }
 
@@ -50,6 +49,17 @@ export class CompanyApi extends AbstractApi<Company> {
         body: JSON.stringify(data),
       },
       pathExtension: id,
+    })) as ApiResponse<Company>
+
+    return response
+  }
+
+  public async toggleCompanyBlock(id: string): Promise<ApiResponse<Company>> {
+    const response = (await this.doFetch({
+      requestOptions: {
+        method: 'PATCH',
+      },
+      pathExtension: `${id}/block`,
     })) as ApiResponse<Company>
 
     return response

@@ -16,6 +16,7 @@ import { useToaster } from 'react-hot-toast'
 import { useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 import { useToast } from '../contexts/ToastContext'
+import { ServerError } from '@/api/utils/ResponseError'
 
 type FormValues = {
   username: string
@@ -63,7 +64,11 @@ function LoginComponent() {
         router.replace(redirectParam ?? '/')
       }, 200)
     } catch (error) {
-      toast.error('Invalid credentials')
+      if (error instanceof ServerError) {
+        toast.error(error.message)
+      } else {
+        toast.error('An error occurred. Please try again.')
+      }
     }
   }
 
@@ -169,7 +174,12 @@ function LoginComponent() {
               errorMessage={errors.password?.message}
               isInvalid={!!errors.password}
             />
-            <Button className='bg-[#417D7A] text-[#f5f5f5]' type="submit" isLoading={isSubmitting} radius='sm'>
+            <Button
+              className="bg-[#417D7A] text-[#f5f5f5]"
+              type="submit"
+              isLoading={isSubmitting}
+              radius="sm"
+            >
               Log In
             </Button>
           </form>
@@ -185,8 +195,7 @@ function LoginComponent() {
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
-      >
-      </div>
+      ></div>
     </div>
   )
 }
