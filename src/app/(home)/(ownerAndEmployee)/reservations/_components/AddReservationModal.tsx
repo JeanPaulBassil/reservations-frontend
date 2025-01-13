@@ -62,6 +62,7 @@ const reservationSchema = Joi.object({
   numberOfGuests: Joi.number().required(),
   note: Joi.string().optional().allow(''),
   source: Joi.string().required(),
+  tablesAreObligatory: Joi.boolean().required(),
 })
 
 const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
@@ -196,6 +197,8 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
 
     return items
   }, [guests, guestPhoneValue])
+
+  console.log('errors', errors)
 
   return (
     <Modal
