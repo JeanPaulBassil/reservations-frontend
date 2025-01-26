@@ -109,7 +109,6 @@ const ListView = () => {
   }, [reservations])
 
   const occupancyPercentage = useMemo(() => {
-
     if (!numberOfFreeSeats || !occupiedSeats) {
       return 0
     }
@@ -176,13 +175,13 @@ const ListView = () => {
     {
       key: ReservationStatus.PENDING,
       label: 'Pending',
-      icon: <Hourglass size={16} color="gray" />,
+      icon: <Hourglass size={20} color="gray" />,
       color: 'bg-gray-100',
     },
     {
       key: ReservationStatus.SEATED,
       label: 'Seated',
-      icon: <Armchair size={16} color="green" />,
+      icon: <Armchair size={20} color="green" />,
       color: 'bg-green-100',
     },
     {
@@ -194,31 +193,31 @@ const ListView = () => {
     {
       key: ReservationStatus.NO_SHOW,
       label: 'No Show',
-      icon: <Ban size={16} color="red" />,
+      icon: <Ban size={20} color="red" />,
       color: 'bg-red-100',
     },
     {
       key: ReservationStatus.LATE,
       label: 'Late',
-      icon: <Clock size={16} color="orange" />,
+      icon: <Clock size={20} color="orange" />,
       color: 'bg-orange-100',
     },
     {
       key: ReservationStatus.CANCELLED,
       label: 'Cancelled',
-      icon: <X size={16} color="red" />,
+      icon: <X size={20} color="red" />,
       color: 'bg-red-100',
     },
     {
       key: ReservationStatus.DELETED,
       label: 'Deleted',
-      icon: <Trash size={16} color="gray" />,
+      icon: <Trash size={20} color="gray" />,
       color: 'bg-gray-100',
     },
     {
       key: ReservationStatus.WAITLISTED,
       label: 'Waitlisted',
-      icon: <List size={16} color="blue" />,
+      icon: <List size={20} color="blue" />,
       color: 'bg-blue-100',
     },
   ]
@@ -273,6 +272,7 @@ const ListView = () => {
                 variant="light"
                 startContent={reservationStatuses.find((s) => s.key === reservation?.status)?.icon}
                 isIconOnly
+                size="lg"
               />
             </DropdownTrigger>
             <DropdownMenu
@@ -339,8 +339,8 @@ const ListView = () => {
     { key: 'all', label: 'All', icon: <List size={16} color="blue" />, color: 'bg-blue-100' },
     ...reservationStatuses,
   ]
-  
-  console.log("occupency percentage", occupancyPercentage)
+
+  console.log('occupency percentage', occupancyPercentage)
 
   return (
     <div className="flex h-[calc(100vh-6.5rem)] w-full flex-col overflow-hidden">
@@ -353,7 +353,7 @@ const ListView = () => {
       />
 
       {/* Filters and Widget Header */}
-      <Widget className="flex w-full h-full max-w-full flex-col border-2 border-gray-200 px-5 py-4">
+      <Widget className="flex h-full w-full max-w-full flex-col border-2 border-gray-200 px-5 py-4">
         <div className="flex w-full items-center justify-center md:justify-between">
           <div className="hidden w-full flex-wrap items-center gap-2 md:flex">
             <Tooltip content="Number of Guests" size="sm" radius="sm">
