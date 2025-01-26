@@ -73,4 +73,15 @@ export class EntityApi extends AbstractApi<Entity | boolean> {
 
     return response
   }
+
+  public async getEntity(id: string): Promise<ApiResponse<Entity>> {
+    const response = (await this.doFetch({
+      requestOptions: {
+        method: 'GET',
+      },
+      pathExtension: id,
+    })) as ApiResponse<Entity>
+
+    return response
+  }
 }

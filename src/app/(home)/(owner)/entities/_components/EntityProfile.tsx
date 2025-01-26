@@ -43,22 +43,11 @@ export default function EntityProfile({ entity }: { entity: Entity }) {
       await entityApi.deleteEntity(entity.id)
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['entities'] })
       toast.success('Entity deleted successfully')
     },
     onError: (error) => {
       toast.error(error.message)
-    },
-    onMutate: async () => {
-      await queryClient.cancelQueries({
-        queryKey: ['entities'],
-      })
-      const previousEntities = queryClient.getQueryData<Entity[]>(['entities']) as Entity[]
-      queryClient.setQueryData(
-        ['entities'],
-        previousEntities.filter((c) => c.id !== entity.id)
-      )
-
-      return { previousEntities }
     },
   })
 
