@@ -113,6 +113,7 @@ const AddShiftModal = ({ isOpen, onClose, entityId }: Props) => {
         return response.payload
       },
       queryKey: ['shifts'],
+      additionalInvalidateQueries: [['reservations']],
       successMessage: 'Shift created successfully!',
       onSuccessCallback: () => {
         onClose()

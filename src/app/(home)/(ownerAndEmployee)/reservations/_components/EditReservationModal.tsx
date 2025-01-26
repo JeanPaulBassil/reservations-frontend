@@ -32,7 +32,7 @@ type Props = {
 }
 
 const reservationSchema = Joi.object({
-  tableId: Joi.string().required(),
+  tableId: Joi.optional().allow(''),
   date: Joi.date().required(),
   startTime: Joi.date().required(),
   numberOfGuests: Joi.number().required(),

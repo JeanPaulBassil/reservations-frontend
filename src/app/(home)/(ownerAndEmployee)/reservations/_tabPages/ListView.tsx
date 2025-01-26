@@ -23,6 +23,8 @@ import {
 } from 'lucide-react'
 import React, { useMemo, useRef, useState } from 'react'
 import {
+  Accordion,
+  AccordionItem,
   Chip,
   DatePicker,
   Dropdown,
@@ -59,6 +61,7 @@ import EditReservationModal from '../_components/EditReservationModal'
 import AddReservationModal from '../_components/AddReservationModal'
 import { TableApi } from '@/api/table.api'
 import { Table as TableType } from '@/api/models/Table'
+import { Shift } from '@/api/models/Shift'
 
 const ListView = () => {
   const router = useRouter()
@@ -87,6 +90,25 @@ const ListView = () => {
     },
     enabled: !!selectedEntityId,
   })
+
+  const shiftsFromTheReservations = useMemo(() => {
+    if (!reservations) return []
+    
+    const shifts = reservations.reduce((acc, reservation) => {
+      if (reservation.shift && !acc.find(s => s.id === reservation.shift?.id)) {
+        acc.push(reservation.shift)
+      }
+      return acc
+    }, [] as Shift[])
+
+    // Add "no shift" option
+    shifts.push({
+      id: 'no-shift',
+      title: 'No Shift',
+    } as Shift)
+
+    return shifts
+  }, [reservations])
 
   const { data: tables } = useQuery<TableType[], ServerError>({
     queryKey: ['tables', selectedEntityId],
@@ -340,8 +362,10 @@ const ListView = () => {
     ...reservationStatuses,
   ]
 
-  console.log('occupency percentage', occupancyPercentage)
 
+  console.log('shiftsFromTheReservations', shiftsFromTheReservations)
+
+  console.log('reservations', reservations)
   return (
     <div className="flex h-[calc(100vh-6.5rem)] w-full flex-col overflow-hidden">
       <EditReservationModal
@@ -490,41 +514,68 @@ const ListView = () => {
               <Spinner color="success" />
             </div>
           ) : (
-            <Table
-              aria-label="Example table with dynamic content"
-              classNames={{
-                th: 'bg-[#ffffff] border-b-2 border-gray-200',
-                wrapper: 'p-0 mt-5',
-              }}
-              className="w-full"
-              radius="sm"
-            >
-              <TableHeader columns={columns}>
-                {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
-              </TableHeader>
-              <TableBody
-                items={reservations}
-                emptyContent={
-                  <div className="flex w-full items-center justify-center">
-                    <h2>No reservations found</h2>
-                  </div>
-                }
+            <Accordion defaultExpandedKeys={shiftsFromTheReservations.map((shift) => shift.id)} className='mt-5'>
+              {shiftsFromTheReservations.map((shift) => (
+                <AccordionItem
+                  key={shift.id}
+                  aria-label="Accordion 1"
+                  subtitle={`${reservations?.filter((reservation) => reservation.shiftId === shift.id).length} reservations`}
+                  title={shift.title}
+                  className="p-0 mt-0"
+                classNames={{
+                  content: 'p-0 mt-0',
+                  title: 'p-0 mt-0',
+                  indicator: 'p-0 mt-0',
+                  startContent: 'p-0 mt-0',
+                  base: 'p-0 mt-0',
+                  heading: 'p-0 mt-0',
+                  subtitle: 'p-0 mt-0',
+                }}
               >
-                {(item) => (
-                  <TableRow
-                    key={item.id}
-                    className={`cursor-pointer transition-colors duration-200 ${reservationStatuses.find((s) => s.key === item.status)?.color}`}
-                    onClick={() => {
-                      setReservation(item)
-                      onOpenEditModal()
-                    }}
+                <Table
+                  aria-label="Example table with dynamic content"
+                  classNames={{
+                    th: 'bg-[#ffffff] border-b-2 border-gray-200',
+                    wrapper: 'p-0',
+                  }}
+                  hideHeader
+                  className="w-full"
+                  radius="sm"
+                >
+                  <TableHeader columns={columns}>
+                    {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
+                  </TableHeader>
+                  <TableBody
+                    items={reservations?.filter((reservation) => {
+                      if (shift.id === 'no-shift') {
+                        return reservation.shiftId === null
+                      }
+                      return reservation.shiftId === shift.id
+                    })}
+                    emptyContent={
+                      <div className="flex w-full items-center justify-center">
+                        <h2>No reservations found</h2>
+                      </div>
+                    }
                   >
-                    {/* @ts-expect-error ts is dumb */}
-                    {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                    {(item) => (
+                      <TableRow
+                        key={item.id}
+                        className={`cursor-pointer transition-colors duration-200 ${reservationStatuses.find((s) => s.key === item.status)?.color}`}
+                        onClick={() => {
+                          setReservation(item)
+                          onOpenEditModal()
+                        }}
+                      >
+                        {/* @ts-expect-error ts is dumb */}
+                        {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+                </AccordionItem>
+              ))}
+            </Accordion>
           )}
         </div>
       </Widget>

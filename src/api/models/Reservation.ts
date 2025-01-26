@@ -2,6 +2,7 @@ import { CalendarDate, DateValue } from "@nextui-org/react"
 import { Guest } from "./Guest"
 import { Table } from "./Table"
 import { CircleIcon } from "lucide-react"
+import { Shift } from "./Shift"
 
 export interface Reservation {
   id: string
@@ -17,6 +18,8 @@ export interface Reservation {
   status: ReservationStatus
   createdAt: Date
   updatedAt: Date
+  shiftId?: string
+  shift?: Shift
 }
 
 export type CalendarReservationSummary = {

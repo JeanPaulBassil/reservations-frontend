@@ -93,6 +93,7 @@ const EditShiftModal = ({ isOpen, onClose, entityId, shiftBeingEdited }: Props) 
         return response.payload
       },
       queryKey: ['shifts'],
+      additionalInvalidateQueries: [['reservations']],
       successMessage: 'Shift edited successfully!',
       onSuccessCallback: () => {
         onClose()
