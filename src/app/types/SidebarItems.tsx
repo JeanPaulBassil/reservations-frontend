@@ -1,12 +1,12 @@
 import { SidebarItem } from '../_components/Sidebar'
-import { Building, Calendar, Clock, Table, User, Users } from 'lucide-react'
+import { Building, Calendar, Clock, Phone, Table, User, Users } from 'lucide-react'
 import { UserRole } from '@/api/models/User'
 
 export const sectionItems: SidebarItem[] = [
   {
     key: 'reservations',
     href: '/reservations',
-    icon: <Calendar strokeWidth={1} color="#ffffff" />,
+    icon: <Phone strokeWidth={1} color="#ffffff" />,
     title: 'Reservations',
     allowedRoles: [UserRole.OWNER, UserRole.EMPLOYEE],
   },

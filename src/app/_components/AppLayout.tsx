@@ -83,13 +83,9 @@ export default function Component({ children }: { children: React.ReactNode }) {
               <Button
                 className="text-white"
                 isIconOnly={isCompact}
-                startContent={
+                endContent={
                   !isCompact && (
-                    <Icon
-                      className="rotate-180 text-white"
-                      icon="solar:minus-circle-line-duotone"
-                      width={24}
-                    />
+                    <p>Log Out</p>
                   )
                 }
                 variant="light"
