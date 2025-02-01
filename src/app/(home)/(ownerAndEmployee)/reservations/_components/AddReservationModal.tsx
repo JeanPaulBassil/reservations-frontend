@@ -44,7 +44,7 @@ const reservationSchema = Joi.object({
     otherwise: Joi.string().optional().allow(''),
   }),
   guestName: Joi.string().required(),
-  guestEmail: Joi.string().optional().email({ tlds: false }).allow(''),
+  guestEmail: Joi.string().optional().allow(''),
   guestPhone: Joi.string().required(),
   guestDescription: Joi.string().optional().allow(''),
   entityId: Joi.string().required(),
@@ -256,6 +256,8 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
                       if (key === 'new') {
                         // User wants to use the entered value
                         setValue('guestPhone', guestPhoneValue, { shouldValidate: true })
+                        setValue('guestName', '')
+                        setValue('guestEmail', '')
                         setExistingGuestSelected(false)
                       } else {
                         // An existing guest was selected
@@ -263,7 +265,7 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
                         if (selectedGuest) {
                           setValue('guestPhone', selectedGuest.phone, { shouldValidate: true })
                           setValue('guestName', selectedGuest.name, { shouldValidate: true })
-                          setValue('guestEmail', selectedGuest.email, { shouldValidate: true })
+                          setValue('guestEmail', selectedGuest.email || '', { shouldValidate: true })
                           setExistingGuestSelected(true)
                         }
                       }
