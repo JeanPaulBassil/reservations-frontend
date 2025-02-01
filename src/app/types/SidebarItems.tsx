@@ -1,6 +1,7 @@
 import { SidebarItem } from '../_components/Sidebar'
 import { Building, Calendar, Clock, Phone, Table, User, Users } from 'lucide-react'
 import { UserRole } from '@/api/models/User'
+import { Icon } from '@iconify/react/dist/iconify.js'
 
 export const sectionItems: SidebarItem[] = [
   {
@@ -41,7 +42,7 @@ export const sectionItems: SidebarItem[] = [
   {
     key: 'tables',
     href: '/tables',
-    icon: <Table strokeWidth={1} color="#ffffff" />,
+    icon: <Icon icon="material-symbols-light:table-bar-outline" width="30" height="30" />,
     title: 'Tables',
     allowedRoles: [UserRole.OWNER, UserRole.EMPLOYEE],
   },
