@@ -19,16 +19,7 @@ import {
 } from '@nextui-org/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import Joi from 'joi'
-import {
-  Armchair,
-  FileText,
-  Mail,
-  Pencil,
-  Plus,
-  User,
-  Users,
-  X,
-} from 'lucide-react'
+import { Armchair, FileText, Mail, Pencil, Plus, User, Users, X } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { reservationSources } from './data'
@@ -198,7 +189,12 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
     return items
   }, [guests, guestPhoneValue])
 
-  console.log('errors', errors)
+  useEffect(() => {
+    const selectedGuest = guests?.find((guest) => guest.phone === guestPhoneValue)
+    if (selectedGuest) {
+      console.log('Selected guest:', selectedGuest)
+    }
+  }, [guests, guestPhoneValue])
 
   return (
     <Modal
@@ -206,7 +202,7 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
         closeButton: 'hidden',
       }}
       backdrop={'blur'}
-      size={'3xl'}
+      size={'4xl'}
       isOpen={isOpen}
       onClose={onClose}
       radius="sm"
@@ -296,7 +292,10 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
                 label="Guest Name"
                 isDisabled={isSubmitting || isLoadingGuests || existingGuestSelected}
                 radius="sm"
-                {...register('guestName')}
+                value={watch('guestName')}
+                onChange={(e) => {
+                  setValue('guestName', e.target.value)
+                }}
                 errorMessage={errors.guestName?.message}
                 isInvalid={!!errors.guestName}
               />
@@ -310,7 +309,10 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
                 labelPlacement="outside"
                 label="Guest Email"
                 radius="sm"
-                {...register('guestEmail')}
+                value={watch('guestEmail')}
+                onChange={(e) => {
+                  setValue('guestEmail', e.target.value)
+                }}
                 errorMessage={errors.guestEmail?.message}
                 isInvalid={!!errors.guestEmail}
               />
@@ -328,7 +330,9 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
                       className="max-w-[284px]"
                       value={parseDate(field.value.toISOString().split('T')[0])}
                       onChange={(value) => {
-                        field.onChange(value.toDate(getLocalTimeZone()))
+                        const date = value.toDate(getLocalTimeZone())
+                        date.setHours(12, 0, 0, 0)
+                        field.onChange(date)
                       }}
                       isInvalid={!!errors.date}
                       errorMessage={errors.date?.message}
