@@ -116,7 +116,7 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
       entityId,
       date: new Date(),
       startTime: new Date(),
-      source: ReservationSource.WALK_IN,
+      source: ReservationSource.PHONE,
       tablesAreObligatory: false,
     },
   })

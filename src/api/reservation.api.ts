@@ -70,6 +70,7 @@ export class ReservationApi extends AbstractApi<Reservation> {
     const response = (await this.doFetch({
       queries: { entityId, month: month.toString() },
       requestOptions: { method: 'GET' },
+      pathExtension: 'per-month',
     })) as ApiResponse<Reservation[]>
 
     return response

@@ -54,6 +54,7 @@ const CalendarView = (props: Props) => {
     },
     enabled: !!selectedEntityId,
   })
+  console.log('reservations', reservations)
 
   const reservationStatuses = [
     {
@@ -132,9 +133,22 @@ const CalendarView = (props: Props) => {
     return Object.values(summaryMap)
   }
 
+  console.log('reservations', reservations)
+
   const summary = getReservationsSummaryByDay(reservations ?? [])
 
-  console.log(summary)
+  console.log('summary', summary)
+
+  const events = useMemo(() => {
+    return summary.map((s) => ({
+      allDay: true,
+      start: new Date(s.date),
+      end: new Date(s.date),
+      title: `${s.totalReservations} reservations (${s.totalGuests} guests)`,
+    }))
+  }, [summary])
+
+  console.log('events', events)
 
   return (
     <Widget className="h-full w-full border-2 border-gray-200 px-4 py-2">
@@ -143,22 +157,7 @@ const CalendarView = (props: Props) => {
         startAccessor="start"
         endAccessor="end"
         className="h-full rounded-md"
-        events={[
-          ...summary.map((s) => ({
-            allDay: true,
-            start: s.date,
-            end: s.date,
-            title: `${s.
-              totalGuests
-            } guests`,
-          })),
-          ...summary.map((s) => ({
-            allDay: true,
-            start: s.date,
-            end: s.date,
-            title: `${s.totalReservations} reservations`,
-          })),
-        ]}
+        events={events}
         components={{
           toolbar: (toolbarProps) => {
             return (
