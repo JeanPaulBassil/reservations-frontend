@@ -422,7 +422,7 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
                   className="max-w-xs"
                   isLoading={isLoading}
                   isDisabled={isLoading}
-                  defaultSelectedKeys={[reservationSources[0].key]}
+                  defaultSelectedKeys={[reservationSources[1].key]}
                   {...register('source')}
                   errorMessage={errors.source?.message}
                   isInvalid={!!errors.source}
