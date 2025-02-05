@@ -121,6 +121,7 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
     },
   })
 
+  console.log('startTime', watch('startTime'))
   const onSubmit = (data: CreateReservation) => {
     createReservation(data)
   }
@@ -344,7 +345,7 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
               />
               <Controller
                 control={control}
-                name="date"
+                name="startTime"
                 render={({ field }) => {
                   return (
                     <TimeInput
@@ -357,8 +358,8 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
                       onChange={(value) => {
                         field.onChange(value.toDate())
                       }}
-                      isInvalid={!!errors.date}
-                      errorMessage={errors.date?.message}
+                      isInvalid={!!errors.startTime}
+                      errorMessage={errors.startTime?.message}
                     />
                   )
                 }}
