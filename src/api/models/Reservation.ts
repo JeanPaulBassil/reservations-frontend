@@ -38,6 +38,7 @@ export enum ReservationStatus {
   LATE = 'LATE',
   DELETED = 'DELETED',
   WAITLISTED = 'WAITLISTED',
+  ALL = 'all',
 }
 
 export enum ReservationSource {

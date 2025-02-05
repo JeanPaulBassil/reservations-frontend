@@ -477,7 +477,7 @@ const ListView = () => {
             <Select
               // @ts-expect-error ts is dumb
               defaultSelectedKeys={[
-                getQueries().status ? getQueries().status : reservationStatusFilterValues[0].key,
+                getQueries().status ? getQueries().status : ReservationStatus.PENDING,
               ]}
               variant="bordered"
               size="sm"
@@ -487,7 +487,7 @@ const ListView = () => {
                 setQueries({
                   ...getQueries(),
                   // @ts-expect-error ts is dumb
-                  status: key.anchorKey === 'all' ? '' : (key.anchorKey as ReservationStatus),
+                  status: key.anchorKey as ReservationStatus,
                 })
               }
               startContent={

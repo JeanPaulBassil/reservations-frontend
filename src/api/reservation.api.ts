@@ -1,5 +1,5 @@
 import { CalendarDate } from '@internationalized/date'
-import { CreateReservation, Reservation, ReservationQuery, UpdateReservation } from './models/Reservation'
+import { CreateReservation, Reservation, ReservationQuery, ReservationStatus, UpdateReservation } from './models/Reservation'
 import { ApiResponse } from './utils'
 import { AbstractApi, ApiRequestParams } from './utils/AbstractApi'
 
@@ -29,7 +29,7 @@ export class ReservationApi extends AbstractApi<Reservation> {
     const response = (await this.doFetch({
       queries: {
         entityId,
-        ...(queries.status ? { status: queries.status } : {}),
+        ...(queries.status && queries.status !== ReservationStatus.ALL ? { status: queries.status } : {}),
         ...(queries.date ? { date: queries.date.toString() } : {}),
       },
       requestOptions: {
