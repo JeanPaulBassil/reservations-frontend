@@ -13,7 +13,7 @@ import { getLocalTimeZone, parseAbsoluteToLocal, parseDate } from '@internationa
 import { Button } from '@nextui-org/button'
 import { Input, Textarea } from '@nextui-org/input'
 import { Modal, ModalBody, ModalContent, ModalFooter } from '@nextui-org/modal'
-import { DatePicker, Select, SelectItem, Switch, TimeInput, Tooltip } from '@nextui-org/react'
+import { DatePicker, Select, SelectItem, Skeleton, Switch, TimeInput, Tooltip } from '@nextui-org/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import Joi from 'joi'
 import { DoorOpen, FileText, Mail, Pencil, Phone, Plus, User, Users, X } from 'lucide-react'
@@ -52,6 +52,7 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId, 
     formState: { errors, isSubmitting },
     reset,
     control,
+    getValues,
   } = useForm<UpdateReservation>({
     resolver: joiResolver(reservationSchema),
     defaultValues: {
@@ -65,7 +66,26 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId, 
   })
 
   const onSubmit = (data: UpdateReservation) => {
-    updateReservation(data)
+    // Create a new date object combining the selected date and time
+    const date = new Date(data.date || new Date());
+    const time = new Date(data.startTime || new Date());
+    
+    const combinedDateTime = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      time.getHours(),
+      time.getMinutes()
+    );
+
+    // Update the data object with the combined date/time
+    const updatedData = {
+      ...data,
+      date: combinedDateTime,
+      startTime: combinedDateTime
+    };
+
+    updateReservation(updatedData);
   }
 
   const { mutateAsync: updateReservation } = useMutation({
@@ -123,6 +143,8 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId, 
     }
   }, [tables])
 
+  console.log("getValues date and time", getValues('date'), getValues('startTime'))
+
   return (
     <Modal
       classNames={{
@@ -141,10 +163,19 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId, 
           <div className="flex flex-row items-start justify-between">
             {/* Left */}
             <div className="flex flex-col space-y-2">
-              <h2 className="text-2xl font-normal">{reservation.guest.name}</h2>
-              <p className="text-small font-light text-gray-500 dark:text-gray-300">
-                <a href={`tel:${reservation.guest.phone}`}>{reservation.guest.phone}</a> - <a href={`mailto:${reservation.guest.email}`}>{reservation.guest.email}</a>{reservation.guest.description ? ` - ${reservation.guest.description}` : ''}
-              </p>
+              {reservation ? (
+                <>
+                  <h2 className="text-2xl font-normal">{reservation.guest.name}</h2>
+                  <p className="text-small font-light text-gray-500 dark:text-gray-300">
+                    <a href={`tel:${reservation.guest.phone}`}>{reservation.guest.phone}</a> - <a href={`mailto:${reservation.guest.email}`}>{reservation.guest.email}</a>{reservation.guest.description ? ` - ${reservation.guest.description}` : ''}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <Skeleton className="h-8 w-48 rounded-md" />
+                  <Skeleton className="h-5 w-96 rounded-md" />
+                </>
+              )}
             </div>
             {/* Right */}
             <Button
@@ -170,8 +201,7 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId, 
                       className="max-w-[284px]"
                       label="Date"
                       labelPlacement="outside"
-                      // @ts-expect-error because of the type
-                      value={parseDate(new Date(field.value).toISOString().split('T')[0])}
+                      value={parseDate(new Date(field.value || new Date()).toLocaleDateString('en-CA'))}
                       onChange={(value) => {
                         field.onChange(value.toDate(getLocalTimeZone()))
                       }}
@@ -183,7 +213,7 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId, 
               />
               <Controller
                 control={control}
-                name="date"
+                name="startTime"
                 render={({ field }) => {
                   return (
                     <TimeInput
@@ -194,13 +224,12 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId, 
                       label="Time"
                       hideTimeZone
                       labelPlacement="outside"
-                      // @ts-expect-error because of the type
-                      value={parseAbsoluteToLocal(new Date(field.value).toISOString())}
+                      value={parseAbsoluteToLocal(new Date(field.value || new Date()).toISOString())}
                       onChange={(value) => {
                         field.onChange(value.toDate())
                       }}
-                      isInvalid={!!errors.date}
-                      errorMessage={errors.date?.message}
+                      isInvalid={!!errors.startTime}
+                      errorMessage={errors.startTime?.message}
                     />
                   )
                 }}

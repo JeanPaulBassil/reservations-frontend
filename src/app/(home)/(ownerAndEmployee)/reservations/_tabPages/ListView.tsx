@@ -275,7 +275,7 @@ const ListView = () => {
         return (
           <div className="relative flex items-center gap-2">
             <Clock size={16} />
-            <h2>{formatTime(reservation.date)}</h2>
+            <h2>{formatTime(reservation.startTime)}</h2>
           </div>
         )
       case 'reservationSource':
