@@ -100,7 +100,7 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId, 
       toast.error(error.message)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['reservations', selectedEntityId, queries] })
+      queryClient.invalidateQueries({ queryKey: ['reservations'] })
       reset()
       onClose()
     },
