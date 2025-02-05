@@ -66,6 +66,7 @@ export default function EntityProfile({ entity }: { entity: Entity }) {
       LATE: '#ed9740',
       DELETED: '#a6ada8',
       WAITLISTED: '#ae47de',
+      all: '#808080',
     }
   }, [])
 
