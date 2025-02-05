@@ -24,7 +24,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <ReactQueryClientProvider>
-          <NextUIProvider>
+          <NextUIProvider locale="en-GB">
             <LayoutWrapper>
               <ToastProvider>
                 {children}

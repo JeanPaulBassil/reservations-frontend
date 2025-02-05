@@ -13,13 +13,22 @@ import { getLocalTimeZone, parseAbsoluteToLocal, parseDate } from '@internationa
 import { Button } from '@nextui-org/button'
 import { Input, Textarea } from '@nextui-org/input'
 import { Modal, ModalBody, ModalContent, ModalFooter } from '@nextui-org/modal'
-import { DatePicker, Select, SelectItem, Skeleton, Switch, TimeInput, Tooltip } from '@nextui-org/react'
+import {
+  DatePicker,
+  Select,
+  SelectItem,
+  Skeleton,
+  Switch,
+  TimeInput,
+  Tooltip,
+} from '@nextui-org/react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import Joi from 'joi'
 import { DoorOpen, FileText, Mail, Pencil, Phone, Plus, User, Users, X } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { reservationSources } from './data'
+import { I18nProvider } from '@react-aria/i18n'
 
 type Props = {
   isOpen: boolean
@@ -40,7 +49,13 @@ const reservationSchema = Joi.object({
   source: Joi.string().required(),
 })
 
-const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId, queries }: Props) => {
+const EditReservationModal = ({
+  isOpen,
+  onClose,
+  reservation,
+  selectedEntityId,
+  queries,
+}: Props) => {
   const toast = useToast()
   const queryClient = useQueryClient()
   const tableApi = new TableApi()
@@ -67,25 +82,25 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId, 
 
   const onSubmit = (data: UpdateReservation) => {
     // Create a new date object combining the selected date and time
-    const date = new Date(data.date || new Date());
-    const time = new Date(data.startTime || new Date());
-    
+    const date = new Date(data.date || new Date())
+    const time = new Date(data.startTime || new Date())
+
     const combinedDateTime = new Date(
       date.getFullYear(),
       date.getMonth(),
       date.getDate(),
       time.getHours(),
       time.getMinutes()
-    );
+    )
 
     // Update the data object with the combined date/time
     const updatedData = {
       ...data,
       date: combinedDateTime,
-      startTime: combinedDateTime
-    };
+      startTime: combinedDateTime,
+    }
 
-    updateReservation(updatedData);
+    updateReservation(updatedData)
   }
 
   const { mutateAsync: updateReservation } = useMutation({
@@ -143,7 +158,7 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId, 
     }
   }, [tables])
 
-  console.log("getValues date and time", getValues('date'), getValues('startTime'))
+  console.log('getValues date and time', getValues('date'), getValues('startTime'))
 
   return (
     <Modal
@@ -167,7 +182,9 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId, 
                 <>
                   <h2 className="text-2xl font-normal">{reservation.guest.name}</h2>
                   <p className="text-small font-light text-gray-500 dark:text-gray-300">
-                    <a href={`tel:${reservation.guest.phone}`}>{reservation.guest.phone}</a> - <a href={`mailto:${reservation.guest.email}`}>{reservation.guest.email}</a>{reservation.guest.description ? ` - ${reservation.guest.description}` : ''}
+                    <a href={`tel:${reservation.guest.phone}`}>{reservation.guest.phone}</a> -{' '}
+                    <a href={`mailto:${reservation.guest.email}`}>{reservation.guest.email}</a>
+                    {reservation.guest.description ? ` - ${reservation.guest.description}` : ''}
                   </p>
                 </>
               ) : (
@@ -194,20 +211,22 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId, 
                 name="date"
                 render={({ field }) => {
                   return (
-                    <DatePicker
-                      variant="bordered"
-                      size="md"
-                      radius="sm"
-                      className="max-w-[284px]"
-                      label="Date"
-                      labelPlacement="outside"
-                      value={parseDate(new Date(field.value || new Date()).toLocaleDateString('en-CA'))}
-                      onChange={(value) => {
-                        field.onChange(value.toDate(getLocalTimeZone()))
-                      }}
-                      isInvalid={!!errors.date}
-                      errorMessage={errors.date?.message}
-                    />
+                      <DatePicker
+                        variant="bordered"
+                        size="md"
+                        radius="sm"
+                        className="max-w-[284px]"
+                        label="Date"
+                        labelPlacement="outside"
+                        value={parseDate(
+                          new Date(field.value || new Date()).toLocaleDateString('en-CA')
+                        )}
+                        onChange={(value) => {
+                          field.onChange(value.toDate(getLocalTimeZone()))
+                        }}
+                        isInvalid={!!errors.date}
+                        errorMessage={errors.date?.message}
+                      />
                   )
                 }}
               />
@@ -224,7 +243,9 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId, 
                       label="Time"
                       hideTimeZone
                       labelPlacement="outside"
-                      value={parseAbsoluteToLocal(new Date(field.value || new Date()).toISOString())}
+                      value={parseAbsoluteToLocal(
+                        new Date(field.value || new Date()).toISOString()
+                      )}
                       onChange={(value) => {
                         field.onChange(value.toDate())
                       }}
@@ -283,7 +304,10 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId, 
                   className="w-full"
                   isLoading={isLoading}
                   isDisabled={isLoading}
-                  defaultSelectedKeys={[reservationSources.find((s) => s.key === reservation?.source)?.key ?? reservationSources[0].key]}
+                  defaultSelectedKeys={[
+                    reservationSources.find((s) => s.key === reservation?.source)?.key ??
+                      reservationSources[0].key,
+                  ]}
                   {...register('source')}
                   errorMessage={errors.source?.message}
                   isInvalid={!!errors.source}
