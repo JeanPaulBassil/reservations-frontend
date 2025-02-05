@@ -33,13 +33,6 @@ import useAppMutation from '@/app/hooks/useAppHook'
 import { UserRole } from '@/api/models/User'
 import EditCompanyModal from './_components/EditCompanyModal'
 
-const INITIAL_VISIBLE_COLUMNS = ['name', 'actions']
-
-export const columns = [
-  { name: 'Name', uid: 'name' },
-  { name: 'Actions', uid: 'actions' },
-]
-
 const CompaniesClientPage = () => {
   const { onToggle } = useSidebarContext()
   const companyApi = new CompanyApi()
@@ -93,7 +86,6 @@ const CompaniesClientPage = () => {
 
   const rows = useMemo(() => {
     if (!companies || !companies.payload) return []
-    const formatDate = (date: string) => new Date(date).toLocaleDateString()
     return companies.payload.map((company: Company) => {
       return {
         id: Number(company.id),

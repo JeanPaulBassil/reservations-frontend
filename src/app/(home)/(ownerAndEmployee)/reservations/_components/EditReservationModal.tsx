@@ -141,9 +141,9 @@ const EditReservationModal = ({ isOpen, onClose, reservation, selectedEntityId, 
           <div className="flex flex-row items-start justify-between">
             {/* Left */}
             <div className="flex flex-col space-y-2">
-              <h2 className="text-2xl font-normal">Edit Reservation</h2>
+              <h2 className="text-2xl font-normal">{reservation.guest.name}</h2>
               <p className="text-small font-light text-gray-500 dark:text-gray-300">
-                Edit the reservation
+                <a href={`tel:${reservation.guest.phone}`}>{reservation.guest.phone}</a> - <a href={`mailto:${reservation.guest.email}`}>{reservation.guest.email}</a>{reservation.guest.description ? ` - ${reservation.guest.description}` : ''}
               </p>
             </div>
             {/* Right */}
