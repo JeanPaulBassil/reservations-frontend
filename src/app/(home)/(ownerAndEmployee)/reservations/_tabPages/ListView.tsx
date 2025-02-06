@@ -101,7 +101,13 @@ const ListView = () => {
       return acc
     }, [] as Shift[])
 
-    // Add "no shift" option
+    // Sort shifts by start time
+    shifts.sort((a, b) => {
+      if (!a.startHour || !b.startHour) return 0
+      return new Date(a.startHour).getTime() - new Date(b.startHour).getTime()
+    })
+
+    // Add "no shift" option at the end
     shifts.push({
       id: 'no-shift',
       title: 'No Shift',
