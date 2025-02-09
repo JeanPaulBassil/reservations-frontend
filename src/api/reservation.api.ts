@@ -41,15 +41,13 @@ export class ReservationApi extends AbstractApi<Reservation> {
     return response
   }
 
-  public async update(reservation: UpdateReservation, id: string): Promise<ApiResponse<Reservation>> {
-    console.log('reservation', reservation)
-    console.log('id', id)
+  public async update(reservation: UpdateReservation, reservationId: string): Promise<ApiResponse<Reservation>> {
     const response = (await this.doFetch({
       requestOptions: {
         method: 'PUT',
         body: JSON.stringify(reservation),
       },
-      pathExtension: id,
+      pathExtension: reservationId,
     })) as ApiResponse<Reservation>
 
     return response
