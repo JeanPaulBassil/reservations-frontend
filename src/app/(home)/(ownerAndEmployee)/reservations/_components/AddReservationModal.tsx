@@ -354,6 +354,7 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
                       radius="sm"
                       className="max-w-[284px]"
                       hideTimeZone
+                      hourCycle={12}
                       value={parseAbsoluteToLocal(field.value.toISOString())}
                       onChange={(value) => {
                         field.onChange(value.toDate())

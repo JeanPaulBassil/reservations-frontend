@@ -242,6 +242,7 @@ const EditReservationModal = ({
                       className="max-w-[284px]"
                       label="Time"
                       hideTimeZone
+                      hourCycle={12}
                       labelPlacement="outside"
                       value={parseAbsoluteToLocal(
                         new Date(field.value || new Date()).toISOString()
