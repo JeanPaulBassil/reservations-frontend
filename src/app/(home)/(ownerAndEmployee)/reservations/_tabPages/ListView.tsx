@@ -74,6 +74,7 @@ const ListView = () => {
   const { selectedEntityId } = useEntity()
   const { get: getQueries, set: setQueries } = useOrderedQueries<ReservationQuery>({
     date: parseDate(new Date().toLocaleDateString('en-CA')),
+    status: ReservationStatus.PENDING,
   })
 
   const {
@@ -481,19 +482,15 @@ const ListView = () => {
               }
             />
             <Select
-              // @ts-expect-error ts is dumb
-              defaultSelectedKeys={[
-                getQueries().status ? getQueries().status : ReservationStatus.PENDING,
-              ]}
+              defaultSelectedKeys={[getQueries().status ?? ReservationStatus.PENDING]}
               variant="bordered"
               size="sm"
               radius="sm"
               className="w-[200px]"
-              onSelectionChange={(key) =>
+              onSelectionChange={(keys) =>
                 setQueries({
                   ...getQueries(),
-                  // @ts-expect-error ts is dumb
-                  status: key.anchorKey as ReservationStatus,
+                  status: Array.from(keys)[0] as ReservationStatus,
                 })
               }
               startContent={

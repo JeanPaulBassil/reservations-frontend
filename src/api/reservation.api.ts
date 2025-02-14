@@ -26,6 +26,7 @@ export class ReservationApi extends AbstractApi<Reservation> {
 
   public async getReservations(entityId: string, queries: ReservationQuery): Promise<ApiResponse<Reservation[]>> {
 
+    console.log("queries", queries)
     const response = (await this.doFetch({
       queries: {
         entityId,
