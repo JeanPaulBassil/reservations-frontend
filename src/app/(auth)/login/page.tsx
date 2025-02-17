@@ -1,33 +1,32 @@
-"use client";
+'use client'
 
-import React from "react";
-import {Button, Input, Checkbox, Link, Divider, Form} from "@heroui/react";
-import {Icon} from "@iconify/react";
+import React from 'react'
+import { Button, Input, Checkbox, Link, Divider, Form } from '@heroui/react'
+import { Icon } from '@iconify/react'
 
 export default function Component() {
-  const [isVisible, setIsVisible] = React.useState(false);
+  const [isVisible, setIsVisible] = React.useState(false)
 
-  const toggleVisibility = () => setIsVisible(!isVisible);
+  const toggleVisibility = () => setIsVisible(!isVisible)
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    console.log("handleSubmit");
-  };
+    event.preventDefault()
+    console.log('handleSubmit')
+  }
 
   return (
     <div
       className="flex h-screen w-full items-center justify-end overflow-hidden bg-content1 p-2 sm:p-4 lg:p-8"
       style={{
-        backgroundImage:
-          "url(https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/black-background-texture.jpeg)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
+        backgroundImage: 'url(/images/auth/loginBg.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
       }}
     >
       {/* Brand Logo */}
       <div className="absolute left-10 top-10">
         <div className="flex items-center">
-          <p className="font-medium text-white">ACME</p>
+          <p className="font-medium text-white">KLYO ASO</p>
         </div>
       </div>
 
@@ -35,8 +34,9 @@ export default function Component() {
       <div className="absolute bottom-10 left-10 hidden md:block">
         <p className="max-w-xl text-white/60">
           <span className="font-medium">“</span>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc eget augue nec massa
-          volutpat aliquet.
+          Take control of your app’s success with AI-powered
+          optimization. Track performance, refine strategies, and stay ahead in
+          the competitive app marketplace.
           <span className="font-medium">”</span>
         </p>
       </div>
@@ -44,7 +44,11 @@ export default function Component() {
       {/* Login Form */}
       <div className="flex w-full max-w-sm flex-col gap-4 rounded-large bg-content1 px-8 pb-10 pt-6 shadow-small">
         <p className="pb-2 text-xl font-medium">Log In</p>
-        <Form className="flex flex-col gap-3" validationBehavior="native" onSubmit={handleSubmit}>
+        <Form
+          className="flex flex-col gap-3"
+          validationBehavior="native"
+          onSubmit={handleSubmit}
+        >
           <Input
             isRequired
             label="Email Address"
@@ -73,7 +77,7 @@ export default function Component() {
             label="Password"
             name="password"
             placeholder="Enter your password"
-            type={isVisible ? "text" : "password"}
+            type={isVisible ? 'text' : 'password'}
             variant="bordered"
           />
           <div className="flex w-full items-center justify-between px-1 py-2">
@@ -109,5 +113,5 @@ export default function Component() {
         </p>
       </div>
     </div>
-  );
+  )
 }

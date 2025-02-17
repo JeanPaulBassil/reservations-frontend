@@ -15,8 +15,7 @@ export default function Component() {
     <div
       className="flex min-h-[48rem] h-screen w-full items-center justify-start overflow-hidden bg-content1 p-2 sm:p-4 lg:p-8"
       style={{
-        backgroundImage:
-          'url(https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/black-background-texture-2.jpg)',
+        backgroundImage: 'url(/images/auth/signupBg.png)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
@@ -24,7 +23,7 @@ export default function Component() {
       {/* Brand Logo */}
       <div className="absolute right-10 top-10">
         <div className="flex items-center">
-          <p className="font-medium text-white">ACME</p>
+          <p className="font-medium text-white">Klyo ASO</p>
         </div>
       </div>
 
@@ -32,8 +31,9 @@ export default function Component() {
       <div className="absolute bottom-10 right-10 hidden md:block">
         <p className="max-w-xl text-right text-white/60">
           <span className="font-medium">“</span>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc eget
-          augue nec massa volutpat aliquet.
+          Unlock the full potential of your app with automated App Store
+          Optimization. Join Klyo and let AI-driven insights boost your
+          visibility, downloads, and growth effortlessly.
           <span className="font-medium">”</span>
         </p>
       </div>
