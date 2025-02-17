@@ -13,7 +13,7 @@ export default function Component() {
 
   return (
     <div
-      className="flex min-h-[48rem] w-full items-center justify-start overflow-hidden rounded-small bg-content1 p-2 sm:p-4 lg:p-8"
+      className="flex min-h-[48rem] h-screen w-full items-center justify-start overflow-hidden bg-content1 p-2 sm:p-4 lg:p-8"
       style={{
         backgroundImage:
           'url(https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/black-background-texture-2.jpg)',
