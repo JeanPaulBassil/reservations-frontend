@@ -6,10 +6,12 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "emu": "firebase emulators:start"
   },
   "dependencies": {
     "@heroui/react": "^2.6.14",
+    "firebase": "^11.3.1",
     "framer-motion": "^12.4.3",
     "next": "15.1.7",
     "react": "^19.0.0",
@@ -20,6 +22,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@iconify/react": "^5.2.0",
+    "@types/firebase": "^3.2.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

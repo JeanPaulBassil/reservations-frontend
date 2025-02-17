@@ -1,8 +1,9 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Button, Input, Checkbox, Link, Divider, Form } from '@heroui/react'
 import { Icon } from '@iconify/react'
+import { signInWithEmail } from '@/services/authService'
 
 export default function Component() {
   const [isVisible, setIsVisible] = React.useState(false)
@@ -13,6 +14,10 @@ export default function Component() {
     event.preventDefault()
     console.log('handleSubmit')
   }
+
+  useEffect(() => {
+    signInWithEmail('jean.paul.bassil@outlook.com', 'P@ssw0rd')
+  }, [])
 
   return (
     <div
