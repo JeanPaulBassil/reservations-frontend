@@ -9,15 +9,18 @@ interface RateLimitStore {
 
 const WINDOW_SIZE = 60 * 1000 // 1 minute
 const MAX_REQUESTS = 60 // Maximum requests per minute
-
 const rateLimitStore = new Map<string, RateLimitStore>()
+const PUBLIC_ROUTES = ['/login', '/signup']
+const HOME_ROUTE = '/dashboard'
 
 export function middleware(request: NextRequest) {
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0] ?? 
-             request.headers.get('x-real-ip') ?? 
-             'anonymous'
+  // Rate limiting logic
+  const ip =
+    request.headers.get('x-forwarded-for')?.split(',')[0] ??
+    request.headers.get('x-real-ip') ??
+    'anonymous'
   const now = Date.now()
-  
+
   // Clean up old entries
   for (const [key, value] of rateLimitStore.entries()) {
     if (now - value.timestamp > WINDOW_SIZE) {
@@ -28,7 +31,7 @@ export function middleware(request: NextRequest) {
   // Get or create rate limit data for this IP
   const rateLimit = rateLimitStore.get(ip) ?? {
     timestamp: now,
-    requests: 0
+    requests: 0,
   }
 
   // Reset if outside window
@@ -51,11 +54,33 @@ export function middleware(request: NextRequest) {
     })
   }
 
-  // Add response headers for monitoring
+  // Authentication check
+  const token = request.cookies.get('firebase-auth-token')
+  const currentPath = request.nextUrl.pathname
+
+  if (!token) {
+    // Unauthenticated users: Allow public routes, block everything else
+    if (!PUBLIC_ROUTES.includes(currentPath)) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+  } else {
+    // Authenticated users: Block access to public routes, redirect to home
+    if (PUBLIC_ROUTES.includes(currentPath)) {
+      return NextResponse.redirect(new URL(HOME_ROUTE, request.url))
+    }
+  }
+
+  // Add response headers for rate limit monitoring
   const response = NextResponse.next()
   response.headers.set('X-RateLimit-Limit', MAX_REQUESTS.toString())
-  response.headers.set('X-RateLimit-Remaining', (MAX_REQUESTS - rateLimit.requests).toString())
-  response.headers.set('X-RateLimit-Reset', (rateLimit.timestamp + WINDOW_SIZE).toString())
+  response.headers.set(
+    'X-RateLimit-Remaining',
+    (MAX_REQUESTS - rateLimit.requests).toString(),
+  )
+  response.headers.set(
+    'X-RateLimit-Reset',
+    (rateLimit.timestamp + WINDOW_SIZE).toString(),
+  )
 
   return response
 }
@@ -72,4 +97,4 @@ export const config = {
      */
     '/((?!_next/static|_next/image|favicon.ico|public/).*)',
   ],
-} 
+}

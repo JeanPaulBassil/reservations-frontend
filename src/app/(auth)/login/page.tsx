@@ -1,9 +1,8 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Button, Input, Checkbox, Link, Divider, Form } from '@heroui/react'
 import { Icon } from '@iconify/react'
-import { signInWithEmail } from '@/services/authService'
 
 export default function Component() {
   const [isVisible, setIsVisible] = React.useState(false)
@@ -14,10 +13,6 @@ export default function Component() {
     event.preventDefault()
     console.log('handleSubmit')
   }
-
-  useEffect(() => {
-    signInWithEmail('jean.paul.bassil@outlook.com', 'P@ssw0rd')
-  }, [])
 
   return (
     <div
@@ -39,9 +34,9 @@ export default function Component() {
       <div className="absolute bottom-10 left-10 hidden md:block">
         <p className="max-w-xl text-white/60">
           <span className="font-medium">“</span>
-          Take control of your app’s success with AI-powered
-          optimization. Track performance, refine strategies, and stay ahead in
-          the competitive app marketplace.
+          Take control of your app’s success with AI-powered optimization. Track
+          performance, refine strategies, and stay ahead in the competitive app
+          marketplace.
           <span className="font-medium">”</span>
         </p>
       </div>
