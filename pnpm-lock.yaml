@@ -39,9 +39,6 @@ importers:
       '@iconify/react':
         specifier: ^5.2.0
         version: 5.2.0(react@19.0.0)
-      '@types/firebase':
-        specifier: ^3.2.3
-        version: 3.2.3
       '@types/node':
         specifier: ^20
         version: 20.17.19
@@ -1764,10 +1761,6 @@ packages:
 
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
-
-  '@types/firebase@3.2.3':
-    resolution: {integrity: sha512-fId22ajZ7CkTMnm/FveFcEGb7Trv97JsUk1Dvc1vIFDiwpVSGKeTUyBOA2Tr2riXe53ZP526G9WDCrq3ulE7tw==}
-    deprecated: This is a stub types definition. firebase provides its own type definitions, so you do not need this installed.
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
@@ -6101,12 +6094,6 @@ snapshots:
   '@types/d3-timer@3.0.2': {}
 
   '@types/estree@1.0.6': {}
-
-  '@types/firebase@3.2.3':
-    dependencies:
-      firebase: 11.3.1
-    transitivePeerDependencies:
-      - '@react-native-async-storage/async-storage'
 
   '@types/json-schema@7.0.15': {}
 
