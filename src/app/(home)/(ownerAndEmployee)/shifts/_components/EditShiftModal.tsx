@@ -165,9 +165,9 @@ const EditShiftModal = ({ isOpen, onClose, entityId, shiftBeingEdited }: Props) 
           <div className="flex flex-row items-start justify-between">
             {/* Left */}
             <div className="flex flex-col space-y-2">
-              <h2 className="text-2xl font-normal">Add Shift</h2>
+              <h2 className="text-2xl font-normal">Edit Shift</h2>
               <p className="text-small font-light text-gray-500 dark:text-gray-300">
-                Add a new shift to the system
+                Edit the shift to the system
               </p>
             </div>
             {/* Right */}
@@ -204,6 +204,7 @@ const EditShiftModal = ({ isOpen, onClose, entityId, shiftBeingEdited }: Props) 
                     onChange={field.onChange}
                     isRequired
                     hideTimeZone
+                    hourCycle={12}
                   />
                 )}
               />
@@ -220,6 +221,7 @@ const EditShiftModal = ({ isOpen, onClose, entityId, shiftBeingEdited }: Props) 
                     onChange={field.onChange}
                     isRequired
                     hideTimeZone
+                    hourCycle={12}
                   />
                 )}
               />

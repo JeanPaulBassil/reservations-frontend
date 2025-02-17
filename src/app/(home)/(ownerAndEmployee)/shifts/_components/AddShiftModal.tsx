@@ -180,6 +180,7 @@ const AddShiftModal = ({ isOpen, onClose, entityId }: Props) => {
                     value={field.value}
                     onChange={field.onChange}
                     isRequired
+                    hourCycle={12}
                   />
                 )}
               />
@@ -195,6 +196,7 @@ const AddShiftModal = ({ isOpen, onClose, entityId }: Props) => {
                     value={field.value}
                     onChange={field.onChange}
                     isRequired
+                    hourCycle={12}
                   />
                 )}
               />
