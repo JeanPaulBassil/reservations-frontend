@@ -1,15 +1,7 @@
 'use client'
 
 import React from 'react'
-import {
-  Avatar,
-  Button,
-  ScrollShadow,
-  Spacer,
-  Input,
-  Chip,
-  Image,
-} from '@heroui/react'
+import { Avatar, Button, ScrollShadow, Spacer } from '@heroui/react'
 import { Icon } from '@iconify/react'
 
 import Sidebar, { SidebarItem } from './Sidebar'
@@ -141,7 +133,7 @@ export default function AppWrapper() {
     <div className="h-full min-h-[48rem]">
       <div className="relative flex h-full w-72 flex-1 flex-col bg-[#FF5757] p-6">
         <div className="flex items-center gap-2 px-2">
-          <Avatar src="/logo.png" alt="logo" size='sm' />
+          <Avatar src="/logo.png" alt="logo" size="sm" />
           <span className="text-small font-medium uppercase text-primary-foreground">
             KLYO ASO
           </span>

@@ -1,19 +1,17 @@
-"use client";
+'use client'
 
-import React from "react";
-import { HeroUIProvider } from "@heroui/react";
-import { AuthProvider } from "@/context/AuthContext";
+import React from 'react'
+import { HeroUIProvider } from '@heroui/react'
+import { AuthProvider } from './AuthProvider'
 
 interface ProvidersProps {
-  children: React.ReactNode;
+  children: React.ReactNode
 }
 
 export function Providers({ children }: ProvidersProps) {
   return (
     <AuthProvider>
-      <HeroUIProvider>
-        {children}
-      </HeroUIProvider>
+      <HeroUIProvider>{children}</HeroUIProvider>
     </AuthProvider>
-  );
+  )
 }
