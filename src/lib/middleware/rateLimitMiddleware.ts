@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-// Rate limiting configuration
 interface RateLimitStore {
   timestamp: number
   requests: number
@@ -10,11 +9,8 @@ interface RateLimitStore {
 const WINDOW_SIZE = 60 * 1000 // 1 minute
 const MAX_REQUESTS = 60 // Maximum requests per minute
 const rateLimitStore = new Map<string, RateLimitStore>()
-const PUBLIC_ROUTES = ['/login', '/signup']
-const HOME_ROUTE = '/dashboard'
 
-export function middleware(request: NextRequest) {
-  // Rate limiting logic
+export function rateLimitMiddleware(request: NextRequest) {
   const ip =
     request.headers.get('x-forwarded-for')?.split(',')[0] ??
     request.headers.get('x-real-ip') ??
@@ -54,22 +50,6 @@ export function middleware(request: NextRequest) {
     })
   }
 
-  // Authentication check
-  const token = request.cookies.get('firebase-auth-token')
-  const currentPath = request.nextUrl.pathname
-
-  if (!token) {
-    // Unauthenticated users: Allow public routes, block everything else
-    if (!PUBLIC_ROUTES.includes(currentPath)) {
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
-  } else {
-    // Authenticated users: Block access to public routes, redirect to home
-    if (PUBLIC_ROUTES.includes(currentPath)) {
-      return NextResponse.redirect(new URL(HOME_ROUTE, request.url))
-    }
-  }
-
   // Add response headers for rate limit monitoring
   const response = NextResponse.next()
   response.headers.set('X-RateLimit-Limit', MAX_REQUESTS.toString())
@@ -83,18 +63,4 @@ export function middleware(request: NextRequest) {
   )
 
   return response
-}
-
-// Configure which routes to apply middleware to
-export const config = {
-  matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public files (public folder)
-     */
-    '/((?!_next/static|_next/image|favicon.ico|public/).*)',
-  ],
-}
+} 
