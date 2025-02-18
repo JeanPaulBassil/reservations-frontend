@@ -2,7 +2,7 @@
 
 import React from "react";
 import { HeroUIProvider } from "@heroui/react";
-import { AuthProvider } from "@/hooks/useAuth";
+import { AuthProvider } from "@/context/AuthContext";
 
 interface ProvidersProps {
   children: React.ReactNode;
