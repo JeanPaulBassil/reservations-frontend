@@ -5,7 +5,6 @@ import {
   AccordionItem,
   type ListboxProps,
   type ListboxSectionProps,
-  type Selection,
 } from "@heroui/react";
 import React from "react";
 import {Listbox, Tooltip, ListboxItem, ListboxSection} from "@heroui/react";

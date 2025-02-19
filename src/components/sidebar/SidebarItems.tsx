@@ -1,6 +1,4 @@
-import { Chip } from '@heroui/react'
-import { Icon } from '@iconify/react'
-import { SidebarItem, SidebarItemType } from './Sidebar'
+import { SidebarItem } from './Sidebar'
 import TeamAvatar from './team-avatar'
 import { ROUTES } from '@/constants/routes'
 
@@ -9,39 +7,39 @@ import { ROUTES } from '@/constants/routes'
  */
 
 // Common UI elements
-const AddIcon = (
-  <Icon
-    className="text-default-400"
-    icon="solar:add-circle-line-duotone"
-    width={24}
-  />
-)
+// const AddIcon = (
+//   <Icon
+//     className="text-default-400"
+//     icon="solar:add-circle-line-duotone"
+//     width={24}
+//   />
+// )
 
-const NewChip = (
-  <Chip size="sm" variant="flat">
-    New
-  </Chip>
-)
+// const NewChip = (
+//   <Chip size="sm" variant="flat">
+//     New
+//   </Chip>
+// )
 
-const PerksChip = (
-  <Chip size="sm" variant="flat">
-    3
-  </Chip>
-)
+// const PerksChip = (
+//   <Chip size="sm" variant="flat">
+//     3
+//   </Chip>
+// )
 
-// Helper function for creating nested items
-const createNestedItem = (
-  key: string,
-  title: string,
-  icon: string,
-  subItems: SidebarItem[],
-): SidebarItem => ({
-  key,
-  title,
-  icon,
-  type: SidebarItemType.Nest,
-  items: subItems,
-})
+// // Helper function for creating nested items
+// const createNestedItem = (
+//   key: string,
+//   title: string,
+//   icon: string,
+//   subItems: SidebarItem[],
+// ): SidebarItem => ({
+//   key,
+//   title,
+//   icon,
+//   type: SidebarItemType.Nest,
+//   items: subItems,
+// })
 
 // Base items that are commonly used
 const baseItems: SidebarItem[] = [
