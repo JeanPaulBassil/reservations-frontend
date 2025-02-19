@@ -1,6 +1,7 @@
 import React from "react";
 import SignUpForm from "./SignUpForm";
 import { Metadata } from "next";
+import Image from 'next/image';
 
 export const metadata: Metadata = {
   title: "Sign Up",
@@ -39,22 +40,23 @@ export const metadata: Metadata = {
 
 export default function SignUpPage() {
   return (
-    <div
-      className="flex h-screen w-full items-center justify-start overflow-hidden bg-content1 p-2 sm:p-4 lg:p-8"
-      style={{
-        backgroundImage: "url(/images/auth/signupBg.png)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <div className="absolute left-10 top-10">
+    <div className="flex h-screen w-full items-center justify-start overflow-hidden bg-content1 p-2 sm:p-4 lg:p-8 relative">
+      <Image
+        src="/images/auth/signupBg.png"
+        alt="Sign up background"
+        fill
+        priority
+        className="object-cover z-0"
+      />
+      
+      <div className="absolute left-10 top-10 z-10">
         <div className="flex items-center">
           <p className="font-medium text-white">KLYO ASO</p>
         </div>
       </div>
 
-      <div className="absolute bottom-10 left-10 hidden md:block">
-        <p className="max-w-xl text-white/60">
+      <div className="absolute bottom-10 left-10 hidden md:block z-10">
+        <p className="max-w-xl text-white/70 leading-relaxed">
           <span className="font-medium">"</span>
           Join thousands of app developers and marketers who are leveraging AI to
           optimize their app store presence and drive sustainable growth.
@@ -62,7 +64,9 @@ export default function SignUpPage() {
         </p>
       </div>
 
-      <SignUpForm />
+      <div className="z-10 w-full max-w-md">
+        <SignUpForm />
+      </div>
     </div>
   );
 }
