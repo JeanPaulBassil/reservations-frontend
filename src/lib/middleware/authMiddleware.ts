@@ -9,13 +9,10 @@ export function authMiddleware(request: NextRequest) {
     request.nextUrl.pathname === '/signup'
 
   if (!session && !isAuthPath) {
-    console.log('Redirecting to login')
-    console.log(request.nextUrl.pathname)
     return safeRedirect('/login', request)
   }
 
   if (session && isAuthPath) {
-    console.log('Redirecting to home')
     return safeRedirect('/', request)
   }
 
