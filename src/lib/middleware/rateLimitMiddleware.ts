@@ -7,7 +7,7 @@ interface RateLimitStore {
 }
 
 const WINDOW_SIZE = 60 * 1000 // 1 minute
-const MAX_REQUESTS = 120 // Maximum requests per minute
+const MAX_REQUESTS = 120
 const rateLimitStore = new Map<string, RateLimitStore>()
 
 export function rateLimitMiddleware(request: NextRequest) {
@@ -17,27 +17,18 @@ export function rateLimitMiddleware(request: NextRequest) {
     'anonymous'
   const now = Date.now()
 
-  // Clean up old entries
-  for (const [key, value] of rateLimitStore.entries()) {
-    if (now - value.timestamp > WINDOW_SIZE) {
-      rateLimitStore.delete(key)
-    }
-  }
-
   // Get or create rate limit data for this IP
-  const rateLimit = rateLimitStore.get(ip) ?? {
-    timestamp: now,
-    requests: 0,
-  }
+  let rateLimit = rateLimitStore.get(ip)
 
-  // Reset if outside window
-  if (now - rateLimit.timestamp > WINDOW_SIZE) {
-    rateLimit.timestamp = now
-    rateLimit.requests = 0
+  if (!rateLimit || now - rateLimit.timestamp > WINDOW_SIZE) {
+    rateLimit = { timestamp: now, requests: 0 }
+    rateLimitStore.set(ip, rateLimit)
+
+    // Schedule deletion after the window expires to prevent iteration
+    setTimeout(() => rateLimitStore.delete(ip), WINDOW_SIZE)
   }
 
   rateLimit.requests++
-  rateLimitStore.set(ip, rateLimit)
 
   // Check if rate limit exceeded
   if (rateLimit.requests > MAX_REQUESTS) {
@@ -59,8 +50,8 @@ export function rateLimitMiddleware(request: NextRequest) {
   )
   response.headers.set(
     'X-RateLimit-Reset',
-    (rateLimit.timestamp + WINDOW_SIZE).toString(),
+    Math.floor((rateLimit.timestamp + WINDOW_SIZE) / 1000).toString(), // Convert to seconds
   )
 
   return response
-} 
+}

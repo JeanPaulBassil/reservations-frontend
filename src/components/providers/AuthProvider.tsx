@@ -36,31 +36,52 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [])
 
   const signIn = async (email: string, password: string) => {
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password,
-    )
-    const idToken = await userCredential.user.getIdToken()
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      )
+      const idToken = await userCredential.user.getIdToken()
+      
+      const response = await fetch('/api/auth/setSession', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: idToken }),
+      })
 
-    localStorage.setItem('loggedIn', 'true')
-    await fetch('/api/auth/setSession', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: idToken }),
-    })
+      if (!response.ok) {
+        throw new Error('Failed to set session')
+      }
+
+      localStorage.setItem('loggedIn', 'true')
+    } catch (error) {
+      localStorage.removeItem('loggedIn')
+      throw error
+    }
   }
 
   const signInWithGoogle = async () => {
-    const googleProvider = new GoogleAuthProvider()
-    const userCredential = await signInWithPopup(auth, googleProvider)
-    const idToken = await userCredential.user.getIdToken()
-    localStorage.setItem('loggedIn', 'true')
-    await fetch('/api/auth/setSession', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: idToken }),
-    })
+    try {
+      const googleProvider = new GoogleAuthProvider()
+      const userCredential = await signInWithPopup(auth, googleProvider)
+      const idToken = await userCredential.user.getIdToken()
+      
+      const response = await fetch('/api/auth/setSession', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: idToken }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to set session')
+      }
+
+      localStorage.setItem('loggedIn', 'true')
+    } catch (error) {
+      localStorage.removeItem('loggedIn')
+      throw error
+    }
   }
 
   const logout = async () => {
@@ -72,19 +93,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const signUp = async (email: string, password: string) => {
-    await createUserWithEmailAndPassword(auth, email, password)
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password,
-    )
-    const idToken = await userCredential.user.getIdToken()
-    localStorage.setItem('loggedIn', 'true')
-    await fetch('/api/auth/setSession', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: idToken }),
-    })
+    try {
+      await createUserWithEmailAndPassword(auth, email, password)
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      )
+      const idToken = await userCredential.user.getIdToken()
+      
+      const response = await fetch('/api/auth/setSession', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: idToken }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to set session')
+      }
+
+      localStorage.setItem('loggedIn', 'true')
+    } catch (error) {
+      localStorage.removeItem('loggedIn')
+      throw error
+    }
   }
 
   return (

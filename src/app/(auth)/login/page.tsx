@@ -3,7 +3,7 @@ import LoginForm from "./LoginForm";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Login | KLYO ASO",
+  title: "Login",
   description: "Access your KLYO ASO account and manage your app optimization.",
   keywords: [
     "Login",

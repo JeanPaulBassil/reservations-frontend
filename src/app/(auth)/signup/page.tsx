@@ -3,7 +3,7 @@ import SignUpForm from "./SignUpForm";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sign Up | KLYO ASO",
+  title: "Sign Up",
   description: "Create your KLYO ASO account and start optimizing your apps.",
   keywords: [
     "Sign Up",
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
 export default function SignUpPage() {
   return (
     <div
-      className="flex h-screen w-full items-center justify-end overflow-hidden bg-content1 p-2 sm:p-4 lg:p-8"
+      className="flex h-screen w-full items-center justify-start overflow-hidden bg-content1 p-2 sm:p-4 lg:p-8"
       style={{
         backgroundImage: "url(/images/auth/signupBg.png)",
         backgroundSize: "cover",

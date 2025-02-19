@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { rateLimitMiddleware } from './lib/middleware/rateLimitMiddleware'
-import { cookies } from 'next/headers'
+import { authMiddleware } from './lib/middleware/authMiddleware'
 
 export async function middleware(request: NextRequest) {
   // Apply rate limiting
@@ -10,19 +10,10 @@ export async function middleware(request: NextRequest) {
     return rateLimitResponse
   }
 
-  const cookieStore = await cookies()
-  const session = cookieStore.get('session')
-
-  const isAuthPath =
-    request.nextUrl.pathname === '/login' ||
-    request.nextUrl.pathname === '/signup'
-
-  if (!session && !isAuthPath) {
-    return NextResponse.redirect(new URL('/login', request.url))
-  }
-
-  if (session && isAuthPath) {
-    return NextResponse.redirect(new URL('/', request.url))
+  // Apply auth middleware
+  const authResponse = authMiddleware(request)
+  if (authResponse.status !== 200) {
+    return authResponse
   }
 
   return NextResponse.next()
