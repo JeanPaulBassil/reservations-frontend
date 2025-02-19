@@ -21,12 +21,13 @@ export default function LoginForm() {
   const [isVisible, setIsVisible] = useState(false)
   const toggleVisibility = () => setIsVisible(!isVisible)
   const { signIn, signInWithGoogle } = useAuth()
+  const [rememberMe, setRememberMe] = useState(false)
 
   async function onSubmit(data: { email: string; password: string }) {
     setLoading(true)
     setError(null)
     try {
-      await signIn(data.email, data.password)
+      await signIn(data.email, data.password, rememberMe)
       router.push('/')
     } catch (err) {
       if (err instanceof FirebaseError) {
@@ -42,6 +43,34 @@ export default function LoginForm() {
     }
   }
 
+  const handleGoogleLogin = async () => {
+    setLoading(true)
+    try {
+      await signInWithGoogle()
+      router.push('/')
+    } catch (err) {
+      console.error('Google Sign-In Error:', err)
+      setError('Failed to sign in with Google. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const PasswordToggle = React.memo(
+    ({ isVisible, onToggle }: { isVisible: boolean; onToggle: () => void }) => (
+      <button type="button" onClick={onToggle}>
+        {isVisible ? (
+          <Icon
+            className="text-2xl text-default-400"
+            icon="solar:eye-closed-linear"
+          />
+        ) : (
+          <Icon className="text-2xl text-default-400" icon="solar:eye-bold" />
+        )}
+      </button>
+    ),
+  )
+
   return (
     <div className="flex w-full max-w-sm flex-col gap-4 rounded-large bg-content1 px-8 pb-10 pt-6 shadow-small">
       <p className="text-xl font-medium">Log In</p>
@@ -52,40 +81,32 @@ export default function LoginForm() {
           isRequired
           label="Email Address"
           placeholder="Enter your email"
+          isInvalid={!!errors.email}
+          errorMessage={errors.email?.message}
           type="email"
           variant="bordered"
         />
-        {errors.email && <p className="text-red-500">{errors.email.message}</p>}
-
         <Input
           {...register('password')}
           isRequired
           endContent={
-            <button type="button" onClick={toggleVisibility}>
-              {isVisible ? (
-                <Icon
-                  className="text-2xl text-default-400"
-                  icon="solar:eye-closed-linear"
-                />
-              ) : (
-                <Icon
-                  className="text-2xl text-default-400"
-                  icon="solar:eye-bold"
-                />
-              )}
-            </button>
+            <PasswordToggle isVisible={isVisible} onToggle={toggleVisibility} />
           }
           label="Password"
+          isInvalid={!!errors.password}
+          errorMessage={errors.password?.message}
           placeholder="Enter your password"
           type={isVisible ? 'text' : 'password'}
           variant="bordered"
         />
-        {errors.password && (
-          <p className="text-red-500">{errors.password.message}</p>
-        )}
 
         <div className="flex w-full items-center justify-between px-1 py-2">
-          <Checkbox name="remember" size="sm">
+          <Checkbox 
+            name="remember" 
+            size="sm"
+            isSelected={rememberMe}
+            onValueChange={setRememberMe}
+          >
             Remember me
           </Checkbox>
           <Link className="text-default-500" href="#" size="sm">
@@ -97,6 +118,7 @@ export default function LoginForm() {
           color="primary"
           type="submit"
           isLoading={loading}
+          disabled={loading}
         >
           Log In
         </Button>
@@ -110,11 +132,9 @@ export default function LoginForm() {
         <Button
           startContent={<Icon icon="flat-color-icons:google" width={24} />}
           variant="bordered"
-          onPress={async () => {
-            await signInWithGoogle()
-            router.push('/')
-          }}
+          onPress={handleGoogleLogin}
           isLoading={loading}
+          disabled={loading}
         >
           Continue with Google
         </Button>

@@ -7,12 +7,15 @@ import {
   signInWithPopup,
   signOut,
   User,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence
 } from 'firebase/auth'
 import { createContext, useContext, useEffect, useState } from 'react'
 
 const AuthContext = createContext<{
   user: User | null
-  signIn: (email: string, password: string) => Promise<void>
+  signIn: (email: string, password: string, rememberMe: boolean) => Promise<void>
   signInWithGoogle: () => Promise<void>
   logout: () => Promise<void>
   signUp: (email: string, password: string) => Promise<void>
@@ -35,7 +38,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => unsubscribe()
   }, [])
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, rememberMe: boolean) => {
+    const persistenceType = rememberMe ? browserLocalPersistence : browserSessionPersistence
+    await setPersistence(auth, persistenceType)
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
