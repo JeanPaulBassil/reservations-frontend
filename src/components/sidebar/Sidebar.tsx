@@ -56,7 +56,9 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
     },
     ref,
   ) => {
-    const [selected, setSelected] = React.useState<React.Key>(defaultSelectedKey);
+    const [selected, setSelected] = React.useState<string>(defaultSelectedKey);
+
+    const processedItems = React.useMemo(() => items, [items]);
 
     const sectionClasses = {
       ...sectionClassesProp,
@@ -83,15 +85,12 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
         const isNestType =
           item.items && item.items?.length > 0 && item?.type === SidebarItemType.Nest;
 
-        if (isNestType) {
-          // Is a nest type item , so we need to remove the href
-          delete item.href;
-        }
+        const cleanItem = { ...item, href: isNestType ? undefined : item.href };
 
         return (
           <ListboxItem
-            {...item}
-            key={item.key}
+            {...cleanItem}
+            key={cleanItem.key}
             classNames={{
               base: cn(
                 {
@@ -102,37 +101,37 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                 },
               ),
             }}
-            endContent={isCompact || isNestType || hideEndContent ? null : item.endContent ?? null}
+            endContent={isCompact || isNestType || hideEndContent ? null : cleanItem.endContent ?? null}
             startContent={
-              isCompact || isNestType ? null : item.icon ? (
+              isCompact || isNestType ? null : cleanItem.icon ? (
                 <Icon
                   className={cn(
                     "text-default-500 group-data-[selected=true]:text-foreground",
                     iconClassName,
                   )}
-                  icon={item.icon}
+                  icon={cleanItem.icon}
                   width={24}
                 />
               ) : (
-                item.startContent ?? null
+                cleanItem.startContent ?? null
               )
             }
-            title={isCompact || isNestType ? null : item.title}
+            title={isCompact || isNestType ? null : cleanItem.title}
           >
             {isCompact ? (
-              <Tooltip content={item.title} placement="right">
+              <Tooltip content={cleanItem.title} placement="right">
                 <div className="flex w-full items-center justify-center">
-                  {item.icon ? (
+                  {cleanItem.icon ? (
                     <Icon
                       className={cn(
                         "text-default-500 group-data-[selected=true]:text-foreground",
                         iconClassName,
                       )}
-                      icon={item.icon}
+                      icon={cleanItem.icon}
                       width={24}
                     />
                   ) : (
-                    item.startContent ?? null
+                    cleanItem.startContent ?? null
                   )}
                 </div>
               </Tooltip>
@@ -140,46 +139,46 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
             {!isCompact && isNestType ? (
               <Accordion className={"p-0"}>
                 <AccordionItem
-                  key={item.key}
-                  aria-label={item.title}
+                  key={cleanItem.key}
+                  aria-label={cleanItem.title}
                   classNames={{
                     heading: "pr-3",
                     trigger: "p-0",
                     content: "py-0 pl-4",
                   }}
                   title={
-                    item.icon ? (
+                    cleanItem.icon ? (
                       <div className={"flex h-11 items-center gap-2 px-2 py-1.5"}>
                         <Icon
                           className={cn(
                             "text-default-500 group-data-[selected=true]:text-foreground",
                             iconClassName,
                           )}
-                          icon={item.icon}
+                          icon={cleanItem.icon}
                           width={24}
                         />
                         <span className="text-small font-medium text-default-500 group-data-[selected=true]:text-foreground">
-                          {item.title}
+                          {cleanItem.title}
                         </span>
                       </div>
                     ) : (
-                      item.startContent ?? null
+                      cleanItem.startContent ?? null
                     )
                   }
                 >
-                  {item.items && item.items?.length > 0 ? (
+                  {cleanItem.items && cleanItem.items?.length > 0 ? (
                     <Listbox
                       className={"mt-0.5"}
                       classNames={{
                         list: cn("border-l border-default-200 pl-4"),
                       }}
-                      items={item.items}
+                      items={cleanItem.items}
                       variant="flat"
                     >
-                      {item.items.map(renderItem)}
+                      {cleanItem.items.map(renderItem)}
                     </Listbox>
                   ) : (
-                    renderItem(item)
+                    renderItem(cleanItem)
                   )}
                 </AccordionItem>
               </Accordion>
@@ -187,8 +186,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
           </ListboxItem>
         );
       },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [isCompact, hideEndContent, iconClassName, items],
+      [isCompact, hideEndContent, iconClassName],
     );
 
     const renderItem = React.useCallback(
@@ -243,7 +241,6 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
           </ListboxItem>
         );
       },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
       [isCompact, hideEndContent, iconClassName, itemClasses?.base],
     );
 
@@ -253,6 +250,7 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
         ref={ref}
         hideSelectedIcon
         as="nav"
+        aria-label="Sidebar Navigation"
         className={cn("list-none", className)}
         classNames={{
           ...classNames,
@@ -270,14 +268,13 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
             itemClasses?.title,
           ),
         }}
-        items={items}
-        selectedKeys={[selected] as unknown as Selection}
+        items={processedItems}
+        selectedKeys={[selected]}
         selectionMode="single"
         variant="flat"
         onSelectionChange={(keys) => {
           const key = Array.from(keys)[0];
-
-          setSelected(key as React.Key);
+          setSelected(key as string);
           onSelect?.(key as string);
         }}
         {...props}
