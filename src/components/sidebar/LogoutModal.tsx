@@ -1,29 +1,57 @@
-import React from 'react';
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from "@heroui/react";
+import React, { useEffect } from 'react'
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  Kbd,
+} from '@heroui/react'
 
 interface LogoutModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
+  isOpen: boolean
+  onClose: () => void
+  onConfirm: () => void
 }
 
-export default function LogoutModal({ isOpen, onClose, onConfirm }: LogoutModalProps) {
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} radius='sm'>
-      <ModalContent>
-        <ModalHeader>Confirm Logout</ModalHeader>
-        <ModalBody>
-          <p>Are you sure you want to logout?</p>
-        </ModalBody>
-        <ModalFooter>
-          <Button variant="light" onPress={onClose} radius='sm'>
-            Cancel
-          </Button>
-          <Button color="danger" onPress={onConfirm} radius='sm'>
-            Logout
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  );
-} 
+const LogoutModal = React.memo(
+  ({ isOpen, onClose, onConfirm }: LogoutModalProps) => {
+    useEffect(() => {
+      const handleKeyDown = (event: KeyboardEvent) => {
+        if (isOpen && event.key === 'Enter') {
+          onConfirm()
+        }
+      }
+
+      window.addEventListener('keydown', handleKeyDown)
+      return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [isOpen, onConfirm])
+
+    return (
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        radius="sm"
+        aria-labelledby="logout-modal-title"
+      >
+        <ModalContent>
+          <ModalHeader id="logout-modal-title">Confirm Logout</ModalHeader>
+          <ModalBody>
+            <p>Are you sure you want to logout?</p>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="light" onPress={onClose} radius="sm">
+              Cancel
+            </Button>
+            <Button color="danger" onPress={onConfirm} radius="sm" autoFocus endContent={<Kbd keys={['enter']} className='bg-transparent text-white'></Kbd>}>
+              Logout
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    )
+  },
+)
+
+export default LogoutModal
