@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { Button, Input, Link, Divider, Form } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { useRouter } from 'next/navigation'
@@ -18,9 +18,10 @@ export default function SignUpForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
-  const [isVisible, setIsVisible] = useState(false)
-  const toggleVisibility = () => setIsVisible(!isVisible)
-  const { signUp, signInWithGoogle, } = useAuth()
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false)
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
+    useState(false)
+  const { signUp, signInWithGoogle } = useAuth()
 
   async function onSubmit(data: { email: string; password: string }) {
     setLoading(true)
@@ -43,6 +44,42 @@ export default function SignUpForm() {
     }
   }
 
+  const togglePasswordVisibility = useCallback(() => {
+    setIsPasswordVisible((prev) => !prev)
+  }, [])
+
+  const toggleConfirmPasswordVisibility = useCallback(() => {
+    setIsConfirmPasswordVisible((prev) => !prev)
+  }, [])
+
+  const PasswordToggle = React.memo(
+    ({ isVisible, onToggle }: { isVisible: boolean; onToggle: () => void }) => (
+      <button type="button" onClick={onToggle}>
+        {isVisible ? (
+          <Icon
+            className="text-2xl text-default-400"
+            icon="solar:eye-closed-linear"
+          />
+        ) : (
+          <Icon className="text-2xl text-default-400" icon="solar:eye-bold" />
+        )}
+      </button>
+    ),
+  )
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true)
+    try {
+      await signInWithGoogle()
+      router.push('/')
+    } catch (err) {
+      console.error('Google Sign-In Error:', err)
+      setError('Failed to sign in with Google. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="flex w-full max-w-sm flex-col gap-4 rounded-large bg-content1 px-8 pb-10 pt-6 shadow-small">
       <p className="text-xl font-medium">Sign Up</p>
@@ -52,6 +89,8 @@ export default function SignUpForm() {
           {...register('email')}
           isRequired
           label="Email Address"
+          isInvalid={!!errors.email}
+          errorMessage={errors.email?.message}
           placeholder="Enter your email"
           type="email"
           variant="bordered"
@@ -62,23 +101,16 @@ export default function SignUpForm() {
           {...register('password')}
           isRequired
           endContent={
-            <button type="button" onClick={toggleVisibility}>
-              {isVisible ? (
-                <Icon
-                  className="text-2xl text-default-400"
-                  icon="solar:eye-closed-linear"
-                />
-              ) : (
-                <Icon
-                  className="text-2xl text-default-400"
-                  icon="solar:eye-bold"
-                />
-              )}
-            </button>
+            <PasswordToggle
+              isVisible={isPasswordVisible}
+              onToggle={togglePasswordVisibility}
+            />
           }
           label="Password"
+          isInvalid={!!errors.password}
+          errorMessage={errors.password?.message}
           placeholder="Enter your password"
-          type={isVisible ? 'text' : 'password'}
+          type={isPasswordVisible ? 'text' : 'password'}
           variant="bordered"
         />
         {errors.password && (
@@ -89,34 +121,25 @@ export default function SignUpForm() {
           {...register('confirmPassword')}
           isRequired
           endContent={
-            <button type="button" onClick={toggleVisibility}>
-              {isVisible ? (
-                <Icon
-                  className="text-2xl text-default-400"
-                  icon="solar:eye-closed-linear"
-                />
-              ) : (
-                <Icon
-                  className="text-2xl text-default-400"
-                  icon="solar:eye-bold"
-                />
-              )}
-            </button>
+            <PasswordToggle
+              isVisible={isConfirmPasswordVisible}
+              onToggle={toggleConfirmPasswordVisibility}
+            />
           }
           label="Confirm Password"
+          isInvalid={!!errors.confirmPassword}
+          errorMessage={errors.confirmPassword?.message}
           placeholder="Confirm your password"
-          type={isVisible ? 'text' : 'password'}
+          type={isConfirmPasswordVisible ? 'text' : 'password'}
           variant="bordered"
         />
-        {errors.confirmPassword && (
-          <p className="text-red-500">{errors.confirmPassword.message}</p>
-        )}
 
         <Button
           className="w-full"
           color="primary"
           type="submit"
           isLoading={loading}
+          disabled={loading}
         >
           Sign Up
         </Button>
@@ -130,11 +153,9 @@ export default function SignUpForm() {
         <Button
           startContent={<Icon icon="flat-color-icons:google" width={24} />}
           variant="bordered"
-          onPress={async () => {
-            await signInWithGoogle()
-            router.push('/')
-          }}
+          onPress={handleGoogleSignIn}
           isLoading={loading}
+          disabled={loading}
         >
           Continue with Google
         </Button>
@@ -147,4 +168,4 @@ export default function SignUpForm() {
       </p>
     </div>
   )
-} 
+}

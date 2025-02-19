@@ -4,6 +4,11 @@ import { signUpSchema, SignUpFormValues } from "@/schemas/authSchemas";
 
 export function useSignUpForm() {
   return useForm<SignUpFormValues>({
+    mode: "onBlur",
+    defaultValues: {
+      email: "",
+      password: "",
+    },
     resolver: zodResolver(signUpSchema),
   });
 }
