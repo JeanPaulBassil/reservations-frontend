@@ -6,20 +6,24 @@ import { Providers } from '@/components/providers/providers'
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
+  display: 'swap',
 })
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
+  display: 'swap',
 })
+
+const appUrl = process.env.APP_URL || 'http://localhost:3000'
 
 export const metadata: Metadata = {
   title: {
     template: 'KLYO ASO | %s',
     default: 'KLYO ASO',
   },
-  description: 'KLYO ASO | App Store Optimization Platform',
-  metadataBase: new URL('https://klyoaso.com'),
+  description: 'KLYO ASO | App Store Optimization Platform using AI insights.',
+  metadataBase: new URL(appUrl),
   keywords: [
     'ASO',
     'App Store Optimization',
@@ -27,25 +31,26 @@ export const metadata: Metadata = {
     'App Marketing',
     'Keyword Optimization',
     'KLYO',
+    'AI ASO',
   ],
   openGraph: {
-    title: 'KLYO ASO',
-    description: "Optimize your app's performance with AI-driven ASO insights.",
-    url: 'https://klyoaso.com',
+    title: 'KLYO ASO - AI-Driven App Store Optimization',
+    description: "Boost your app's ranking with AI-driven ASO insights.",
+    url: appUrl,
     siteName: 'KLYO ASO',
     images: [
       {
-        url: '/og-image.png',
+        url: `${appUrl}/og-image.png`,
         width: 1200,
         height: 630,
-        alt: 'KLYO ASO Platform',
+        alt: 'KLYO ASO AI Optimization Platform',
       },
     ],
     locale: 'en_US',
     type: 'website',
   },
   alternates: {
-    canonical: 'https://klyoaso.com',
+    canonical: appUrl,
   },
   icons: {
     icon: [
@@ -66,15 +71,22 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Providers>
-          {children}
-        </Providers>
+      <head>
+        <meta charSet="UTF-8" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1"
+        />
+      </head>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <Providers>{children}</Providers>
       </body>
     </html>
   )
