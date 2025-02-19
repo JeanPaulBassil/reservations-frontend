@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Button, Input, Checkbox, Link, Divider, Form, user } from '@heroui/react'
+import { Button, Input, Checkbox, Link, Divider, Form } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { useLoginForm } from '@/hooks/forms/useLoginForm'
 import { useRouter } from 'next/navigation'

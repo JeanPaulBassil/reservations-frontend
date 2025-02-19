@@ -8,7 +8,7 @@ import {
   signOut,
   User,
 } from 'firebase/auth'
-import { createContext, Suspense, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 
 const AuthContext = createContext<{
   user: User | null

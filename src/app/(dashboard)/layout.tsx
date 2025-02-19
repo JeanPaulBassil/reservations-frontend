@@ -3,7 +3,6 @@ import { useAuth } from '@/components/providers/AuthProvider'
 import { useEffect } from 'react'
 import AppWrapper from '@/components/sidebar'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
 
 export default function DashboardLayout({
   children,
@@ -12,7 +11,6 @@ export default function DashboardLayout({
 }) {
   const { user } = useAuth()
   const router = useRouter()
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (user === null) {
@@ -23,13 +21,9 @@ export default function DashboardLayout({
             router.push('/login')
           }
         })
-        .finally(() => setLoading(false))
     } else {
-      setLoading(false)
     }
   }, [user])
-
-  // if (loading && !localStorage.getItem('loggedIn')) return <div>Loading...</div>
 
   return (
     <div className="flex h-screen">

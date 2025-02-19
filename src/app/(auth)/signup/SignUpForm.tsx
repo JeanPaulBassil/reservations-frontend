@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Button, Input, Link, Divider, Form, user } from '@heroui/react'
+import { Button, Input, Link, Divider, Form } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import { useRouter } from 'next/navigation'
 import { FirebaseError } from 'firebase/app'
