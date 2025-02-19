@@ -1,6 +1,7 @@
 import React from "react";
 import LoginForm from "./LoginForm";
 import { Metadata } from "next";
+import Image from 'next/image';
 
 export const metadata: Metadata = {
   title: "Login",
@@ -39,22 +40,23 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <div
-      className="flex h-screen w-full items-center justify-end overflow-hidden bg-content1 p-2 sm:p-4 lg:p-8"
-      style={{
-        backgroundImage: "url(/images/auth/loginBg.png)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <div className="absolute left-10 top-10">
+    <div className="flex h-screen w-full items-center justify-end overflow-hidden bg-content1 p-2 sm:p-4 lg:p-8 relative">
+      <Image
+        src="/images/auth/loginBg.png"
+        alt="Login background"
+        fill
+        priority
+        className="object-cover z-0"
+      />
+      
+      <div className="absolute left-10 top-10 z-10">
         <div className="flex items-center">
           <p className="font-medium text-white">KLYO ASO</p>
         </div>
       </div>
 
-      <div className="absolute bottom-10 left-10 hidden md:block">
-        <p className="max-w-xl text-white/60">
+      <div className="absolute bottom-10 left-10 hidden md:block z-10">
+        <p className="max-w-xl text-white/70 leading-relaxed">
           <span className="font-medium">"</span>
           Take control of your app's success with AI-powered optimization. Track
           performance, refine strategies, and stay ahead in the competitive app
@@ -63,7 +65,9 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <LoginForm />
+      <div className="z-10">
+        <LoginForm />
+      </div>
     </div>
   );
 }

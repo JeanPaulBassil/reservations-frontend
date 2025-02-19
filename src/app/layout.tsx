@@ -82,6 +82,19 @@ export default function RootLayout({
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1"
         />
+        <link
+          rel="preload"
+          as="image"
+          href="/images/auth/loginBg.png"
+          type="image/png"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href="/images/auth/signupBg.png"
+          type="image/png"
+        />
+
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
