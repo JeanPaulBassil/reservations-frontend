@@ -6,8 +6,8 @@ import { Icon } from '@iconify/react'
 import { useRouter } from 'next/navigation'
 import { FirebaseError } from 'firebase/app'
 import { getFirebaseErrorMessage } from '@/utils/firebaseErrors'
-import { useAuth } from '@/components/providers/AuthProvider'
 import { useSignUpForm } from '@/hooks/forms/useSignupForm'
+import { signInWithGoogle, signUp } from '@/services/authService'
 
 export default function SignUpForm() {
   const {
@@ -21,7 +21,6 @@ export default function SignUpForm() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
     useState(false)
-  const { signUp, signInWithGoogle } = useAuth()
 
   async function onSubmit(data: { email: string; password: string }) {
     setLoading(true)

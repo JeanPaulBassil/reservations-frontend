@@ -7,7 +7,8 @@ import { useLoginForm } from '@/hooks/forms/useLoginForm'
 import { useRouter } from 'next/navigation'
 import { FirebaseError } from 'firebase/app'
 import { getFirebaseErrorMessage } from '@/utils/firebaseErrors'
-import { useAuth } from '@/components/providers/AuthProvider'
+import { signInWithGoogle } from '@/services/authService'
+import { signIn } from '@/services/authService'
 
 export default function LoginForm() {
   const {
@@ -20,7 +21,6 @@ export default function LoginForm() {
   const router = useRouter()
   const [isVisible, setIsVisible] = useState(false)
   const toggleVisibility = () => setIsVisible(!isVisible)
-  const { signIn, signInWithGoogle } = useAuth()
   const [rememberMe, setRememberMe] = useState(false)
 
   async function onSubmit(data: { email: string; password: string }) {

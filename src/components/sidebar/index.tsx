@@ -5,8 +5,9 @@ import { Avatar, Button, ScrollShadow, Spacer } from '@heroui/react'
 import { Icon } from '@iconify/react'
 import LogoutModal from './LogoutModal'
 import Sidebar, { SidebarItem } from './Sidebar'
-import { useAuth } from '../providers/AuthProvider'
 import { useRouter } from 'next/navigation'
+import { fetchWithRetry } from '@/utils/fetchWithRetry'
+import { logout } from '@/services/authService'
 
 export const brandItems: SidebarItem[] = [
   {
@@ -132,7 +133,6 @@ export const brandItems: SidebarItem[] = [
  */
 export default function AppWrapper() {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = React.useState(false)
-  const { logout } = useAuth()
   const router = useRouter()
 
   return (
@@ -218,7 +218,7 @@ export default function AppWrapper() {
         onConfirm={async () => {
           try {
             await logout()
-            await fetch('/api/auth/clearSession', {
+            await fetchWithRetry('/api/auth/clearSession', {
               method: 'POST',
             })
             router.push('/login')
