@@ -1,9 +1,14 @@
-import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
+import { cookies } from "next/headers"
+import { NextResponse } from "next/server"
 
 export async function POST() {
-  // Delete the session cookie
-  (await cookies()).delete('session')
+  const cookieStore = await cookies()
+
+  if (!cookieStore.get('session')) {
+    return NextResponse.json({ error: 'No active session' }, { status: 400 })
+  }
+
+  cookieStore.delete('session')
 
   return NextResponse.json({ success: true })
-} 
+}
