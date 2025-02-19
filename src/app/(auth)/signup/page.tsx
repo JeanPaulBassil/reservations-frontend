@@ -1,138 +1,69 @@
-'use client'
+import React from "react";
+import SignUpForm from "./SignUpForm";
+import { Metadata } from "next";
 
-import React from 'react'
-import { Button, Input, Checkbox, Link, Divider } from '@heroui/react'
-import { Icon } from '@iconify/react'
+export const metadata: Metadata = {
+  title: "Sign Up | KLYO ASO",
+  description: "Create your KLYO ASO account and start optimizing your apps.",
+  keywords: [
+    "Sign Up",
+    "KLYO ASO",
+    "App Store Optimization",
+    "ASO Platform",
+    "Mobile Growth",
+  ],
+  alternates: {
+    canonical: "https://klyoaso.com/signup",
+  },
+  robots: {
+    index: false,
+    follow: false,
+  },
+  openGraph: {
+    title: "Sign Up for KLYO ASO",
+    description: "Create an account to access AI-powered App Store Optimization tools.",
+    url: "https://klyoaso.com/signup",
+    siteName: "KLYO ASO",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "KLYO ASO Sign Up Page",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+};
 
-export default function Component() {
-  const [isVisible, setIsVisible] = React.useState(false)
-  const [isConfirmVisible, setIsConfirmVisible] = React.useState(false)
-
-  const toggleVisibility = () => setIsVisible(!isVisible)
-  const toggleConfirmVisibility = () => setIsConfirmVisible(!isConfirmVisible)
-
+export default function SignUpPage() {
   return (
     <div
-      className="flex min-h-[48rem] h-screen w-full items-center justify-start overflow-hidden bg-content1 p-2 sm:p-4 lg:p-8"
+      className="flex h-screen w-full items-center justify-end overflow-hidden bg-content1 p-2 sm:p-4 lg:p-8"
       style={{
-        backgroundImage: 'url(/images/auth/signupBg.png)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        backgroundImage: "url(/images/auth/signupBg.png)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
       }}
     >
-      {/* Brand Logo */}
-      <div className="absolute right-10 top-10">
+      <div className="absolute left-10 top-10">
         <div className="flex items-center">
-          <p className="font-medium text-white">Klyo ASO</p>
+          <p className="font-medium text-white">KLYO ASO</p>
         </div>
       </div>
 
-      {/* Testimonial */}
-      <div className="absolute bottom-10 right-10 hidden md:block">
-        <p className="max-w-xl text-right text-white/60">
-          <span className="font-medium">“</span>
-          Unlock the full potential of your app with automated App Store
-          Optimization. Join Klyo and let AI-driven insights boost your
-          visibility, downloads, and growth effortlessly.
-          <span className="font-medium">”</span>
+      <div className="absolute bottom-10 left-10 hidden md:block">
+        <p className="max-w-xl text-white/60">
+          <span className="font-medium">"</span>
+          Join thousands of app developers and marketers who are leveraging AI to
+          optimize their app store presence and drive sustainable growth.
+          <span className="font-medium">"</span>
         </p>
       </div>
 
-      {/* Sign Up Form */}
-      <div className="flex w-full max-w-sm flex-col gap-4 rounded-large bg-content1 px-8 pb-10 pt-6 shadow-small">
-        <p className="pb-2 text-xl font-medium">Sign Up</p>
-        <form
-          className="flex flex-col gap-3"
-          onSubmit={(e) => e.preventDefault()}
-        >
-          <Input
-            isRequired
-            label="Email Address"
-            name="email"
-            placeholder="Enter your email"
-            type="email"
-            variant="bordered"
-          />
-          <Input
-            isRequired
-            endContent={
-              <button type="button" onClick={toggleVisibility}>
-                {isVisible ? (
-                  <Icon
-                    className="pointer-events-none text-2xl text-default-400"
-                    icon="solar:eye-closed-linear"
-                  />
-                ) : (
-                  <Icon
-                    className="pointer-events-none text-2xl text-default-400"
-                    icon="solar:eye-bold"
-                  />
-                )}
-              </button>
-            }
-            label="Password"
-            name="password"
-            placeholder="Enter your password"
-            type={isVisible ? 'text' : 'password'}
-            variant="bordered"
-          />
-          <Input
-            isRequired
-            endContent={
-              <button type="button" onClick={toggleConfirmVisibility}>
-                {isConfirmVisible ? (
-                  <Icon
-                    className="pointer-events-none text-2xl text-default-400"
-                    icon="solar:eye-closed-linear"
-                  />
-                ) : (
-                  <Icon
-                    className="pointer-events-none text-2xl text-default-400"
-                    icon="solar:eye-bold"
-                  />
-                )}
-              </button>
-            }
-            label="Confirm Password"
-            name="confirmPassword"
-            placeholder="Confirm your password"
-            type={isConfirmVisible ? 'text' : 'password'}
-            variant="bordered"
-          />
-          <Checkbox isRequired className="py-4" size="sm">
-            I agree with the&nbsp;
-            <Link href="#" size="sm">
-              Terms
-            </Link>
-            &nbsp; and&nbsp;
-            <Link href="#" size="sm">
-              Privacy Policy
-            </Link>
-          </Checkbox>
-          <Button color="primary" type="submit">
-            Sign Up
-          </Button>
-        </form>
-        <div className="flex items-center gap-4 py-2">
-          <Divider className="flex-1" />
-          <p className="shrink-0 text-tiny text-default-500">OR</p>
-          <Divider className="flex-1" />
-        </div>
-        <div className="flex flex-col gap-2">
-          <Button
-            startContent={<Icon icon="flat-color-icons:google" width={24} />}
-            variant="bordered"
-          >
-            Continue with Google
-          </Button>
-        </div>
-        <p className="text-center text-small">
-          Already have an account?&nbsp;
-          <Link href="#" size="sm">
-            Log In
-          </Link>
-        </p>
-      </div>
+      <SignUpForm />
     </div>
-  )
+  );
 }
+

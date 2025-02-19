@@ -3,8 +3,10 @@
 import React from 'react'
 import { Avatar, Button, ScrollShadow, Spacer } from '@heroui/react'
 import { Icon } from '@iconify/react'
-
+import LogoutModal from './LogoutModal'
 import Sidebar, { SidebarItem } from './Sidebar'
+import { useAuth } from '../providers/AuthProvider'
+import { useRouter } from 'next/navigation'
 
 export const brandItems: SidebarItem[] = [
   {
@@ -129,6 +131,10 @@ export const brandItems: SidebarItem[] = [
  * ```
  */
 export default function AppWrapper() {
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = React.useState(false)
+  const { logout } = useAuth()
+  const router = useRouter()
+
   return (
     <div className="h-full min-h-[48rem]">
       <div className="relative flex h-full w-72 flex-1 flex-col bg-[#FF5757] p-6">
@@ -199,11 +205,28 @@ export default function AppWrapper() {
               />
             }
             variant="light"
+            onPress={() => setIsLogoutModalOpen(true)}
           >
             Log Out
           </Button>
         </div>
       </div>
+
+      <LogoutModal 
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={async () => {
+          try {
+            await logout()
+            await fetch('/api/auth/clearSession', {
+              method: 'POST',
+            })
+            router.push('/login')
+          } catch (error) {
+            console.error('Logout failed:', error)
+          }
+        }}
+      />
     </div>
   )
 }

@@ -14,6 +14,7 @@
     "@heroui/react": "^2.6.14",
     "@hookform/resolvers": "^4.1.0",
     "firebase": "^11.3.1",
+    "firebase-admin": "^13.1.0",
     "framer-motion": "^12.4.3",
     "graphql": "^16.10.0",
     "next": "15.1.7",
