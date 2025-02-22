@@ -73,6 +73,8 @@ const EditCompanyModal = ({ isOpen, onClose, companyToUpdate, setCompanyToUpdate
         name: companyToUpdate.name,
         adminUsername: companyToUpdate.users[0].username,
         isTableObligatory: companyToUpdate.companySettings.isTableObligatory,
+        smsUsername: companyToUpdate.companySettings.smsUsername,
+        smsPassword: companyToUpdate.companySettings.smsPassword,
       })
     }
   }, [companyToUpdate])
