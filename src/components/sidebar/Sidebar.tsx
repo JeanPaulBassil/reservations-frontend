@@ -103,14 +103,16 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
             endContent={isCompact || isNestType || hideEndContent ? null : cleanItem.endContent ?? null}
             startContent={
               isCompact || isNestType ? null : cleanItem.icon ? (
-                <Icon
-                  className={cn(
-                    "text-default-500 group-data-[selected=true]:text-foreground",
-                    iconClassName,
-                  )}
-                  icon={cleanItem.icon}
-                  width={24}
-                />
+                <div className="w-6 h-6 flex items-center justify-center">
+                  <Icon
+                    className={cn(
+                      "text-default-500 group-data-[selected=true]:text-foreground",
+                      iconClassName,
+                    )}
+                    icon={cleanItem.icon}
+                    width={24}
+                  />
+                </div>
               ) : (
                 cleanItem.startContent ?? null
               )
@@ -121,14 +123,16 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
               <Tooltip content={cleanItem.title} placement="right">
                 <div className="flex w-full items-center justify-center">
                   {cleanItem.icon ? (
-                    <Icon
-                      className={cn(
-                        "text-default-500 group-data-[selected=true]:text-foreground",
-                        iconClassName,
-                      )}
-                      icon={cleanItem.icon}
-                      width={24}
-                    />
+                    <div className="w-6 h-6 flex items-center justify-center">
+                      <Icon
+                        className={cn(
+                          "text-default-500 group-data-[selected=true]:text-foreground",
+                          iconClassName,
+                        )}
+                        icon={cleanItem.icon}
+                        width={24}
+                      />
+                    </div>
                   ) : (
                     cleanItem.startContent ?? null
                   )}
@@ -148,14 +152,16 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
                   title={
                     cleanItem.icon ? (
                       <div className={"flex h-11 items-center gap-2 px-2 py-1.5"}>
-                        <Icon
-                          className={cn(
-                            "text-default-500 group-data-[selected=true]:text-foreground",
-                            iconClassName,
-                          )}
-                          icon={cleanItem.icon}
-                          width={24}
-                        />
+                        <div className="w-6 h-6 flex items-center justify-center">
+                          <Icon
+                            className={cn(
+                              "text-default-500 group-data-[selected=true]:text-foreground",
+                              iconClassName,
+                            )}
+                            icon={cleanItem.icon}
+                            width={24}
+                          />
+                        </div>
                         <span className="text-small font-medium text-default-500 group-data-[selected=true]:text-foreground">
                           {cleanItem.title}
                         </span>
@@ -204,14 +210,16 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
             endContent={isCompact || hideEndContent ? null : item.endContent ?? null}
             startContent={
               isCompact ? null : item.icon ? (
-                <Icon
-                  className={cn(
-                    "text-default-500 group-data-[selected=true]:text-foreground",
-                    iconClassName,
-                  )}
-                  icon={item.icon}
-                  width={24}
-                />
+                <div className="w-6 h-6 flex items-center justify-center">
+                  <Icon
+                    className={cn(
+                      "text-default-500 group-data-[selected=true]:text-foreground",
+                      iconClassName,
+                    )}
+                    icon={item.icon}
+                    width={24}
+                  />
+                </div>
               ) : (
                 item.startContent ?? null
               )
@@ -223,14 +231,16 @@ const Sidebar = React.forwardRef<HTMLElement, SidebarProps>(
               <Tooltip content={item.title} placement="right">
                 <div className="flex w-full items-center justify-center">
                   {item.icon ? (
-                    <Icon
-                      className={cn(
-                        "text-default-500 group-data-[selected=true]:text-foreground",
-                        iconClassName,
-                      )}
-                      icon={item.icon}
-                      width={24}
-                    />
+                    <div className="w-6 h-6 flex items-center justify-center">
+                      <Icon
+                        className={cn(
+                          "text-default-500 group-data-[selected=true]:text-foreground",
+                          iconClassName,
+                        )}
+                        icon={item.icon}
+                        width={24}
+                      />
+                    </div>
                   ) : (
                     item.startContent ?? null
                   )}

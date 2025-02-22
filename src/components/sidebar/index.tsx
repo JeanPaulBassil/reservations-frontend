@@ -8,6 +8,8 @@ import Sidebar, { SidebarItem } from './Sidebar'
 import { useRouter } from 'next/navigation'
 import { fetchWithRetry } from '@/utils/fetchWithRetry'
 import { logout } from '@/services/authService'
+import { useAuth } from '../providers/AuthProvider'
+import SkeletonText from '../ui/SkeletonText'
 
 export const brandItems: SidebarItem[] = [
   {
@@ -133,7 +135,24 @@ export const brandItems: SidebarItem[] = [
  */
 export default function AppWrapper() {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = React.useState(false)
+  const { user, isInitializing } = useAuth()
   const router = useRouter()
+
+  const handleLogoutModalClose = () => setIsLogoutModalOpen(false)
+  
+  const handleLogoutModalOpen = () => setIsLogoutModalOpen(true)
+
+  const handleLogoutConfirm = async () => {
+    try {
+      await logout()
+      await fetchWithRetry('/api/auth/clearSession', {
+        method: 'POST',
+      })
+      router.push('/login')
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
+  }
 
   return (
     <div className="h-full min-h-[48rem]">
@@ -154,10 +173,17 @@ export default function AppWrapper() {
               src="https://i.pravatar.cc/150?u=a04258114e29028708c"
             />
             <div className="flex flex-col">
-              <p className="text-small text-primary-foreground">Jane Doe</p>
-              <p className="text-tiny text-primary-foreground/60">
-                Product Designer
-              </p>
+              <SkeletonText isLoading={isInitializing} width={120} height={16}>
+                <p className="text-small text-primary-foreground">
+                  {user?.displayName ||
+                    (user?.email ? user.email.split('@')[0] : 'No user')}
+                </p>
+              </SkeletonText>
+              <SkeletonText isLoading={isInitializing} width={160} height={14}>
+                <p className="text-tiny text-primary-foreground/60">
+                  {user?.email || 'No user'}
+                </p>
+              </SkeletonText>
             </div>
           </div>
         </div>
@@ -205,27 +231,17 @@ export default function AppWrapper() {
               />
             }
             variant="light"
-            onPress={() => setIsLogoutModalOpen(true)}
+            onPress={handleLogoutModalOpen}
           >
             Log Out
           </Button>
         </div>
       </div>
 
-      <LogoutModal 
+      <LogoutModal
         isOpen={isLogoutModalOpen}
-        onClose={() => setIsLogoutModalOpen(false)}
-        onConfirm={async () => {
-          try {
-            await logout()
-            await fetchWithRetry('/api/auth/clearSession', {
-              method: 'POST',
-            })
-            router.push('/login')
-          } catch (error) {
-            console.error('Logout failed:', error)
-          }
-        }}
+        onClose={handleLogoutModalClose}
+        onConfirm={handleLogoutConfirm}
       />
     </div>
   )

@@ -7,7 +7,7 @@ interface RateLimitStore {
 }
 
 const WINDOW_SIZE = 60 * 1000 // 1 minute
-const MAX_REQUESTS = 120
+const MAX_REQUESTS = 200
 const rateLimitStore = new Map<string, RateLimitStore>()
 
 export function rateLimitMiddleware(request: NextRequest) {

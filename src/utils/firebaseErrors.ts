@@ -1,3 +1,5 @@
+import { FirebaseError } from 'firebase/app';
+
 type FirebaseErrorMessages = {
     [key: string]: string;
   };
@@ -65,5 +67,24 @@ type FirebaseErrorMessages = {
   
   export const getFirebaseErrorMessage = (errorCode: string): string => {
     return firebaseErrors[errorCode] || firebaseErrors.default;
+  };
+  
+  /**
+   * Handles Firebase and general errors, returning an appropriate error message
+   * @param error The error to handle (FirebaseError, Error, or unknown)
+   * @returns A user-friendly error message
+   */
+  export const handleAuthError = (error: unknown): string => {
+    if (error instanceof FirebaseError) {
+      return getFirebaseErrorMessage(error.code);
+    }
+    
+    if (error instanceof Error) {
+      console.error('Non-Firebase Error:', error);
+      return error.message;
+    }
+    
+    console.error('Unknown Error:', error);
+    return getFirebaseErrorMessage('default');
   };
   
