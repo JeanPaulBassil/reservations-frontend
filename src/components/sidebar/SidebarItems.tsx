@@ -1,6 +1,7 @@
-import { SidebarItem } from './Sidebar'
-import TeamAvatar from './team-avatar'
-import { ROUTES } from '@/constants/routes'
+import { ROUTES } from '@/constants/routes';
+
+import { SidebarItem } from './Sidebar';
+import TeamAvatar from './team-avatar';
 
 /**
  * Please check the https://heroui.com/docs/guide/routing to have a seamless router integration
@@ -101,9 +102,9 @@ const baseItems: SidebarItem[] = [
   //   icon: "solar:settings-outline",
   //   title: "Settings",
   // },
-]
+];
 
-export const items: SidebarItem[] = baseItems
+export const items: SidebarItem[] = baseItems;
 
 export const sectionItems: SidebarItem[] = [
   {
@@ -162,7 +163,7 @@ export const sectionItems: SidebarItem[] = [
   //     },
   //   ],
   // },
-]
+];
 
 export const sectionItemsWithTeams: SidebarItem[] = [
   ...sectionItems,
@@ -190,7 +191,7 @@ export const sectionItemsWithTeams: SidebarItem[] = [
       },
     ],
   },
-]
+];
 
 export const sectionLongList: SidebarItem[] = [
   ...sectionItems,
@@ -254,7 +255,7 @@ export const sectionLongList: SidebarItem[] = [
       },
     ],
   },
-]
+];
 
 export const sectionNestedItems: SidebarItem[] = [
   {
@@ -335,4 +336,4 @@ export const sectionNestedItems: SidebarItem[] = [
   //   icon: 'solar:bill-list-outline',
   //   title: 'Expenses',
   // },
-]
+];

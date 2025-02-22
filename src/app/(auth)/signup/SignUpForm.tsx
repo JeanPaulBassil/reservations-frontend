@@ -1,55 +1,50 @@
-'use client'
+'use client';
 
-import React from 'react'
-import { Button, Form } from '@heroui/react'
-import { useRouter } from 'next/navigation'
-import { useSignUpForm } from '@/hooks/forms/useSignupForm'
-import { signInWithGoogle, signUp } from '@/services/authService'
-import { InputField } from '@/components/forms/InputField'
-import { InputPasswordField } from '@/components/forms/InputPasswordField'
-import { AuthCard } from '@/components/auth/AuthCard'
-import { useAuthState } from '@/hooks/useAuthState'
-import { handleAuthError } from '@/utils/firebaseErrors'
+import { Button, Form } from '@heroui/react';
+import { useRouter } from 'next/navigation';
+import React from 'react';
+
+import { AuthCard } from '@/components/auth/AuthCard';
+import { InputField } from '@/components/forms/InputField';
+import { InputPasswordField } from '@/components/forms/InputPasswordField';
+import { useSignUpForm } from '@/hooks/forms/useSignupForm';
+import { useAuthState } from '@/hooks/useAuthState';
+import { signInWithGoogle, signUp } from '@/services/authService';
+import { handleAuthError } from '@/utils/firebaseErrors';
 
 export default function SignUpForm() {
-  const {
-    state,
-    startEmailLoading,
-    startGoogleLoading,
-    stopAllLoading,
-    setError,
-  } = useAuthState()
+  const { state, startEmailLoading, startGoogleLoading, stopAllLoading, setError } = useAuthState();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useSignUpForm()
-  const router = useRouter()
+  } = useSignUpForm();
+  const router = useRouter();
 
   async function onSubmit(data: { email: string; password: string }) {
-    startEmailLoading()
+    startEmailLoading();
     try {
-      await signUp(data.email, data.password)
-      router.push('/')
+      await signUp(data.email, data.password);
+      router.push('/');
     } catch (err) {
-      setError(handleAuthError(err))
+      setError(handleAuthError(err));
     } finally {
-      stopAllLoading()
+      stopAllLoading();
     }
   }
 
   const handleGoogleSignIn = async () => {
-    startGoogleLoading()
+    startGoogleLoading();
     try {
-      await signInWithGoogle()
-      router.push('/')
+      await signInWithGoogle();
+      router.push('/');
     } catch (err) {
-      setError(handleAuthError(err))
+      setError(handleAuthError(err));
     } finally {
-      stopAllLoading()
+      stopAllLoading();
     }
-  }
+  };
 
   return (
     <AuthCard
@@ -98,5 +93,5 @@ export default function SignUpForm() {
         </Button>
       </Form>
     </AuthCard>
-  )
+  );
 }

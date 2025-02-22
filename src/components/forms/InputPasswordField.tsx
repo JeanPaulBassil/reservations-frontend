@@ -1,19 +1,21 @@
-import React from 'react';
 import { Icon } from '@iconify/react';
-import { InputField } from './InputField';
+import React from 'react';
+
 import { useToggle } from '@/hooks/useToggle';
+
+import { InputField } from './InputField';
 
 interface InputPasswordFieldProps extends React.ComponentProps<typeof InputField> {}
 
 export const InputPasswordField = React.forwardRef<HTMLInputElement, InputPasswordFieldProps>(
   (props, ref) => {
     const [isVisible, toggleVisibility] = useToggle();
-    
+
     const PasswordToggle = () => (
       <button type="button" onClick={toggleVisibility}>
         <Icon
           className="text-2xl text-default-400"
-          icon={isVisible ? "solar:eye-closed-linear" : "solar:eye-bold"}
+          icon={isVisible ? 'solar:eye-closed-linear' : 'solar:eye-bold'}
         />
       </button>
     );
@@ -29,4 +31,4 @@ export const InputPasswordField = React.forwardRef<HTMLInputElement, InputPasswo
   }
 );
 
-InputPasswordField.displayName = 'InputPasswordField'; 
+InputPasswordField.displayName = 'InputPasswordField';

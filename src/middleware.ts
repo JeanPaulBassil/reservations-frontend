@@ -1,22 +1,23 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-import { rateLimitMiddleware } from './lib/middleware/rateLimitMiddleware'
-import { authMiddleware } from './lib/middleware/authMiddleware'
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+
+import { authMiddleware } from './lib/middleware/authMiddleware';
+import { rateLimitMiddleware } from './lib/middleware/rateLimitMiddleware';
 
 export async function middleware(request: NextRequest) {
   // Apply rate limiting
-  const rateLimitResponse = rateLimitMiddleware(request)
+  const rateLimitResponse = rateLimitMiddleware(request);
   if (rateLimitResponse.status !== 200) {
-    return rateLimitResponse
+    return rateLimitResponse;
   }
 
   // Apply auth middleware
-  const authResponse = authMiddleware(request)
+  const authResponse = authMiddleware(request);
   if (authResponse.status !== 200) {
-    return authResponse
+    return authResponse;
   }
 
-  return NextResponse.next()
+  return NextResponse.next();
 }
 
 export const config = {
@@ -30,4 +31,4 @@ export const config = {
      */
     '/((?!_next/static|_next/image|favicon.ico|images/|public/|api/).*)',
   ],
-}
+};

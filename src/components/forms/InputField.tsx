@@ -1,5 +1,5 @@
-import React from 'react';
 import { Input, InputProps } from '@heroui/react';
+import React from 'react';
 import { UseFormRegisterReturn } from 'react-hook-form';
 
 interface InputFieldProps extends Omit<InputProps, keyof UseFormRegisterReturn> {
@@ -29,4 +29,4 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
   }
 );
 
-InputField.displayName = 'InputField'; 
+InputField.displayName = 'InputField';

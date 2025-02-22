@@ -1,40 +1,40 @@
-import React from 'react'
-import { Skeleton } from '@heroui/react'
+import { Skeleton } from '@heroui/react';
+import React from 'react';
 
 interface SkeletonTextProps {
   /**
    * Number of lines to show
    * @default 1
    */
-  lines?: number
+  lines?: number;
   /**
    * Width for each line (can be number for pixels or string for other units)
    * If array, each line will use corresponding width
    * @default "100%"
    */
-  width?: number | string | (number | string)[]
+  width?: number | string | (number | string)[];
   /**
    * Height of each line
    * @default 20
    */
-  height?: number
+  height?: number;
   /**
    * Whether the component is in loading state
    */
-  isLoading: boolean
+  isLoading: boolean;
   /**
    * Text to show when not loading
    */
-  children: React.ReactNode
+  children: React.ReactNode;
   /**
    * Optional className for the container
    */
-  className?: string
+  className?: string;
   /**
    * Gap between lines
    * @default 8
    */
-  gap?: number
+  gap?: number;
 }
 
 export default function SkeletonText({
@@ -55,7 +55,7 @@ export default function SkeletonText({
       >
         <div className="flex flex-col" style={{ gap }}>
           {Array.from({ length: lines }).map((_, index) => {
-            const lineWidth = Array.isArray(width) ? width[index] || width[0] : width
+            const lineWidth = Array.isArray(width) ? width[index] || width[0] : width;
             return (
               <Skeleton
                 key={index}
@@ -65,17 +65,13 @@ export default function SkeletonText({
                   height,
                 }}
               />
-            )
+            );
           })}
         </div>
       </div>
-      <div
-        className={`transition-opacity duration-200 ${
-          isLoading ? 'opacity-0' : 'opacity-100'
-        }`}
-      >
+      <div className={`transition-opacity duration-200 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
         {children}
       </div>
     </div>
-  )
-} 
+  );
+}

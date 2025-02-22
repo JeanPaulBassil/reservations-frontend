@@ -1,15 +1,18 @@
-'use client'
+'use client';
 
-import React from 'react'
-import { Avatar, Button, ScrollShadow, Spacer } from '@heroui/react'
-import { Icon } from '@iconify/react'
-import LogoutModal from './LogoutModal'
-import Sidebar, { SidebarItem } from './Sidebar'
-import { useRouter } from 'next/navigation'
-import { fetchWithRetry } from '@/utils/fetchWithRetry'
-import { logout } from '@/services/authService'
-import { useAuth } from '../providers/AuthProvider'
-import SkeletonText from '../ui/SkeletonText'
+import { Avatar, Button, ScrollShadow, Spacer } from '@heroui/react';
+import { Icon } from '@iconify/react';
+import { useRouter } from 'next/navigation';
+import React from 'react';
+
+import { logout } from '@/services/authService';
+import { fetchWithRetry } from '@/utils/fetchWithRetry';
+
+import { useAuth } from '../providers/AuthProvider';
+import SkeletonText from '../ui/SkeletonText';
+
+import LogoutModal from './LogoutModal';
+import Sidebar, { SidebarItem } from './Sidebar';
 
 export const brandItems: SidebarItem[] = [
   {
@@ -119,7 +122,7 @@ export const brandItems: SidebarItem[] = [
   //     },
   //   ],
   // },
-]
+];
 /**
  * 💡 TIP: You can use the usePathname hook from Next.js App Router to get the current pathname
  * and use it as the active key for the Sidebar component.
@@ -134,55 +137,47 @@ export const brandItems: SidebarItem[] = [
  * ```
  */
 export default function AppWrapper() {
-  const [isLogoutModalOpen, setIsLogoutModalOpen] = React.useState(false)
-  const { user, isInitializing } = useAuth()
-  const router = useRouter()
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = React.useState(false);
+  const { user, isInitializing } = useAuth();
+  const router = useRouter();
 
-  const handleLogoutModalClose = () => setIsLogoutModalOpen(false)
-  
-  const handleLogoutModalOpen = () => setIsLogoutModalOpen(true)
+  const handleLogoutModalClose = () => setIsLogoutModalOpen(false);
+
+  const handleLogoutModalOpen = () => setIsLogoutModalOpen(true);
 
   const handleLogoutConfirm = async () => {
     try {
-      await logout()
+      await logout();
       await fetchWithRetry('/api/auth/clearSession', {
         method: 'POST',
-      })
-      router.push('/login')
+      });
+      router.push('/login');
     } catch (error) {
-      console.error('Logout failed:', error)
+      console.error('Logout failed:', error);
     }
-  }
+  };
 
   return (
     <div className="h-full min-h-[48rem]">
       <div className="relative flex h-full w-72 flex-1 flex-col bg-[#FF5757] p-6">
         <div className="flex items-center gap-2 px-2">
           <Avatar src="/logo.png" alt="logo" size="sm" />
-          <span className="text-small font-medium uppercase text-primary-foreground">
-            KLYO ASO
-          </span>
+          <span className="text-small font-medium uppercase text-primary-foreground">KLYO ASO</span>
         </div>
 
         <Spacer y={8} />
 
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-3 px-2">
-            <Avatar
-              size="sm"
-              src="https://i.pravatar.cc/150?u=a04258114e29028708c"
-            />
+            <Avatar size="sm" src="https://i.pravatar.cc/150?u=a04258114e29028708c" />
             <div className="flex flex-col">
               <SkeletonText isLoading={isInitializing} width={120} height={16}>
                 <p className="text-small text-primary-foreground">
-                  {user?.displayName ||
-                    (user?.email ? user.email.split('@')[0] : 'No user')}
+                  {user?.displayName || (user?.email ? user.email.split('@')[0] : 'No user')}
                 </p>
               </SkeletonText>
               <SkeletonText isLoading={isInitializing} width={160} height={14}>
-                <p className="text-tiny text-primary-foreground/60">
-                  {user?.email || 'No user'}
-                </p>
+                <p className="text-tiny text-primary-foreground/60">{user?.email || 'No user'}</p>
               </SkeletonText>
             </div>
           </div>
@@ -244,5 +239,5 @@ export default function AppWrapper() {
         onConfirm={handleLogoutConfirm}
       />
     </div>
-  )
+  );
 }

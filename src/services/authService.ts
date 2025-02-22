@@ -1,98 +1,85 @@
-import { auth } from '@/lib/firebase'
-import { fetchWithRetry } from '@/utils/fetchWithRetry'
 import {
+  browserLocalPersistence,
+  browserSessionPersistence,
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
+  setPersistence,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
-  setPersistence,
-  browserLocalPersistence,
-  browserSessionPersistence,
   User,
-} from 'firebase/auth'
+} from 'firebase/auth';
+
+import { auth } from '@/lib/firebase';
+import { fetchWithRetry } from '@/utils/fetchWithRetry';
 
 async function setSession(token: string): Promise<void> {
   const response = await fetchWithRetry('/api/auth/setSession', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ token }),
-  })
+  });
 
   if (!response.ok) {
-    throw new Error('Failed to set session')
+    throw new Error('Failed to set session');
   }
 }
 
-export async function signIn(
-  email: string,
-  password: string,
-  rememberMe: boolean,
-): Promise<User> {
-  const persistenceType = rememberMe
-    ? browserLocalPersistence
-    : browserSessionPersistence
-  await setPersistence(auth, persistenceType)
-  
-  try {
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password,
-    )
+export async function signIn(email: string, password: string, rememberMe: boolean): Promise<User> {
+  const persistenceType = rememberMe ? browserLocalPersistence : browserSessionPersistence;
+  await setPersistence(auth, persistenceType);
 
-    const idToken = await userCredential.user.getIdToken()
-    await setSession(idToken)
-    localStorage.setItem('loggedIn', 'true')
-    
-    return userCredential.user
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+
+    const idToken = await userCredential.user.getIdToken();
+    await setSession(idToken);
+    localStorage.setItem('loggedIn', 'true');
+
+    return userCredential.user;
   } catch (error) {
-    localStorage.removeItem('loggedIn')
-    throw error
+    localStorage.removeItem('loggedIn');
+    throw error;
   }
 }
 
 export async function signInWithGoogle(): Promise<User> {
   try {
-    const googleProvider = new GoogleAuthProvider()
-    const userCredential = await signInWithPopup(auth, googleProvider)
-    const idToken = await userCredential.user.getIdToken()
+    const googleProvider = new GoogleAuthProvider();
+    const userCredential = await signInWithPopup(auth, googleProvider);
+    const idToken = await userCredential.user.getIdToken();
 
-    await setSession(idToken)
-    localStorage.setItem('loggedIn', 'true')
-    
-    return userCredential.user
+    await setSession(idToken);
+    localStorage.setItem('loggedIn', 'true');
+
+    return userCredential.user;
   } catch (error) {
-    localStorage.removeItem('loggedIn')
-    throw error
+    localStorage.removeItem('loggedIn');
+    throw error;
   }
 }
 
 export async function logout(): Promise<void> {
-  localStorage.removeItem('loggedIn')
+  localStorage.removeItem('loggedIn');
 
   await fetchWithRetry('/api/auth/clearSession', {
     method: 'POST',
-  })
+  });
 
-  await signOut(auth)
+  await signOut(auth);
 }
 
 export async function signUp(email: string, password: string): Promise<User> {
   try {
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password,
-    )
-    const idToken = await userCredential.user.getIdToken()
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const idToken = await userCredential.user.getIdToken();
 
-    await setSession(idToken)
-    localStorage.setItem('loggedIn', 'true')
-    
-    return userCredential.user
+    await setSession(idToken);
+    localStorage.setItem('loggedIn', 'true');
+
+    return userCredential.user;
   } catch (error) {
-    localStorage.removeItem('loggedIn')
-    throw error
+    localStorage.removeItem('loggedIn');
+    throw error;
   }
-} 
+}

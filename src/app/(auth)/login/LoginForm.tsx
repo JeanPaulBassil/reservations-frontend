@@ -1,56 +1,51 @@
-'use client'
+'use client';
 
-import React, { useState } from 'react'
-import { Button, Checkbox, Link, Form } from '@heroui/react'
-import { useLoginForm } from '@/hooks/forms/useLoginForm'
-import { useRouter } from 'next/navigation'
-import { handleAuthError } from '@/utils/firebaseErrors'
-import { signInWithGoogle, signIn } from '@/services/authService'
-import { InputField } from '@/components/forms/InputField'
-import { InputPasswordField } from '@/components/forms/InputPasswordField'
-import { AuthCard } from '@/components/auth/AuthCard'
-import { useAuthState } from '@/hooks/useAuthState'
+import { Button, Checkbox, Form, Link } from '@heroui/react';
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+
+import { AuthCard } from '@/components/auth/AuthCard';
+import { InputField } from '@/components/forms/InputField';
+import { InputPasswordField } from '@/components/forms/InputPasswordField';
+import { useLoginForm } from '@/hooks/forms/useLoginForm';
+import { useAuthState } from '@/hooks/useAuthState';
+import { signIn, signInWithGoogle } from '@/services/authService';
+import { handleAuthError } from '@/utils/firebaseErrors';
 
 export default function LoginForm() {
-  const {
-    state,
-    startEmailLoading,
-    startGoogleLoading,
-    stopAllLoading,
-    setError
-  } = useAuthState()
-  
+  const { state, startEmailLoading, startGoogleLoading, stopAllLoading, setError } = useAuthState();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useLoginForm()
-  const router = useRouter()
-  const [rememberMe, setRememberMe] = useState(false)
+  } = useLoginForm();
+  const router = useRouter();
+  const [rememberMe, setRememberMe] = useState(false);
 
   async function onSubmit(data: { email: string; password: string }) {
-    startEmailLoading()
+    startEmailLoading();
     try {
-      await signIn(data.email, data.password, rememberMe)
-      router.push('/')
+      await signIn(data.email, data.password, rememberMe);
+      router.push('/');
     } catch (err) {
-      setError(handleAuthError(err))
+      setError(handleAuthError(err));
     } finally {
-      stopAllLoading()
+      stopAllLoading();
     }
   }
 
   const handleGoogleLogin = async () => {
-    startGoogleLoading()
+    startGoogleLoading();
     try {
-      await signInWithGoogle()
-      router.push('/')
+      await signInWithGoogle();
+      router.push('/');
     } catch (err) {
-      setError(handleAuthError(err))
+      setError(handleAuthError(err));
     } finally {
-      stopAllLoading()
+      stopAllLoading();
     }
-  }
+  };
 
   return (
     <AuthCard
@@ -82,12 +77,7 @@ export default function LoginForm() {
         />
 
         <div className="flex w-full items-center justify-between px-1 py-2">
-          <Checkbox 
-            name="remember" 
-            size="sm"
-            isSelected={rememberMe}
-            onValueChange={setRememberMe}
-          >
+          <Checkbox name="remember" size="sm" isSelected={rememberMe} onValueChange={setRememberMe}>
             Remember me
           </Checkbox>
           <Link className="text-default-500" href="#" size="sm">
@@ -105,5 +95,5 @@ export default function LoginForm() {
         </Button>
       </Form>
     </AuthCard>
-  )
+  );
 }

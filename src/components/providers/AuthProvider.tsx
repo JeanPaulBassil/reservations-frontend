@@ -1,29 +1,30 @@
-import { auth } from '@/lib/firebase'
-import { onAuthStateChanged, User } from 'firebase/auth'
-import { createContext, useContext, useEffect, useState, useMemo } from 'react'
+import { onAuthStateChanged, User } from 'firebase/auth';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+
+import { auth } from '@/lib/firebase';
 
 const AuthContext = createContext<{
-  user: User | null
-  isInitializing: boolean
+  user: User | null;
+  isInitializing: boolean;
 }>({
   user: null,
   isInitializing: true,
-})
+});
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null)
-  const [isInitializing, setIsInitializing] = useState(true)
+  const [user, setUser] = useState<User | null>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       // TODO: Here we can fetch additional user data from Firestore
       // and combine it with the auth user data
-      setUser(user)
-      setIsInitializing(false)
-    })
+      setUser(user);
+      setIsInitializing(false);
+    });
 
-    return () => unsubscribe()
-  }, [])
+    return () => unsubscribe();
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -31,15 +32,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       isInitializing,
     }),
     [user, isInitializing]
-  )
+  );
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  )
-}
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
 
 export function useAuth() {
-  return useContext(AuthContext)
+  return useContext(AuthContext);
 }

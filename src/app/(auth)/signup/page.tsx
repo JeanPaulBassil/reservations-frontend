@@ -1,40 +1,35 @@
-import React from "react";
-import SignUpForm from "./SignUpForm";
-import { Metadata } from "next";
+import { Metadata } from 'next';
 import Image from 'next/image';
+import React from 'react';
+
+import SignUpForm from './SignUpForm';
 
 export const metadata: Metadata = {
-  title: "Sign Up",
-  description: "Create your KLYO ASO account and start optimizing your apps.",
-  keywords: [
-    "Sign Up",
-    "KLYO ASO",
-    "App Store Optimization",
-    "ASO Platform",
-    "Mobile Growth",
-  ],
+  title: 'Sign Up',
+  description: 'Create your KLYO ASO account and start optimizing your apps.',
+  keywords: ['Sign Up', 'KLYO ASO', 'App Store Optimization', 'ASO Platform', 'Mobile Growth'],
   alternates: {
-    canonical: "https://klyoaso.com/signup",
+    canonical: 'https://klyoaso.com/signup',
   },
   robots: {
     index: false,
     follow: false,
   },
   openGraph: {
-    title: "Sign Up for KLYO ASO",
-    description: "Create an account to access AI-powered App Store Optimization tools.",
-    url: "https://klyoaso.com/signup",
-    siteName: "KLYO ASO",
+    title: 'Sign Up for KLYO ASO',
+    description: 'Create an account to access AI-powered App Store Optimization tools.',
+    url: 'https://klyoaso.com/signup',
+    siteName: 'KLYO ASO',
     images: [
       {
-        url: "/og-image.png",
+        url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: "KLYO ASO Sign Up Page",
+        alt: 'KLYO ASO Sign Up Page',
       },
     ],
-    locale: "en_US",
-    type: "website",
+    locale: 'en_US',
+    type: 'website',
   },
 };
 
@@ -48,7 +43,7 @@ export default function SignUpPage() {
         priority
         className="object-cover z-0"
       />
-      
+
       <div className="absolute left-10 top-10 z-10">
         <div className="flex items-center">
           <p className="font-medium text-white">KLYO ASO</p>
@@ -58,8 +53,8 @@ export default function SignUpPage() {
       <div className="absolute bottom-10 left-10 hidden md:block z-10">
         <p className="max-w-xl text-white/70 leading-relaxed">
           <span className="font-medium">"</span>
-          Join thousands of app developers and marketers who are leveraging AI to
-          optimize their app store presence and drive sustainable growth.
+          Join thousands of app developers and marketers who are leveraging AI to optimize their app
+          store presence and drive sustainable growth.
           <span className="font-medium">"</span>
         </p>
       </div>
@@ -70,4 +65,3 @@ export default function SignUpPage() {
     </div>
   );
 }
-
