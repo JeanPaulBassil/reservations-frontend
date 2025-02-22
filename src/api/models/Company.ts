@@ -19,6 +19,8 @@ export interface CompanySettings {
   createdAt: Date
   updatedAt: Date
   company: Company
+  smsUsername?: string
+  smsPassword?: string
 }
 
 export interface CreateCompany {
@@ -26,10 +28,14 @@ export interface CreateCompany {
   adminPassword: string
   name: string
   isTableObligatory: boolean
+  smsUsername?: string
+  smsPassword?: string
 }
 
 export interface UpdateCompany {
   name: string
   adminUsername: string
   isTableObligatory: boolean
+  smsUsername?: string
+  smsPassword?: string
 }

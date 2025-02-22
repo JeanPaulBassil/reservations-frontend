@@ -24,6 +24,8 @@ const companySchema = Joi.object({
   adminPassword: Joi.string().required(),
   name: Joi.string().required(),
   isTableObligatory: Joi.boolean().required(),
+  smsUsername: Joi.string().optional(),
+  smsPassword: Joi.string().optional(),
 })
 
 const AddCompanyModal = ({ isOpen, onClose }: Props) => {
@@ -41,6 +43,8 @@ const AddCompanyModal = ({ isOpen, onClose }: Props) => {
     resolver: joiResolver(companySchema),
     defaultValues: {
       isTableObligatory: false,
+      smsUsername: '',
+      smsPassword: '',
     },
   })
 
@@ -100,21 +104,21 @@ const AddCompanyModal = ({ isOpen, onClose }: Props) => {
 
           {/* Modal Content */}
           <ModalBody className="my-4 flex flex-col items-start justify-center px-0">
+            <Input
+              label="Company Name"
+              aria-label="Company Name"
+              placeholder="Enter the company name"
+              variant="bordered"
+              className="w-full"
+              isRequired
+              autoComplete="off"
+              isDisabled={isSubmitting}
+              radius="sm"
+              {...register('name')}
+              errorMessage={errors.name?.message}
+              isInvalid={!!errors.name}
+            />
             <div className="flex w-full gap-2">
-              <Input
-                label="Company Name"
-                aria-label="Company Name"
-                placeholder="Enter the company name"
-                variant="bordered"
-                className="w-full"
-                isRequired
-                autoComplete="off"
-                isDisabled={isSubmitting}
-                radius="sm"
-                {...register('name')}
-                errorMessage={errors.name?.message}
-                isInvalid={!!errors.name}
-              />
               <Input
                 label="Admin Username"
                 aria-label="Admin Username"
@@ -130,31 +134,61 @@ const AddCompanyModal = ({ isOpen, onClose }: Props) => {
                 errorMessage={errors.adminUsername?.message}
                 isInvalid={!!errors.adminUsername}
               />
+              <Input
+                endContent={
+                  <button type="button" onClick={toggleVisibility}>
+                    {isVisible ? (
+                      <Eye size={24} strokeWidth={1.5} />
+                    ) : (
+                      <EyeOff size={24} strokeWidth={1.5} />
+                    )}
+                  </button>
+                }
+                autoComplete="none"
+                aria-autocomplete="none"
+                label="Admin Password"
+                aria-label="Admin Password"
+                radius="sm"
+                placeholder="Enter the admin password"
+                type={isVisible ? 'text' : 'password'}
+                variant="bordered"
+                isDisabled={isSubmitting}
+                isRequired
+                {...register('adminPassword')}
+                errorMessage={errors.adminPassword?.message}
+                isInvalid={!!errors.adminPassword}
+              />
             </div>
-            <Input
-              endContent={
-                <button type="button" onClick={toggleVisibility}>
-                  {isVisible ? (
-                    <Eye size={24} strokeWidth={1.5} />
-                  ) : (
-                    <EyeOff size={24} strokeWidth={1.5} />
-                  )}
-                </button>
-              }
-              autoComplete="none"
-              aria-autocomplete="none"
-              label="Admin Password"
-              aria-label="Admin Password"
-              radius="sm"
-              placeholder="Enter the admin password"
-              type={isVisible ? 'text' : 'password'}
-              variant="bordered"
-              isDisabled={isSubmitting}
-              isRequired
-              {...register('adminPassword')}
-              errorMessage={errors.adminPassword?.message}
-              isInvalid={!!errors.adminPassword}
-            />
+
+            <div className="flex w-full gap-2">
+              <Input
+                label="SMS Username"
+                aria-label="SMS Username"
+                placeholder="Enter the sms username"
+                variant="bordered"
+                className="w-full"
+                autoComplete="off"
+                isDisabled={isSubmitting}
+                radius="sm"
+                {...register('smsUsername')}
+                errorMessage={errors.smsUsername?.message}
+                isInvalid={!!errors.smsUsername}
+              />
+              <Input
+                label="SMS Password"
+                aria-label="SMS Password"
+                placeholder="Enter the sms password"
+                variant="bordered"
+                className="w-full"
+                isDisabled={isSubmitting}
+                radius="sm"
+                autoComplete="none"
+                aria-autocomplete="none"
+                {...register('smsPassword')}
+                errorMessage={errors.smsPassword?.message}
+                isInvalid={!!errors.smsPassword}
+              />
+            </div>
             <Checkbox {...register('isTableObligatory')} size="sm">
               Tables are obligatory
             </Checkbox>
