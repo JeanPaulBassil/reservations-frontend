@@ -329,6 +329,7 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
                     <DatePicker
                       variant="bordered"
                       size="md"
+                      isRequired
                       radius="sm"
                       className="max-w-[284px]"
                       value={parseDate(field.value.toISOString().split('T')[0])}
@@ -351,6 +352,7 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
                     <TimeInput
                       variant="bordered"
                       size="md"
+                      isRequired
                       radius="sm"
                       className="max-w-[284px]"
                       hideTimeZone
