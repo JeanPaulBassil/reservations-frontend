@@ -39,11 +39,13 @@ const page = () => {
     onClose: onCloseCreateModal,
   } = useDisclosure()
 
+  console.log('user', user)
+
   const {
     data: entities,
     isLoading,
   } = useQuery<Entity[], ServerError>({
-    queryKey: ['entities', getQueries().name],
+    queryKey: ['entities', user?.companyId, getQueries().name],
     queryFn: async () => {
       const response = await entityApi.getEntities(getQueries().name)
       return response.payload

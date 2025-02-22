@@ -61,10 +61,20 @@ const page = () => {
     setQueries({ name: value })
   }, 500)
 
-  const { data: shifts, isLoading, isError: isErrorShifts, error: errorShifts } = useQuery<ApiResponse<Shift[]>, ServerError>({
-    queryKey: ['shifts', getQueries().name, getQueries().page, getQueries().take],
+  const {
+    data: shifts,
+    isLoading,
+    isError: isErrorShifts,
+    error: errorShifts,
+  } = useQuery<ApiResponse<Shift[]>, ServerError>({
+    queryKey: ['shifts', selectedEntityId, getQueries().name, getQueries().page, getQueries().take],
     queryFn: async () => {
-      const response = await shiftApi.getShiftsByEntityId(selectedEntityId || '', getQueries().page, getQueries().take, getQueries().name)
+      const response = await shiftApi.getShiftsByEntityId(
+        selectedEntityId || '',
+        getQueries().page,
+        getQueries().take,
+        getQueries().name
+      )
       return response
     },
     enabled: !!selectedEntityId,
@@ -94,14 +104,28 @@ const page = () => {
   const rows = useMemo(() => {
     if (!shifts || !shifts.payload) return []
     return shifts.payload.map((shift: Shift) => {
-      const startIsPm = shift.startHour > 12
-      const endIsPm = shift.endHour > 12
+      const startIsPm = shift.startHour >= 12
+      const endIsPm = shift.endHour >= 12
 
-      const startMinute = shift.startMinute === 0 ? '00' : shift.startMinute < 10 ? `0${shift.startMinute}` : shift.startMinute
-      const endMinute = shift.endMinute === 0 ? '00' : shift.endMinute < 10 ? `0${shift.endMinute}` : shift.endMinute
+      const startMinute =
+        shift.startMinute === 0
+          ? '00'
+          : shift.startMinute < 10
+            ? `0${shift.startMinute}`
+            : shift.startMinute
+      const endMinute =
+        shift.endMinute === 0
+          ? '00'
+          : shift.endMinute < 10
+            ? `0${shift.endMinute}`
+            : shift.endMinute
 
-      const shiftStartTime = `${startIsPm ? shift.startHour - 12 : shift.startHour}:${startMinute} ${startIsPm ? 'PM' : 'AM'}`
-      const shiftEndTime = `${endIsPm ? shift.endHour - 12 : shift.endHour}:${endMinute} ${endIsPm ? 'PM' : 'AM'}`
+      const shiftStartTime = `${
+        shift.startHour === 12 ? 12 : startIsPm ? shift.startHour - 12 : shift.startHour
+      }:${startMinute} ${startIsPm ? 'PM' : 'AM'}`
+      const shiftEndTime = `${
+        shift.endHour === 12 ? 12 : endIsPm ? shift.endHour - 12 : shift.endHour
+      }:${endMinute} ${endIsPm ? 'PM' : 'AM'}`
 
       return {
         id: Number(shift.id),
