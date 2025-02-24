@@ -26,7 +26,7 @@ export default function SignUpForm() {
     startEmailLoading();
     try {
       await signUp(data.email, data.password);
-      router.push('/');
+      router.replace('/');
     } catch (err) {
       setError(handleAuthError(err));
     } finally {
@@ -38,7 +38,7 @@ export default function SignUpForm() {
     startGoogleLoading();
     try {
       await signInWithGoogle();
-      router.push('/');
+      router.replace('/');
     } catch (err) {
       setError(handleAuthError(err));
     } finally {

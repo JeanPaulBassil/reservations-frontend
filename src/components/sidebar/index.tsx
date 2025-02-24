@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import React from 'react';
 
 import { logout } from '@/services/authService';
-import { fetchWithRetry } from '@/utils/fetchWithRetry';
 
 import { useAuth } from '../providers/AuthProvider';
 import SkeletonText from '../ui/SkeletonText';
@@ -148,10 +147,7 @@ export default function AppWrapper() {
   const handleLogoutConfirm = async () => {
     try {
       await logout();
-      await fetchWithRetry('/api/auth/clearSession', {
-        method: 'POST',
-      });
-      router.push('/login');
+      router.replace('/login');
     } catch (error) {
       console.error('Logout failed:', error);
     }
