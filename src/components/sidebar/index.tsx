@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, Button, ScrollShadow, Spacer } from '@heroui/react';
+import { Avatar, Button, Link, ScrollShadow, Spacer } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { useRouter } from 'next/navigation';
 import React from 'react';
@@ -165,7 +165,18 @@ export default function AppWrapper() {
 
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-3 px-2">
-            <Avatar size="sm" src="https://i.pravatar.cc/150?u=a04258114e29028708c" />
+            <Avatar 
+              size="sm" 
+              radius="full" 
+              name={isInitializing ? undefined : (user?.displayName || user?.email?.split('@')[0] || undefined)}
+              showFallback
+              src={isInitializing ? undefined : (user?.photoURL || undefined)}
+              alt='Profile Photo'
+              classNames={{
+                base: isInitializing ? "opacity-50" : "",
+                fallback: "text-primary-foreground"
+              }}
+            />
             <div className="flex flex-col">
               <SkeletonText isLoading={isInitializing} width={120} height={16}>
                 <p className="text-small text-primary-foreground">
@@ -198,22 +209,24 @@ export default function AppWrapper() {
         <Spacer y={8} />
 
         <div className="mt-auto flex flex-col">
+          <Link href="/settings">
+            <Button
+              fullWidth
+              className="justify-start text-primary-foreground/60 data-[hover=true]:text-primary-foreground rounded-md"
+              startContent={
+                <Icon
+                  className="text-primary-foreground/60"
+                  icon="solar:settings-line-duotone"
+                  width={24}
+                />
+              }
+              variant="light"
+            >
+              Settings
+            </Button>
+          </Link>
           <Button
-            fullWidth
-            className="justify-start text-primary-foreground/60 data-[hover=true]:text-primary-foreground"
-            startContent={
-              <Icon
-                className="text-primary-foreground/60"
-                icon="solar:info-circle-line-duotone"
-                width={24}
-              />
-            }
-            variant="light"
-          >
-            Help & Information
-          </Button>
-          <Button
-            className="justify-start text-primary-foreground/60 data-[hover=true]:text-primary-foreground"
+            className="justify-start text-primary-foreground/60 data-[hover=true]:text-primary-foreground rounded-md"
             startContent={
               <Icon
                 className="rotate-180 text-primary-foreground/60"
