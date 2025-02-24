@@ -8,7 +8,10 @@ import React from "react";
 import CellWrapper from "./CellWrapper";
 import SwitchCell from "./SwitchCell";
 
+import { useAuth } from "@/components/providers/AuthProvider";
+
 export default function Component(props: CardProps) {
+  const { user } = useAuth();
   return (
     <Card className="w-full max-w-lg p-2" {...props}>
       <CardHeader className="flex flex-col items-start px-4 pb-0 pt-4">
@@ -26,12 +29,12 @@ export default function Component(props: CardProps) {
           </div>
           <div className="flex w-full flex-wrap items-center justify-end gap-6 sm:w-auto sm:flex-nowrap">
             <div className="flex flex-col items-end">
-              <p>john.doe@mail.com</p>
-              <p className="text-small text-success">Verified</p>
+              <p>{user?.email}</p>
+              <p className={`text-small ${user?.emailVerified ? "text-success" : "text-danger"}`}>{user?.emailVerified ? "Verified" : "Unverified"}</p>
             </div>
             <Button
               endContent={<Icon icon="solar:pen-2-linear" />}
-              radius="full"
+              radius="sm"
               variant="bordered"
             >
               Edit
@@ -46,7 +49,7 @@ export default function Component(props: CardProps) {
               Set a unique password to protect your account.
             </p>
           </div>
-          <Button radius="full" variant="bordered">
+          <Button radius="sm" variant="bordered">
             Change
           </Button>
         </CellWrapper>
@@ -67,25 +70,13 @@ export default function Component(props: CardProps) {
           description="Require a pin to access your account."
           label="Require Pin"
         />
-        {/* Deactivate Account */}
-        <CellWrapper>
-          <div>
-            <p>Deactivate Account</p>
-            <p className="text-small text-default-500">
-              Deactivate your account and delete all your data.
-            </p>
-          </div>
-          <Button radius="full" variant="bordered">
-            Deactivate
-          </Button>
-        </CellWrapper>
         {/* Delete Account */}
         <CellWrapper>
           <div>
             <p>Delete Account</p>
             <p className="text-small text-default-500">Delete your account and all your data.</p>
           </div>
-          <Button color="danger" radius="full" variant="flat">
+          <Button color="danger" radius="sm" variant="flat">
             Delete
           </Button>
         </CellWrapper>

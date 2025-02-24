@@ -16,40 +16,6 @@ export default function Component(props: CardProps) {
       <CardBody>
         <form className="flex flex-col gap-2" onSubmit={(e) => e.preventDefault()}>
           <SwitchCell description="Temporarily pause all notifications" label="Pause all" />
-          <SwitchCell
-            defaultSelected
-            description="Get notified when someone follows you"
-            label="Followers"
-          />
-          <SwitchCell
-            defaultSelected
-            description="Get notified when someone likes your post"
-            label="Likes"
-          />
-          <SwitchCell
-            description="Get notified when someone comments on your post"
-            label="Comments"
-          />
-          <SwitchCell
-            defaultSelected
-            description="Get notified when someone mentions you in a post"
-            label="Mentions"
-          />
-          <SwitchCell
-            defaultSelected
-            description="Get notified when someone sends you a message"
-            label="Messages"
-          />
-          <SwitchCell
-            description="Get notified when someone sends you a friend request"
-            label="Friend Requests"
-          />
-          <div className="flex w-full justify-end gap-2 pt-4">
-            <Button variant="bordered">Reset to Default</Button>
-            <Button color="primary" type="submit">
-              Save Changes
-            </Button>
-          </div>
         </form>
       </CardBody>
     </Card>

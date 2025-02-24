@@ -13,7 +13,6 @@ import { useAuth } from '@/components/providers/AuthProvider';
 
 const userFormSchema = z.object({
   username: z.string().optional(),
-  email: z.string().email(),
   phoneNumber: z.string().optional(),
   photo: z.any().optional(),
 });
@@ -44,7 +43,6 @@ export default function Component(props: CardProps) {
   useEffect(() => {
     reset({
       username: user?.displayName || undefined,
-      email: user?.email || undefined,
       phoneNumber: user?.phoneNumber || undefined,
     });
   }, [user, reset]);
@@ -147,18 +145,6 @@ export default function Component(props: CardProps) {
               {...register('username')}
               errorMessage={errors.username?.message}
               isInvalid={!!errors.username}
-            />
-            {/* Email */}
-            <InputField
-              isRequired
-              label="Email"
-              labelPlacement="outside"
-              placeholder="Enter email..."
-              type="email"
-              radius='sm'
-              {...register('email')}
-              errorMessage={errors.email?.message}
-              isInvalid={!!errors.email}
             />
             {/* Phone Number */}
             <InputField

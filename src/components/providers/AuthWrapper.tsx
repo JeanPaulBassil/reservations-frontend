@@ -19,7 +19,7 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
       if (!user && !isAuthPage) {
         router.replace('/login');
       } else if (user && isAuthPage) {
-        router.replace('/dashboard');
+        router.replace('/');
       } else {
         setIsReady(true); // Only allow rendering after checking auth
       }
