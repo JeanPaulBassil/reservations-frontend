@@ -15,10 +15,11 @@ export function AuthWrapper({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isInitializing) {
-      if (!user && pathname !== '/login') {
+      const isAuthPage = pathname === '/login' || pathname === '/signup';
+      if (!user && !isAuthPage) {
         router.replace('/login');
-      } else if (user && pathname === '/login') {
-        router.replace('/');
+      } else if (user && isAuthPage) {
+        router.replace('/dashboard');
       } else {
         setIsReady(true); // Only allow rendering after checking auth
       }
