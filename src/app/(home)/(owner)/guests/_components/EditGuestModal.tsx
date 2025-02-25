@@ -24,7 +24,7 @@ type Props = {
 const guestSchema = Joi.object({
   name: Joi.string().required(),
   phone: Joi.string().required(),
-  email: Joi.string().email({ tlds: false }).required(),
+  email: Joi.string().email({ tlds: false }).allow('').optional(),
 })
 
 const EditGuestModal = ({ isOpen, onClose, guest, selectedEntityId, search }: Props) => {
@@ -141,7 +141,7 @@ const EditGuestModal = ({ isOpen, onClose, guest, selectedEntityId, search }: Pr
               placeholder="Enter the guest email"
               variant="bordered"
               className="w-full"
-              isRequired
+              isRequired={false}
               isDisabled={isSubmitting}
               radius="sm"
               {...register('email')}
