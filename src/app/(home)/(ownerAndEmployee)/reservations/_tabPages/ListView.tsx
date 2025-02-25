@@ -403,7 +403,7 @@ const ListView = () => {
               </Chip>
             </Tooltip>
           </div>
-          <div className="flex flex-col items-center gap-2 md:flex-row">
+          <div className="flex flex-col items-center gap-2 md:flex-row w-full">
             <ButtonGroup>
               <Button
                 variant="light"
@@ -468,7 +468,6 @@ const ListView = () => {
               />
             </ButtonGroup>
             <DatePicker
-              className="max-w-[200px]"
               variant="bordered"
               size="sm"
               radius="sm"
@@ -486,7 +485,6 @@ const ListView = () => {
               variant="bordered"
               size="sm"
               radius="sm"
-              className="w-[200px]"
               onSelectionChange={(keys) =>
                 setQueries({
                   ...getQueries(),
