@@ -71,7 +71,7 @@ const ListView = () => {
   const { user } = useUser()
   const { selectedEntityId } = useEntity()
   const { get: getQueries, set: setQueries } = useOrderedQueries<ReservationQuery>({
-    date: parseDate(new Date().toLocaleDateString('en-CA')),
+    date: parseDate(new Date().toISOString().split('T')[0]),
     status: ReservationStatus.PENDING,
   })
 
