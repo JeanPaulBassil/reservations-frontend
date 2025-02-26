@@ -1,12 +1,12 @@
 'use client'
 
-import { Button, Spacer, Spinner, useDisclosure } from '@nextui-org/react'
-import React, { useMemo, useState } from 'react'
+import { Button, Spacer, Spinner, useDisclosure, Input } from '@nextui-org/react'
+import React, { useMemo, useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import Widget from '@/app/_components/shared/Widget'
 import Tabs from '@/app/_components/shared/Tabs'
 import { useSidebarContext } from '@/app/contexts/SidebarContext'
-import { Plus, Sidebar } from 'lucide-react'
+import { Plus, Sidebar, Search } from 'lucide-react'
 import AddGuestModal from './_components/AddGuestModal'
 import EditGuestModal from './_components/EditGuestModal'
 import { useEntity } from '@/app/contexts/EntityContext'
@@ -57,20 +57,27 @@ export default function ReservationsPage() {
     onClose: onCloseCreateModal,
   } = useDisclosure()
 
+  const [searchValue, setSearchValue] = useState(getQueries().search || '')
+
+  const handleSearch = (value: string) => {
+    setSearchValue(value)
+    setQueries({ search: value })
+  }
+
   const tabs = useMemo(() => {
     return [
       {
         label: 'List',
         id: 'Normal',
-        component: <Normal />,
+        component: <Normal search={getQueries().search} />,
       },
       {
         label: 'Blacklisted',
         id: 'Blacklisted',
-        component: <Blacklisted />,
+        component: <Blacklisted search={getQueries().search} />,
       },
     ]
-  }, [])
+  }, [getQueries])
 
   const [selectedTab, setSelectedTab] = useState(tabs[0].id)
 
@@ -117,14 +124,30 @@ export default function ReservationsPage() {
               startContent={<Plus />}
             />
           </div>
-          <div className="w-full pl-2">
-            <Tabs
-              tabs={tabs}
-              selectedTab={selectedTab}
-              setTab={(tabId: string) => {
-                setSelectedTab(tabId as TabPage)
-              }}
-            />
+          
+          <div className="flex w-full items-center gap-2">
+            <div className="w-full pl-2">
+              <Tabs
+                tabs={tabs}
+                selectedTab={selectedTab}
+                setTab={(tabId: string) => {
+                  setSelectedTab(tabId as TabPage)
+                }}
+              />
+            </div>
+            <div className="w-full max-w-xs">
+              <Input
+                placeholder="Search guests..."
+                value={searchValue}
+                onChange={(e) => handleSearch(e.target.value)}
+                startContent={<Search size={18} />}
+                size="sm"
+                radius="sm"
+                classNames={{
+                  inputWrapper: "bg-white dark:bg-gray-800",
+                }}
+              />
+            </div>
           </div>
         </div>
       </Widget>

@@ -45,14 +45,18 @@ import { useToast } from '@/app/contexts/ToastContext'
 import AddGuestModal from '../_components/AddGuestModal'
 import EditGuestModal from '../_components/EditGuestModal'
 
-const Normal = () => {
+interface NormalProps {
+  search?: string;
+}
+
+const Normal = ({ search = '' }: NormalProps) => {
   const router = useRouter()
   const queryClient = useQueryClient()
   const toast = useToast()
   const { onToggle } = useSidebarContext()
   const guestApi = new GuestApi()
   const { user } = useUser()
-  const [search, setSearch] = useState<string>('')
+  const [searchValue, setSearchValue] = useState<string>(search)
   const { selectedEntityId } = useEntity()
   const [guest, setGuest] = useState<Guest | null>(null)
   const { get: getQueries, set: setQueries } = useOrderedQueries<{
@@ -61,6 +65,7 @@ const Normal = () => {
     search: '',
   })
 
+  console.log('getQueries', getQueries())
   const debounceSearch = useDebouncedCallback((value: string) => {
     setQueries({ search: value })
   }, 500)
@@ -254,6 +259,21 @@ const Normal = () => {
     }
   }, [])
 
+  useEffect(() => {
+    if (selectedEntityId) {
+      fetchGuests(searchValue)
+    }
+  }, [selectedEntityId, searchValue])
+
+  const fetchGuests = async (searchTerm: string) => {
+    try {
+      const response = await guestApi.getGuests(searchTerm, selectedEntityId || '', false)
+      // ... handle response
+    } catch (error) {
+      // ... handle error
+    }
+  }
+
   if (!user?.companyId) {
     return (
       <div className="h-screen">
@@ -307,10 +327,10 @@ const Normal = () => {
             className="max-w-xs"
             startContent={<Search />}
             onChange={(e) => {
-              setSearch(e.target.value)
+              setSearchValue(e.target.value)
               debounceSearch(e.target.value)
             }}
-            value={search}
+            value={searchValue}
           />
           <Button
             radius="sm"

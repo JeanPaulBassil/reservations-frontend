@@ -43,14 +43,18 @@ import { useRouter } from 'next/navigation'
 import { useToast } from '@/app/contexts/ToastContext'
 import EditGuestModal from '../_components/EditGuestModal'
 
-const Blacklisted = () => {
+interface BlacklistedProps {
+  search?: string;
+}
+
+const Blacklisted = ({ search = '' }: BlacklistedProps) => {
   const router = useRouter()
   const queryClient = useQueryClient()
   const toast = useToast()
   const { onToggle } = useSidebarContext()
   const guestApi = new GuestApi()
   const { user } = useUser()
-  const [search, setSearch] = useState<string>('')
+  const [searchValue, setSearchValue] = useState<string>(search)
   const { selectedEntityId } = useEntity()
   const [guest, setGuest] = useState<Guest | null>(null)
   const { get: getQueries, set: setQueries } = useOrderedQueries<{
@@ -145,6 +149,24 @@ const Blacklisted = () => {
     },
   })
 
+  useEffect(() => {
+    // Fetch blacklisted guests with the search parameter
+    if (selectedEntityId) {
+      fetchGuests(searchValue);
+    }
+  }, [selectedEntityId, searchValue]);
+
+  const fetchGuests = async (searchTerm: string) => {
+    // ... loading state
+    try {
+      const response = await guestApi.getGuests(searchTerm, selectedEntityId || '', true);
+      // ... handle response
+    } catch (error) {
+      // ... handle error
+    } finally {
+      // ... finish loading
+    }
+  };
 
   const renderCell = React.useCallback((guest: Guest, columnKey: string) => {
     const cellValue = guest[columnKey as keyof Guest]
@@ -308,10 +330,10 @@ const Blacklisted = () => {
             className="max-w-xs"
             startContent={<Search />}
             onChange={(e) => {
-              setSearch(e.target.value)
+              setSearchValue(e.target.value)
               debounceSearch(e.target.value)
             }}
-            value={search}
+            value={searchValue}
           />
         </div>
         <div className="flex flex-wrap gap-4">

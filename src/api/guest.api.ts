@@ -27,19 +27,17 @@ export class GuestApi extends AbstractApi<Guest> {
     search: string,
     entityId: string,
     isBlacklisted: boolean = false,
-    phoneSearch: string = '',
   ): Promise<ApiResponse<Guest[]>> {
     const response = (await this.doFetch({
       queries: {
         entityId,
         isBlacklisted: isBlacklisted?.toString(),
-        phoneSearch,
+        search,
       },
       requestOptions: {
         method: 'GET',
       },
     })) as ApiResponse<Guest[]>
-
 
     return response
   }
