@@ -410,20 +410,14 @@ const ListView = () => {
                 size="sm"
                 radius="sm"
                 startContent={<ChevronLeft size={16} />}
-                onClick={() =>
+                onClick={() => {
+                  const currentDate = getQueries().date;
+                  const newDate = currentDate.subtract({ days: 1 });
                   setQueries({
                     ...getQueries(),
-                    date: parseDate(
-                      new Date(
-                        getQueries()
-                          // @ts-expect-error ts is dumb
-                          .date.toDate()
-                          // @ts-expect-error ts is dumb
-                          .setDate(getQueries().date.toDate().getDate() - 1)
-                      ).toLocaleDateString('en-CA')
-                    ),
-                  })
-                }
+                    date: newDate,
+                  });
+                }}
                 isIconOnly
               />
               <Button
@@ -431,17 +425,13 @@ const ListView = () => {
                 size="sm"
                 radius="sm"
                 startContent={<Calendar size={16} />}
-                onClick={() =>
+                onClick={() => {
+                  const today = parseDate(new Date().toISOString().split('T')[0]);
                   setQueries({
                     ...getQueries(),
-                    date: parseDate(
-                      new Date(
-                        // @ts-expect-error ts is dumb
-                        getQueries().date.toDate().setDate(new Date().getDate())
-                      ).toLocaleDateString('en-CA')
-                    ),
-                  })
-                }
+                    date: today,
+                  });
+                }}
               >
                 Today
               </Button>
@@ -450,20 +440,14 @@ const ListView = () => {
                 size="sm"
                 radius="sm"
                 startContent={<ChevronRight size={16} />}
-                onClick={() =>
+                onClick={() => {
+                  const currentDate = getQueries().date;
+                  const newDate = currentDate.add({ days: 1 });
                   setQueries({
                     ...getQueries(),
-                    date: parseDate(
-                      new Date(
-                        getQueries()
-                          // @ts-expect-error ts is dumb
-                          .date.toDate()
-                          // @ts-expect-error ts is dumb
-                          .setDate(getQueries().date.toDate().getDate() + 1)
-                      ).toLocaleDateString('en-CA')
-                    ),
-                  })
-                }
+                    date: newDate,
+                  });
+                }}
                 isIconOnly
               />
             </ButtonGroup>
