@@ -77,7 +77,6 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
         '',
         entityId ?? '',
         false,
-        getPhoneQueries().phoneSearch
       )
       return response.payload
     },
