@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { AdminOnly, NonAdminOnly } from '@/components/auth/RoleBasedAccess';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { restaurantApi } from '@/api/restaurant';
+import ReservationStats from '@/components/dashboard/ReservationStats';
 
 export default function DashboardPage() {
   const { user, userRole, isInitializing, refreshUserData } = useAuth();
@@ -159,51 +160,13 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
-      
-      <div className="mb-4">
-        <p>Welcome, {user.displayName || user.email}</p>
-        <p>Your role: {userRole || 'No role assigned'}</p>
-      </div>
-
-      {/* Content visible to all users */}
-      <div className="mb-8 p-4 border rounded-lg">
-        <h2 className="text-xl font-semibold mb-2">User Dashboard</h2>
-        <p>Welcome to your dashboard. This is where you'll see your activity and manage your account.</p>
-      </div>
-
-      {/* Admin-only content */}
-      <AdminOnly>
-        <div className="mb-8 p-4 border border-blue-500 bg-blue-50 rounded-lg">
-          <h2 className="text-xl font-semibold mb-2">Admin Quick Links</h2>
-          <p>Here are some quick links to admin pages:</p>
-          <div className="mt-4 flex gap-4">
-            <a href="/admin/clients" className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-              Manage Clients
-            </a>
-            <a href="/admin/allowed-emails" className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-              Manage Allowed Emails
-            </a>
-          </div>
-        </div>
-      </AdminOnly>
+    <div className="">
 
       {/* Non-admin content */}
       <NonAdminOnly>
-        <div className="mb-8 p-4 border border-green-500 bg-green-50 rounded-lg">
-          <h2 className="text-xl font-semibold mb-2">Your Dashboard</h2>
-          <p>This dashboard will be updated with more features soon. For now, you can use it to view your profile and account information.</p>
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 bg-white shadow rounded-lg">
-              <h3 className="font-medium">My Profile</h3>
-              <p className="text-sm text-gray-600">View and edit your profile information</p>
-            </div>
-            <div className="p-4 bg-white shadow rounded-lg">
-              <h3 className="font-medium">My Activities</h3>
-              <p className="text-sm text-gray-600">View your recent activities</p>
-            </div>
-          </div>
+        {/* Reservation Statistics */}
+        <div className="bg-white rounded-lg">
+          <ReservationStats />
         </div>
       </NonAdminOnly>
     </div>

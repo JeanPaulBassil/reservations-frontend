@@ -4,6 +4,7 @@ import {
   Image,
   ScrollShadow,
   Spacer,
+  Button,
 } from '@heroui/react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
@@ -12,6 +13,8 @@ import { useAuth } from '../providers/AuthProvider';
 import UserSettingsDropdown from '../user/UserSettingsDropdown';
 import Sidebar, { SidebarItem } from './Sidebar';
 import { restaurantApi } from '@/api/restaurant';
+import RestaurantSwitcher from './RestaurantSwitcher';
+import { useSidebar } from '../providers/SidebarProvider';
 
 // Admin-only sidebar items
 export const adminItems: SidebarItem[] = [
@@ -119,6 +122,7 @@ export default function AppWrapper() {
   const [isLoading, setIsLoading] = useState(true);
   const [shouldRedirect, setShouldRedirect] = useState(false);
   const [networkError, setNetworkError] = useState(false);
+  const { isSidebarOpen, toggleSidebar } = useSidebar();
 
   // Handle redirect after state update
   useEffect(() => {
@@ -177,37 +181,84 @@ export default function AppWrapper() {
   const defaultSelectedKey = userRole === 'ADMIN' ? 'clients' : 'dashboard';
 
   return (
-    <div className="h-full min-h-[48rem]">
-      <div className="relative flex h-full w-72 flex-1 flex-col bg-[#75CAA6] p-6">
-        <div className="flex items-center gap-2 px-2">
-          <Image src="/logo.svg" alt="logo" width={200} height={100} />
+    <div className="h-full min-h-[48rem] relative">
+      {/* Sidebar container with dynamic width */}
+      <div 
+        className={`relative flex h-full flex-1 flex-col bg-[#75CAA6] transition-all duration-300 ease-in-out ${
+          isSidebarOpen ? 'w-72 p-6' : 'w-0 p-0 overflow-hidden'
+        }`}
+      >
+        {/* Header with logo */}
+        <div className="flex items-center gap-2 px-2 mb-2">
+          <Image src="/logo.svg" alt="logo" width={isSidebarOpen ? 200 : 0} height={100} />
         </div>
 
-        <ScrollShadow className="-mr-6 h-full max-h-full py-6 pr-6">
-          <Sidebar
-            defaultSelectedKey={defaultSelectedKey}
-            iconClassName="text-primary-foreground/60 group-data-[selected=true]:text-primary-foreground"
-            itemClasses={{
-              title:
-                'text-primary-foreground/60 group-data-[selected=true]:text-primary-foreground',
-            }}
-            items={sidebarItems}
-            sectionClasses={{
-              heading: 'text-primary-foreground/80',
-            }}
-            variant="flat"
-          />
-        </ScrollShadow>
+        {/* Restaurant Switcher */}
+        {isSidebarOpen && userRole === 'USER' && hasRestaurants && !isLoading && (
+          <RestaurantSwitcher />
+        )}
+
+        {/* Sidebar content */}
+        {isSidebarOpen && (
+          <ScrollShadow className="-mr-6 h-full max-h-full py-6 pr-6">
+            <Sidebar
+              defaultSelectedKey={defaultSelectedKey}
+              iconClassName="text-primary-foreground/60 group-data-[selected=true]:text-primary-foreground"
+              itemClasses={{
+                title:
+                  'text-primary-foreground/60 group-data-[selected=true]:text-primary-foreground',
+              }}
+              items={sidebarItems}
+              sectionClasses={{
+                heading: 'text-primary-foreground/80',
+              }}
+              variant="flat"
+            />
+          </ScrollShadow>
+        )}
 
         <Spacer y={8} />
 
-        <div className="mt-auto flex flex-col">
-          <div className="flex items-center gap-3 px-2">
-            <div className="flex flex-col"></div>
+        {/* Footer with user settings */}
+        {isSidebarOpen && (
+          <div className="mt-auto flex flex-col">
+            <div className="flex items-center gap-3 px-2">
+              <div className="flex flex-col"></div>
+            </div>
+            <UserSettingsDropdown variant="sidebar" />
           </div>
-          <UserSettingsDropdown variant="sidebar" />
-        </div>
+        )}
       </div>
+
+      {/* Toggle button positioned in the middle of the sidebar edge */}
+      <Button
+        isIconOnly
+        aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+        className={`absolute top-1/2 -translate-y-1/2 z-20 bg-[#75CAA6] text-white shadow-md hover:bg-[#5fb992] hover:shadow-lg h-10 w-6 p-0 min-w-0 rounded-none 
+        ${isSidebarOpen ? '' : ''}
+        rounded-r-md transition-all duration-300`}
+        style={{
+          left: isSidebarOpen ? '18rem' : '0', // Using style for smooth transition
+          transform: 'translateY(-50%)',
+          transition: 'left 0.3s ease-in-out, background-color 0.2s'
+        }}
+        onClick={toggleSidebar}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={`transition-transform duration-300 ${isSidebarOpen ? 'rotate-180' : ''}`}
+        >
+          <path d="m9 18 6-6-6-6" />
+        </svg>
+      </Button>
     </div>
   );
 }

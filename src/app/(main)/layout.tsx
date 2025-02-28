@@ -1,17 +1,18 @@
-import { Metadata } from 'next';
+'use client';
 
+import React from 'react';
 import AppWrapper from '@/components/sidebar';
-
-export const metadata: Metadata = {
-  title: 'Dashboard',
-  description: 'Manage your app and view your dashboard',
-};
+import { SidebarProvider } from '@/components/providers/SidebarProvider';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen">
-      <AppWrapper />
-      <main className="flex-1 overflow-y-auto p-8">{children}</main>
-    </div>
+    <SidebarProvider>
+      <div className="flex h-screen">
+        <AppWrapper />
+        <main className="flex-1 overflow-y-auto p-8 transition-all duration-300 ease-in-out">
+          {children}
+        </main>
+      </div>
+    </SidebarProvider>
   );
 }

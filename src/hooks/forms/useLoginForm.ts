@@ -5,7 +5,9 @@ import { LoginFormValues, loginSchema } from '@/schemas/authSchemas';
 
 export function useLoginForm() {
   return useForm<LoginFormValues>({
-    mode: 'onBlur',
+    mode: 'onSubmit',
+    criteriaMode: 'all',
+    reValidateMode: 'onChange',
     defaultValues: {
       email: '',
       password: '',
