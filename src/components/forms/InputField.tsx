@@ -1,5 +1,6 @@
 import { Input, InputProps } from '@heroui/react';
-import React from 'react';
+import debounce from 'lodash/debounce';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { UseFormRegisterReturn } from 'react-hook-form';
 
 interface InputFieldProps extends Omit<InputProps, keyof UseFormRegisterReturn> {
@@ -7,12 +8,35 @@ interface InputFieldProps extends Omit<InputProps, keyof UseFormRegisterReturn> 
   registration?: UseFormRegisterReturn;
   errorMessage?: string;
   isRequired?: boolean;
+  debounceMs?: number;
+  onValueChange?: (value: string) => void;
 }
 
 export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
-  ({ label, registration, errorMessage, isRequired, ...props }, ref) => {
-    // Only show isInvalid if there's an error message
+  ({ label, registration, errorMessage, isRequired, debounceMs = 500, onValueChange, ...props }, ref) => {
     const isInvalid = Boolean(errorMessage);
+
+    const debouncedOnChange = useMemo(
+      () =>
+        debounce((value: string) => {
+          onValueChange?.(value);
+        }, debounceMs),
+      [onValueChange, debounceMs]
+    );
+
+    const handleChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        registration?.onChange?.(e);
+        debouncedOnChange(e.target.value);
+      },
+      [registration, debouncedOnChange]
+    );
+
+    useEffect(() => {
+      return () => {
+        debouncedOnChange.cancel();
+      };
+    }, [debouncedOnChange]);
 
     return (
       <Input
@@ -24,6 +48,7 @@ export const InputField = React.forwardRef<HTMLInputElement, InputFieldProps>(
         errorMessage={errorMessage}
         variant="bordered"
         isRequired={isRequired}
+        onChange={handleChange}
       />
     );
   }

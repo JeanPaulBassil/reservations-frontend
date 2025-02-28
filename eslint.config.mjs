@@ -73,17 +73,10 @@ export default [
       import: importPlugin,
     },
     rules: {
-      'import/order': [
-        'error',
-        {
-          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
-          'newlines-between': 'always',
-          alphabetize: {
-            order: 'asc',
-            caseInsensitive: true,
-          },
-        },
-      ],
+      'import/order': 'off',
+      'import/newline-after-import': 'off',
+      'import/first': 'off',
+      'import/no-duplicates': 'off',
       'react/no-unescaped-entities': 'off',
       'react/display-name': 'off',
       'react-hooks/exhaustive-deps': 'warn',

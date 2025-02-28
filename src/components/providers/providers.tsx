@@ -1,8 +1,9 @@
 'use client';
 
-import { HeroUIProvider } from '@heroui/react';
+import { HeroUIProvider, ToastProvider } from '@heroui/react';
 import React from 'react';
 
+import { ReactQueryProvider } from '@/providers/ReactQueryProvider';
 import { AuthProvider } from './AuthProvider';
 import { AuthWrapper } from './AuthWrapper';
 
@@ -12,10 +13,15 @@ interface ProvidersProps {
 
 export function Providers({ children }: ProvidersProps) {
   return (
-    <AuthProvider>
-      <AuthWrapper>
-        <HeroUIProvider>{children}</HeroUIProvider>
-      </AuthWrapper>
-    </AuthProvider>
+    <ReactQueryProvider>
+      <AuthProvider>
+        <AuthWrapper>
+          <HeroUIProvider>
+            <ToastProvider />
+            {children}
+          </HeroUIProvider>
+        </AuthWrapper>
+      </AuthProvider>
+    </ReactQueryProvider>
   );
 }

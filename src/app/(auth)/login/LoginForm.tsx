@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Checkbox, Form, Link } from '@heroui/react';
+import { Button, Checkbox, Form, Link, Alert } from '@heroui/react';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
@@ -12,7 +12,11 @@ import { useAuthState } from '@/hooks/useAuthState';
 import { signIn, signInWithGoogle } from '@/services/authService';
 import { handleAuthError } from '@/utils/firebaseErrors';
 
-export default function LoginForm() {
+interface LoginFormProps {
+  reason?: string | null;
+}
+
+export default function LoginForm({ reason }: LoginFormProps) {
   const { state, startEmailLoading, startGoogleLoading, stopAllLoading, setError } = useAuthState();
 
   const {
@@ -23,12 +27,41 @@ export default function LoginForm() {
   const router = useRouter();
   const [rememberMe, setRememberMe] = useState(false);
 
+  // Get message based on reason
+  const getReasonMessage = () => {
+    if (!reason) return null;
+    
+    switch (reason) {
+      case 'deactivated':
+        return 'Your account has been deactivated. Please contact an administrator.';
+      case 'expired':
+        return 'Your session has expired. Please log in again.';
+      case 'revoked':
+        return 'Your session has been revoked. Please log in again.';
+      case 'auth_error':
+        return 'Authentication error. Please log in again.';
+      default:
+        return null;
+    }
+  };
+
+  const reasonMessage = getReasonMessage();
+
   async function onSubmit(data: { email: string; password: string }) {
     startEmailLoading();
     try {
-      await signIn(data.email, data.password, rememberMe);
-      router.replace('/');
+      const userData = await signIn(data.email, data.password, rememberMe);
+      // Check if user is admin and redirect to clients page instead of home
+      if (userData?.role === 'ADMIN' || userData?.user?.role === 'ADMIN' || 
+          (userData?.payload?.user?.role === 'ADMIN')) {
+        router.replace('/admin/clients');
+      } else {
+        router.replace('/dashboard');
+      }
     } catch (err) {
+      if (err instanceof Error && err.message === 'UNAUTHORIZED_EMAIL') {
+        return;
+      }
       setError(handleAuthError(err));
     } finally {
       stopAllLoading();
@@ -38,9 +71,18 @@ export default function LoginForm() {
   const handleGoogleLogin = async () => {
     startGoogleLoading();
     try {
-      await signInWithGoogle();
-      router.replace('/');
+      const userData = await signInWithGoogle();
+      // Check if user is admin and redirect to clients page instead of home
+      if (userData?.role === 'ADMIN' || userData?.user?.role === 'ADMIN' || 
+          (userData?.payload?.user?.role === 'ADMIN')) {
+        router.replace('/admin/clients');
+      } else {
+        router.replace('/dashboard');
+      }
     } catch (err) {
+      if (err instanceof Error && err.message === 'UNAUTHORIZED_EMAIL') {
+        return;
+      }
       setError(handleAuthError(err));
     } finally {
       stopAllLoading();
@@ -57,6 +99,11 @@ export default function LoginForm() {
       footerLinkText="Sign Up"
       footerLinkHref="/signup"
     >
+      {reasonMessage && (
+        <Alert color="danger" className="mb-4">
+          {reasonMessage}
+        </Alert>
+      )}
       <Form className="flex flex-col gap-3" onSubmit={handleSubmit(onSubmit)}>
         <InputField
           {...register('email')}

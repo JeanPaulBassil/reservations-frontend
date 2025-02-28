@@ -6,26 +6,26 @@ import SignUpForm from './SignUpForm';
 
 export const metadata: Metadata = {
   title: 'Sign Up',
-  description: 'Create your KLYO ASO account and start optimizing your apps.',
-  keywords: ['Sign Up', 'KLYO ASO', 'App Store Optimization', 'ASO Platform', 'Mobile Growth'],
+  description: 'Create your Resvy account and start optimizing your apps.',
+  keywords: ['Sign Up', 'Resvy', 'App Store Optimization', 'ASO Platform', 'Mobile Growth'],
   alternates: {
-    canonical: 'https://klyoaso.com/signup',
+    canonical: 'https://resvy.com/signup',
   },
   robots: {
     index: false,
     follow: false,
   },
   openGraph: {
-    title: 'Sign Up for KLYO ASO',
+    title: 'Sign Up for Resvy',
     description: 'Create an account to access AI-powered App Store Optimization tools.',
-    url: 'https://klyoaso.com/signup',
-    siteName: 'KLYO ASO',
+    url: 'https://resvy.com/signup',
+    siteName: 'Resvy',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'KLYO ASO Sign Up Page',
+        alt: 'Resvy Sign Up Page',
       },
     ],
     locale: 'en_US',
@@ -44,17 +44,10 @@ export default function SignUpPage() {
         className="object-cover z-0"
       />
 
-      <div className="absolute left-10 top-10 z-10">
-        <div className="flex items-center">
-          <p className="font-medium text-white">KLYO ASO</p>
-        </div>
-      </div>
-
       <div className="absolute bottom-10 left-10 hidden md:block z-10">
         <p className="max-w-xl text-white/70 leading-relaxed">
           <span className="font-medium">"</span>
-          Join thousands of app developers and marketers who are leveraging AI to optimize their app
-          store presence and drive sustainable growth.
+          Join hundreds of restaurants who are leveraging Resvy to optimize their reservations and drive sustainable growth.
           <span className="font-medium">"</span>
         </p>
       </div>

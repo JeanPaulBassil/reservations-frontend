@@ -39,10 +39,11 @@ const LogoutModal = React.memo(({ isOpen, onClose, onConfirm }: LogoutModalProps
             Cancel
           </Button>
           <Button
-            color="danger"
+            color="success"
             onPress={onConfirm}
             radius="sm"
             autoFocus
+            className="text-white"
             endContent={<Kbd keys={['enter']} className="bg-transparent text-white"></Kbd>}
           >
             Logout

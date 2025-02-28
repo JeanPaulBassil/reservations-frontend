@@ -1,76 +1,36 @@
 'use client';
 
-import { Avatar, Button, Link, ScrollShadow, Spacer } from '@heroui/react';
-import { Icon } from '@iconify/react';
+import {
+  Image,
+  ScrollShadow,
+  Spacer,
+} from '@heroui/react';
 import { useRouter } from 'next/navigation';
-import React from 'react';
-
-import { logout } from '@/services/authService';
+import React, { useEffect, useState } from 'react';
 
 import { useAuth } from '../providers/AuthProvider';
-import SkeletonText from '../ui/SkeletonText';
-
-import LogoutModal from './LogoutModal';
+import UserSettingsDropdown from '../user/UserSettingsDropdown';
 import Sidebar, { SidebarItem } from './Sidebar';
+import { restaurantApi } from '@/api/restaurant';
 
-export const brandItems: SidebarItem[] = [
+// Admin-only sidebar items
+export const adminItems: SidebarItem[] = [
   {
     key: 'overview',
     title: 'Overview',
     items: [
       {
-        key: 'home',
-        href: '#',
-        icon: 'solar:home-2-linear',
-        title: 'Home',
+        key: 'clients',
+        href: '/admin/clients',
+        icon: 'solar:users-group-rounded-linear',
+        title: 'Clients',
       },
-      // {
-      //   key: 'projects',
-      //   href: '#',
-      //   icon: 'solar:widget-2-outline',
-      //   title: 'Projects',
-      //   endContent: (
-      //     <Icon
-      //       className="text-primary-foreground/60"
-      //       icon="solar:add-circle-line-duotone"
-      //       width={24}
-      //     />
-      //   ),
-      // },
-      // {
-      //   key: 'tasks',
-      //   href: '#',
-      //   icon: 'solar:checklist-minimalistic-outline',
-      //   title: 'Tasks',
-      //   endContent: (
-      //     <Icon
-      //       className="text-primary-foreground/60"
-      //       icon="solar:add-circle-line-duotone"
-      //       width={24}
-      //     />
-      //   ),
-      // },
-      // {
-      //   key: 'team',
-      //   href: '#',
-      //   icon: 'solar:users-group-two-rounded-outline',
-      //   title: 'Team',
-      // },
-      // {
-      //   key: 'tracker',
-      //   href: '#',
-      //   icon: 'solar:sort-by-time-linear',
-      //   title: 'Tracker',
-      //   endContent: (
-      //     <Chip
-      //       className="bg-primary-foreground font-medium text-primary"
-      //       size="sm"
-      //       variant="flat"
-      //     >
-      //       New
-      //     </Chip>
-      //   ),
-      // },
+      {
+        key: 'allowed-emails',
+        href: '/admin/allowed-emails',
+        icon: 'solar:letter-linear',
+        title: 'Allowed Emails',
+      },
     ],
   },
   // {
@@ -122,6 +82,23 @@ export const brandItems: SidebarItem[] = [
   //   ],
   // },
 ];
+
+// Regular user sidebar items
+export const userItems: SidebarItem[] = [
+  {
+    key: 'overview',
+    title: 'Overview',
+    items: [
+      {
+        key: 'dashboard',
+        href: '/dashboard',
+        icon: 'solar:home-2-linear',
+        title: 'Dashboard',
+      },
+    ],
+  },
+];
+
 /**
  * 💡 TIP: You can use the usePathname hook from Next.js App Router to get the current pathname
  * and use it as the active key for the Sidebar component.
@@ -136,69 +113,85 @@ export const brandItems: SidebarItem[] = [
  * ```
  */
 export default function AppWrapper() {
-  const [isLogoutModalOpen, setIsLogoutModalOpen] = React.useState(false);
-  const { user, isInitializing } = useAuth();
+  const { userRole, isInitializing, user } = useAuth();
   const router = useRouter();
+  const [hasRestaurants, setHasRestaurants] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
+  const [networkError, setNetworkError] = useState(false);
 
-  const handleLogoutModalClose = () => setIsLogoutModalOpen(false);
-
-  const handleLogoutModalOpen = () => setIsLogoutModalOpen(true);
-
-  const handleLogoutConfirm = async () => {
-    try {
-      await logout();
-      router.replace('/login');
-    } catch (error) {
-      console.error('Logout failed:', error);
+  // Handle redirect after state update
+  useEffect(() => {
+    if (shouldRedirect) {
+      router.push('/onboarding');
     }
-  };
+  }, [shouldRedirect, router]);
+
+  // Check if user has any restaurants
+  useEffect(() => {
+    const checkUserRestaurants = async () => {
+      if (user && userRole === 'USER') {
+        try {
+          console.log('Sidebar: Fetching restaurants using restaurantApi...');
+          // Add a small delay to ensure token is properly set
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          const restaurants = await restaurantApi.getMyRestaurants();
+          console.log('Sidebar: Restaurants fetched successfully:', restaurants.length);
+          
+          const hasAnyRestaurants = restaurants.length > 0;
+          setHasRestaurants(hasAnyRestaurants);
+          setNetworkError(false);
+          
+          // Set redirect flag if user has no restaurants
+          if (!hasAnyRestaurants) {
+            setShouldRedirect(true);
+          }
+        } catch (error: any) {
+          console.error('Sidebar: Error fetching restaurants:', error);
+          
+          // Check specifically for network errors
+          if (error.message === 'Network Error') {
+            console.error('Sidebar: Network error detected - unable to connect to the API server');
+            setNetworkError(true);
+          }
+          
+          setHasRestaurants(false);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setIsLoading(false);
+      }
+    };
+
+    if (user && !isInitializing) {
+      checkUserRestaurants();
+    }
+  }, [user, userRole, isInitializing]);
+
+  // Determine which sidebar items to show based on user role
+  const sidebarItems = userRole === 'ADMIN' ? adminItems : userItems;
+  
+  // Determine default selected key based on user role
+  const defaultSelectedKey = userRole === 'ADMIN' ? 'clients' : 'dashboard';
 
   return (
     <div className="h-full min-h-[48rem]">
-      <div className="relative flex h-full w-72 flex-1 flex-col bg-[#FF5757] p-6">
+      <div className="relative flex h-full w-72 flex-1 flex-col bg-[#75CAA6] p-6">
         <div className="flex items-center gap-2 px-2">
-          <Avatar src="/logo.png" alt="logo" size="sm" />
-          <span className="text-small font-medium uppercase text-primary-foreground">KLYO ASO</span>
-        </div>
-
-        <Spacer y={8} />
-
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-3 px-2">
-            <Avatar 
-              size="sm" 
-              radius="full" 
-              name={isInitializing ? undefined : (user?.displayName || user?.email?.split('@')[0] || undefined)}
-              showFallback
-              src={isInitializing ? undefined : (user?.photoURL || undefined)}
-              alt='Profile Photo'
-              classNames={{
-                base: isInitializing ? "opacity-50" : "",
-                fallback: "text-primary-foreground"
-              }}
-            />
-            <div className="flex flex-col">
-              <SkeletonText isLoading={isInitializing} width={120} height={16}>
-                <p className="text-small text-primary-foreground">
-                  {user?.displayName || (user?.email ? user.email.split('@')[0] : 'No user')}
-                </p>
-              </SkeletonText>
-              <SkeletonText isLoading={isInitializing} width={160} height={14}>
-                <p className="text-tiny text-primary-foreground/60">{user?.email || 'No user'}</p>
-              </SkeletonText>
-            </div>
-          </div>
+          <Image src="/logo.svg" alt="logo" width={200} height={100} />
         </div>
 
         <ScrollShadow className="-mr-6 h-full max-h-full py-6 pr-6">
           <Sidebar
-            defaultSelectedKey="home"
+            defaultSelectedKey={defaultSelectedKey}
             iconClassName="text-primary-foreground/60 group-data-[selected=true]:text-primary-foreground"
             itemClasses={{
               title:
                 'text-primary-foreground/60 group-data-[selected=true]:text-primary-foreground',
             }}
-            items={brandItems}
+            items={sidebarItems}
             sectionClasses={{
               heading: 'text-primary-foreground/80',
             }}
@@ -209,44 +202,12 @@ export default function AppWrapper() {
         <Spacer y={8} />
 
         <div className="mt-auto flex flex-col">
-          <Link href="/settings">
-            <Button
-              fullWidth
-              className="justify-start text-primary-foreground/60 data-[hover=true]:text-primary-foreground rounded-md"
-              startContent={
-                <Icon
-                  className="text-primary-foreground/60"
-                  icon="solar:settings-line-duotone"
-                  width={24}
-                />
-              }
-              variant="light"
-            >
-              Settings
-            </Button>
-          </Link>
-          <Button
-            className="justify-start text-primary-foreground/60 data-[hover=true]:text-primary-foreground rounded-md"
-            startContent={
-              <Icon
-                className="rotate-180 text-primary-foreground/60"
-                icon="solar:minus-circle-line-duotone"
-                width={24}
-              />
-            }
-            variant="light"
-            onPress={handleLogoutModalOpen}
-          >
-            Log Out
-          </Button>
+          <div className="flex items-center gap-3 px-2">
+            <div className="flex flex-col"></div>
+          </div>
+          <UserSettingsDropdown variant="sidebar" />
         </div>
       </div>
-
-      <LogoutModal
-        isOpen={isLogoutModalOpen}
-        onClose={handleLogoutModalClose}
-        onConfirm={handleLogoutConfirm}
-      />
     </div>
   );
 }

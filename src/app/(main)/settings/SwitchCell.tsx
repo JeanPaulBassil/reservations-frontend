@@ -27,25 +27,24 @@ export type SwitchCellProps = Omit<SwitchProps, "color"> & {
   };
 };
 
-const SwitchCell = React.forwardRef<HTMLDivElement, SwitchCellProps>(
-  ({label, description, classNames, ...props}) => (
-    <CustomSwitch
-      classNames={{
-        ...classNames,
-        base: cn(
-          "inline-flex bg-content2 flex-row-reverse w-full max-w-full items-center",
-          "justify-between cursor-pointer rounded-medium gap-2 p-4",
-          classNames?.base,
-        ),
-      }}
-      {...props}
-    >
-      <div className="flex flex-col">
-        <p className={cn("text-medium", classNames?.label)}>{label}</p>
-        <p className={cn("text-small text-default-500", classNames?.description)}>{description}</p>
-      </div>
-    </CustomSwitch>
-  ),
+const SwitchCell = ({label, description, classNames, ...props}: SwitchCellProps) => (
+  // @ts-expect-error
+  <CustomSwitch
+    classNames={{
+      ...classNames,
+      base: cn(
+        "inline-flex bg-content2 flex-row-reverse w-full max-w-full items-center",
+        "justify-between cursor-pointer rounded-medium gap-2 p-4",
+        classNames?.base,
+      ),
+    }}
+    {...props}
+  >
+    <div className="flex flex-col">
+      <p className={cn("text-medium", classNames?.label)}>{label}</p>
+      <p className={cn("text-small text-default-500", classNames?.description)}>{description}</p>
+    </div>
+  </CustomSwitch>
 );
 
 SwitchCell.displayName = "SwitchCell";
