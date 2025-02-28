@@ -270,7 +270,7 @@ const AddReservationModal = ({ isOpen, onClose, entityId, queries }: Props) => {
                         }
                       }
                     }}
-                    items={autocompleteItems}
+                    items={autocompleteItems.reverse()}
                   >
                     {(item) => (
                       <AutocompleteItem key={item.key} textValue={item.label}>
