@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Restaurant, restaurantApi } from '@/api/restaurant';
-import { useAuth } from './AuthProvider';
+import { Restaurant } from '@/api/restaurant';
+import { useRestaurantData } from '@/hooks/useRestaurantData';
+import React, { createContext, ReactNode, useContext, useEffect, useState, useMemo } from 'react';
 
 interface RestaurantContextType {
   restaurants: Restaurant[];
@@ -22,54 +22,32 @@ export const useRestaurant = () => {
 };
 
 export const RestaurantProvider = ({ children }: { children: ReactNode }) => {
-  const { user, isInitializing } = useAuth();
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const { data, isLoading, error, refetch } = useRestaurantData();
   const [currentRestaurant, setCurrentRestaurant] = useState<Restaurant | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const fetchRestaurants = async () => {
-    if (!user || isInitializing) return;
-    
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const fetchedRestaurants = await restaurantApi.getMyRestaurants();
-      setRestaurants(fetchedRestaurants);
-      
-      // Set current restaurant to the first one if not already set
-      if (fetchedRestaurants.length > 0 && !currentRestaurant) {
-        // Check if we have a saved restaurant ID in localStorage
-        const savedRestaurantId = localStorage.getItem('currentRestaurantId');
-        
-        if (savedRestaurantId) {
-          const savedRestaurant = fetchedRestaurants.find(r => r.id === savedRestaurantId);
-          if (savedRestaurant) {
-            setCurrentRestaurant(savedRestaurant);
-          } else {
-            setCurrentRestaurant(fetchedRestaurants[0]);
-            localStorage.setItem('currentRestaurantId', fetchedRestaurants[0].id);
-          }
-        } else {
-          setCurrentRestaurant(fetchedRestaurants[0]);
-          localStorage.setItem('currentRestaurantId', fetchedRestaurants[0].id);
-        }
-      }
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch restaurants');
-      console.error('Error fetching restaurants:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Get the restaurants array from the data
+  const restaurants = useMemo(() => data?.restaurants || [], [data?.restaurants]);
 
-  // Fetch restaurants when the user is authenticated
+  // Set current restaurant when restaurants data changes
   useEffect(() => {
-    if (user && !isInitializing) {
-      fetchRestaurants();
+    if (restaurants.length > 0 && !currentRestaurant) {
+      // Check if we have a saved restaurant ID in localStorage
+      const savedRestaurantId = localStorage.getItem('currentRestaurantId');
+
+      if (savedRestaurantId) {
+        const savedRestaurant = restaurants.find((r: Restaurant) => r.id === savedRestaurantId);
+        if (savedRestaurant) {
+          setCurrentRestaurant(savedRestaurant);
+        } else {
+          setCurrentRestaurant(restaurants[0]);
+          localStorage.setItem('currentRestaurantId', restaurants[0].id);
+        }
+      } else {
+        setCurrentRestaurant(restaurants[0]);
+        localStorage.setItem('currentRestaurantId', restaurants[0].id);
+      }
     }
-  }, [user, isInitializing]);
+  }, [restaurants, currentRestaurant]);
 
   // Update localStorage when current restaurant changes
   const handleSetCurrentRestaurant = (restaurant: Restaurant) => {
@@ -77,18 +55,19 @@ export const RestaurantProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('currentRestaurantId', restaurant.id);
   };
 
-  const value = {
+  // Wrap refetch in a function that returns void
+  const refetchRestaurants = async () => {
+    await refetch();
+  };
+
+  const value: RestaurantContextType = {
     restaurants,
     currentRestaurant,
     setCurrentRestaurant: handleSetCurrentRestaurant,
     isLoading,
-    error,
-    refetchRestaurants: fetchRestaurants
+    error: error ? String(error) : null,
+    refetchRestaurants,
   };
 
-  return (
-    <RestaurantContext.Provider value={value}>
-      {children}
-    </RestaurantContext.Provider>
-  );
-}; 
+  return <RestaurantContext.Provider value={value}>{children}</RestaurantContext.Provider>;
+};

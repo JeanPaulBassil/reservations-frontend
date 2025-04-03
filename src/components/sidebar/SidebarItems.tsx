@@ -51,6 +51,12 @@ const baseItems: SidebarItem[] = [
     title: 'Home',
   },
   // {
+  //   key: 'floor-plan',
+  //   href: ROUTES.FLOOR_PLAN,
+  //   icon: 'solar:widget-2-outline',
+  //   title: 'Floor Plan',
+  // },
+  // {
   //   key: "projects",
   //   href: ROUTES.PROJECTS,
   //   icon: "solar:widget-2-outline",

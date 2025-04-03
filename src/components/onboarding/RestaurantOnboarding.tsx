@@ -5,24 +5,12 @@ import { Icon } from '@iconify/react';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import { restaurantApi, UnauthorizedAccessError } from '@/api/restaurant';
+import { useRestaurant } from '@/components/providers/RestaurantProvider';
+import { countryCodes } from '@/constants/countryCodes';
 
 interface RestaurantOnboardingProps {
   className?: string;
 }
-
-// Country codes for the dropdown
-const countryCodes = [
-  { key: '+961', name: 'Lebanon', flag: '🇱🇧' },
-  { key: '+1', name: 'United States', flag: '🇺🇸' },
-  { key: '+44', name: 'United Kingdom', flag: '🇬🇧' },
-  { key: '+33', name: 'France', flag: '🇫🇷' },
-  { key: '+49', name: 'Germany', flag: '🇩🇪' },
-  { key: '+971', name: 'United Arab Emirates', flag: '🇦🇪' },
-  { key: '+966', name: 'Saudi Arabia', flag: '🇸🇦' },
-  { key: '+20', name: 'Egypt', flag: '🇪🇬' },
-  { key: '+962', name: 'Jordan', flag: '🇯🇴' },
-  { key: '+963', name: 'Syria', flag: '🇸🇾' },
-];
 
 const onboardingItems = [
   {
@@ -32,7 +20,6 @@ const onboardingItems = [
     description: "Add details about your restaurant like name, location, and contact information.",
     isCompleted: false,
   },
-
 ];
 
 export default function RestaurantOnboarding({ className }: RestaurantOnboardingProps) {
@@ -49,6 +36,7 @@ export default function RestaurantOnboarding({ className }: RestaurantOnboarding
   const [isLoading, setIsLoading] = useState(true);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const router = useRouter();
+  const { refetchRestaurants, setCurrentRestaurant } = useRestaurant();
 
   // Fetch user's restaurants on component mount
   useEffect(() => {
@@ -133,13 +121,19 @@ export default function RestaurantOnboarding({ className }: RestaurantOnboarding
       const fullPhoneNumber = `${formData.countryCode}${formData.phoneNumber}`;
       
       // Save the restaurant data to the backend
-      await restaurantApi.createRestaurant({
+      const newRestaurant = await restaurantApi.createRestaurant({
         name: formData.name,
         description: formData.description,
         address: formData.address,
         phone: fullPhoneNumber,
         email: formData.email,
       });
+      
+      // Refetch restaurants to update the list
+      await refetchRestaurants();
+      
+      // Set the newly created restaurant as the current restaurant
+      setCurrentRestaurant(newRestaurant);
       
       // Show success message
       addToast({
@@ -257,7 +251,6 @@ export default function RestaurantOnboarding({ className }: RestaurantOnboarding
                       textValue={country.key}
                     >
                       <div className="flex items-center gap-2">
-                        <span>{country.flag}</span>
                         <span>{country.key}</span>
                       </div>
                     </SelectItem>

@@ -81,13 +81,30 @@ async function sendTokenToBackend(token: string, user: User) {
           // Continue with normal unauthorized flow if admin check fails
         }
         
+        // Try to parse the response to see if we have user data
+        try {
+          const errorData = await response.json();
+          console.log('Unauthorized response data:', errorData);
+          
+          if (errorData && errorData.user) {
+            // Store the user data with isAllowed: false flag
+            const userData = {
+              ...errorData.user,
+              isAllowed: false,
+              pendingApproval: true
+            };
+            
+            // Store in localStorage so we can use it on the unauthorized page
+            localStorage.setItem('pendingUser', JSON.stringify(userData));
+            console.log('Stored pending user data:', userData);
+          }
+        } catch (parseError) {
+          console.error('Error parsing unauthorized response:', parseError);
+        }
+        
         console.log('User is not admin, redirecting to unauthorized page');
         // Set a flag in sessionStorage to help prevent redirect loops
         sessionStorage.setItem('onUnauthorizedPage', 'true');
-        
-        // Clear any existing auth data
-        localStorage.removeItem('loggedIn');
-        localStorage.removeItem('userData');
         
         // Redirect to the unauthorized page - use replace instead of href for better performance
         if (typeof window !== 'undefined') {
@@ -261,7 +278,7 @@ export function getUserRole() {
     } else {
       return null;
     }
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -292,7 +309,7 @@ export async function fetchUserData(user: User) {
     localStorage.setItem('userData', JSON.stringify(userData));
     
     return userData;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

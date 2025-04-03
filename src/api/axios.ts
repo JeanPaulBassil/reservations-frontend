@@ -19,6 +19,28 @@ const axiosInstance = axios.create({
 // Log the API URL being used
 console.log('API URL being used:', axiosInstance.defaults.baseURL);
 
+// Flag to track if we're experiencing connection issues
+let isConnectionError = false;
+let connectionErrorListeners: ((isError: boolean) => void)[] = [];
+
+// Function to add connection error listeners
+export const addConnectionErrorListener = (listener: (isError: boolean) => void) => {
+  connectionErrorListeners.push(listener);
+  // Immediately call with current state
+  listener(isConnectionError);
+  
+  // Return function to remove listener
+  return () => {
+    connectionErrorListeners = connectionErrorListeners.filter(l => l !== listener);
+  };
+};
+
+// Function to notify all listeners
+const notifyConnectionErrorListeners = (isError: boolean) => {
+  isConnectionError = isError;
+  connectionErrorListeners.forEach(listener => listener(isError));
+};
+
 // Add request interceptor for authentication
 axiosInstance.interceptors.request.use(
   async (config) => {
@@ -74,6 +96,10 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => {
     console.log('Response successful:', response.status, response.config.url);
+    // If we get a successful response, clear any connection error state
+    if (isConnectionError) {
+      notifyConnectionErrorListeners(false);
+    }
     return response;
   },
   async (error) => {
@@ -83,10 +109,21 @@ axiosInstance.interceptors.response.use(
       console.log('Error status:', error.response.status);
       console.log('Error data:', error.response.data);
       console.log('Error headers:', error.response.headers);
+      
+      // If we get any response, we're connected to the server
+      if (isConnectionError) {
+        notifyConnectionErrorListeners(false);
+      }
     } else if (error.request) {
       console.log('No response received:', error.request);
       console.log('Network error details - URL attempted:', error.config?.url);
       console.log('Network error details - baseURL:', error.config?.baseURL);
+      
+      // This is likely a connection error (no response received)
+      if (error.message === 'Network Error' || error.code === 'ECONNABORTED') {
+        console.error('Connection error detected - unable to connect to the API server');
+        notifyConnectionErrorListeners(true);
+      }
     } else {
       console.log('Error setting up request:', error.message);
     }
@@ -144,7 +181,16 @@ axiosInstance.interceptors.response.use(
       config.retryCount = config.retryCount || 0;
       
       // Check if we should retry (max 2 retries, so 3 total attempts)
-      if (config.retryCount < 2) {
+      // Only retry for network errors or server errors (5xx), not for client errors (4xx)
+      const shouldRetry = 
+        // Network errors (no response)
+        !error.response || 
+        // Server errors (5xx)
+        (error.response && error.response.status >= 500 && error.response.status < 600) ||
+        // Timeout errors
+        error.code === 'ECONNABORTED';
+      
+      if (config.retryCount < 2 && shouldRetry) {
         console.log(`Retrying request (${config.retryCount + 1}/2) after error:`, error.message);
         
         // Increment retry count
@@ -171,6 +217,8 @@ axiosInstance.interceptors.response.use(
         
         // Retry the request
         return axiosInstance(config);
+      } else if (config.retryCount > 0 && !shouldRetry) {
+        console.log('Not retrying client error (4xx):', error.response?.status, error.response?.data);
       }
     }
     
@@ -178,6 +226,23 @@ axiosInstance.interceptors.response.use(
     if (error.message && error.message.includes('Unexpected token')) {
       console.error('JSON parsing error detected - received non-JSON response');
       error.isJsonParsingError = true;
+    }
+    
+    if (error.response && error.response.data) {
+      // Check for various error message formats from the backend
+      const backendMessage = 
+        error.response.data.message || 
+        (error.response.data.error && error.response.data.error.message) ||
+        (typeof error.response.data === 'string' ? error.response.data : null);
+      
+      if (backendMessage) {
+        // Keep the original error message
+        error.originalMessage = error.message;
+        // Override with the more descriptive backend message
+        error.message = backendMessage;
+        
+        console.log('Enhanced error message from backend:', error.message);
+      }
     }
     
     return Promise.reject(error);

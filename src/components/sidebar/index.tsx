@@ -4,17 +4,16 @@ import {
   Image,
   ScrollShadow,
   Spacer,
-  Button,
 } from '@heroui/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 
 import { useAuth } from '../providers/AuthProvider';
 import UserSettingsDropdown from '../user/UserSettingsDropdown';
 import Sidebar, { SidebarItem } from './Sidebar';
-import { restaurantApi } from '@/api/restaurant';
 import RestaurantSwitcher from './RestaurantSwitcher';
 import { useSidebar } from '../providers/SidebarProvider';
+import { useRestaurant } from '../providers/RestaurantProvider';
 
 // Admin-only sidebar items
 export const adminItems: SidebarItem[] = [
@@ -98,6 +97,42 @@ export const userItems: SidebarItem[] = [
         icon: 'solar:home-2-linear',
         title: 'Dashboard',
       },
+      {
+        key: 'floor-plan',
+        href: '/floor-plan',
+        icon: 'solar:widget-2-outline',
+        title: 'Floor Plan',
+      },
+      {
+        key: 'guests',
+        href: '/guests',
+        icon: 'solar:user-rounded-linear',
+        title: 'Guests',
+      },
+      {
+        key: 'reservations',
+        href: '/reservations',
+        icon: 'solar:calendar-mark-linear',
+        title: 'Reservations',
+      },
+      {
+        key: 'shifts',
+        href: '/shifts',
+        icon: 'solar:clock-circle-linear',
+        title: 'Shifts',
+      },
+      {
+        key: 'restaurant-settings',
+        href: '/restaurant-settings',
+        icon: 'solar:restaurant-outline',
+        title: 'Restaurant Settings',
+      },
+      {
+        key: 'settings',
+        href: '/settings',
+        icon: 'solar:settings-linear',
+        title: 'Settings',
+      },
     ],
   },
 ];
@@ -118,67 +153,70 @@ export const userItems: SidebarItem[] = [
 export default function AppWrapper() {
   const { userRole, isInitializing, user } = useAuth();
   const router = useRouter();
-  const [hasRestaurants, setHasRestaurants] = useState(false);
+  const pathname = usePathname();
+  // Extract the first segment of the path
+  const currentPath = pathname?.split('/')?.[1] || '';
+  
+  // Map path to sidebar key
+  const getSelectedKey = () => {
+    // For admin paths
+    if (currentPath === 'admin') {
+      const secondSegment = pathname?.split('/')?.[2];
+      if (secondSegment === 'clients') return 'clients';
+      if (secondSegment === 'allowed-emails') return 'allowed-emails';
+      return 'clients'; // Default admin section
+    }
+    
+    // For user paths
+    if (currentPath === 'dashboard') return 'dashboard';
+    if (currentPath === 'floor-plan') return 'floor-plan';
+    if (currentPath === 'guests') return 'guests';
+    if (currentPath === 'shifts') return 'shifts';
+    if (currentPath === 'reservations') return 'reservations';
+    if (currentPath === 'settings') return 'settings';
+    
+    // Default to dashboard
+    return userRole === 'ADMIN' ? 'clients' : 'dashboard';
+  };
+  
   const [isLoading, setIsLoading] = useState(true);
   const [shouldRedirect, setShouldRedirect] = useState(false);
-  const [networkError, setNetworkError] = useState(false);
   const { isSidebarOpen, toggleSidebar } = useSidebar();
+  const { restaurants, isLoading: isLoadingRestaurants } = useRestaurant();
 
   // Handle redirect after state update
   useEffect(() => {
     if (shouldRedirect) {
+      console.log('Redirecting to onboarding in AppWrapper');
       router.push('/onboarding');
     }
   }, [shouldRedirect, router]);
 
   // Check if user has any restaurants
   useEffect(() => {
-    const checkUserRestaurants = async () => {
-      if (user && userRole === 'USER') {
-        try {
-          console.log('Sidebar: Fetching restaurants using restaurantApi...');
-          // Add a small delay to ensure token is properly set
-          await new Promise(resolve => setTimeout(resolve, 500));
-          
-          const restaurants = await restaurantApi.getMyRestaurants();
-          console.log('Sidebar: Restaurants fetched successfully:', restaurants.length);
-          
-          const hasAnyRestaurants = restaurants.length > 0;
-          setHasRestaurants(hasAnyRestaurants);
-          setNetworkError(false);
-          
-          // Set redirect flag if user has no restaurants
-          if (!hasAnyRestaurants) {
-            setShouldRedirect(true);
-          }
-        } catch (error: any) {
-          console.error('Sidebar: Error fetching restaurants:', error);
-          
-          // Check specifically for network errors
-          if (error.message === 'Network Error') {
-            console.error('Sidebar: Network error detected - unable to connect to the API server');
-            setNetworkError(true);
-          }
-          
-          setHasRestaurants(false);
-        } finally {
-          setIsLoading(false);
+    const checkUserRestaurants = () => {
+      if (user && userRole === 'USER' && !isLoadingRestaurants) {
+        const hasAnyRestaurants = restaurants.length > 0;
+        
+        // Set redirect flag if user has no restaurants
+        if (!hasAnyRestaurants) {
+          setShouldRedirect(true);
         }
-      } else {
+        
+        setIsLoading(false);
+      } else if (!isInitializing && !user) {
         setIsLoading(false);
       }
     };
 
-    if (user && !isInitializing) {
-      checkUserRestaurants();
-    }
-  }, [user, userRole, isInitializing]);
+    checkUserRestaurants();
+  }, [user, userRole, restaurants, isLoadingRestaurants, isInitializing]);
 
   // Determine which sidebar items to show based on user role
   const sidebarItems = userRole === 'ADMIN' ? adminItems : userItems;
   
-  // Determine default selected key based on user role
-  const defaultSelectedKey = userRole === 'ADMIN' ? 'clients' : 'dashboard';
+  // Determine default selected key based on current path
+  const activeKey = getSelectedKey();
 
   return (
     <div className="h-full min-h-[48rem] relative">
@@ -194,7 +232,7 @@ export default function AppWrapper() {
         </div>
 
         {/* Restaurant Switcher */}
-        {isSidebarOpen && userRole === 'USER' && hasRestaurants && !isLoading && (
+        {isSidebarOpen && userRole === 'USER' && (
           <RestaurantSwitcher />
         )}
 
@@ -202,7 +240,8 @@ export default function AppWrapper() {
         {isSidebarOpen && (
           <ScrollShadow className="-mr-6 h-full max-h-full py-6 pr-6">
             <Sidebar
-              defaultSelectedKey={defaultSelectedKey}
+              defaultSelectedKey={activeKey}
+              selectedKeys={[activeKey]}
               iconClassName="text-primary-foreground/60 group-data-[selected=true]:text-primary-foreground"
               itemClasses={{
                 title:
@@ -231,34 +270,36 @@ export default function AppWrapper() {
       </div>
 
       {/* Toggle button positioned in the middle of the sidebar edge */}
-      <Button
-        isIconOnly
-        aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-        className={`absolute top-1/2 -translate-y-1/2 z-20 bg-[#75CAA6] text-white shadow-md hover:bg-[#5fb992] hover:shadow-lg h-10 w-6 p-0 min-w-0 rounded-none 
-        ${isSidebarOpen ? '' : ''}
-        rounded-r-md transition-all duration-300`}
+      <div 
         style={{
           left: isSidebarOpen ? '18rem' : '0', // Using style for smooth transition
-          transform: 'translateY(-50%)',
           transition: 'left 0.3s ease-in-out, background-color 0.2s'
         }}
-        onClick={toggleSidebar}
+        className={`absolute top-1/2 -translate-y-1/2 z-20 bg-[#75CAA6] text-white shadow-md hover:bg-[#5fb992] hover:shadow-lg h-10 w-6 p-0 min-w-0 rounded-r-md ${
+          isSidebarOpen ? 'border-l border-white/20' : ''
+        }`}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className={`transition-transform duration-300 ${isSidebarOpen ? 'rotate-180' : ''}`}
+        <button
+          aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+          className="w-full h-full flex items-center justify-center"
+          onClick={toggleSidebar}
         >
-          <path d="m9 18 6-6-6-6" />
-        </svg>
-      </Button>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={`transition-transform duration-300 ${isSidebarOpen ? 'rotate-180' : ''}`}
+          >
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        </button>
+      </div>
     </div>
   );
 }

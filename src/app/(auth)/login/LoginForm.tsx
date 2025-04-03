@@ -23,74 +23,50 @@ export default function LoginForm({ reason }: LoginFormProps) {
     register,
     handleSubmit,
     formState: { errors },
-    trigger,
     setValue,
     clearErrors,
   } = useLoginForm();
   const router = useRouter();
   const [rememberMe, setRememberMe] = useState(false);
-  const [formReady, setFormReady] = useState(false);
+  const [formInitialized, setFormInitialized] = useState(false);
 
-  // Handle browser autofill
+  // Handle browser autofill with improved approach
   useEffect(() => {
-    // Longer delay to ensure browser autofill completes
-    const timeoutId = setTimeout(() => {
-      // Check if inputs have values (potentially from autofill)
-      const emailInput = document.querySelector('input[name="email"]') as HTMLInputElement;
-      const passwordInput = document.querySelector('input[name="password"]') as HTMLInputElement;
-      
-      if (emailInput?.value) {
-        setValue('email', emailInput.value, { shouldValidate: false });
-      }
-      
-      if (passwordInput?.value) {
-        setValue('password', passwordInput.value, { shouldValidate: false });
-      }
-      
-      // Clear any existing errors that might have appeared prematurely
-      clearErrors();
-      
-      // Mark the form as ready after handling autofill
-      setFormReady(true);
-      
-      // Only trigger validation if both fields have values
-      if (emailInput?.value && passwordInput?.value) {
-        // Small additional delay before triggering validation
-        setTimeout(() => {
-          trigger();
-        }, 100);
-      }
-    }, 1000); // Increased from 500ms to 1000ms
-    
-    return () => clearTimeout(timeoutId);
-  }, [setValue, trigger, clearErrors]);
+    // Add an event listener for 'animationstart' which triggers on autofill
+    const emailInput = document.querySelector('input[name="email"]') as HTMLInputElement;
+    const passwordInput = document.querySelector('input[name="password"]') as HTMLInputElement;
 
-  // Modified submit handler to handle prefilled values
-  const onSubmitWrapper = (e: React.FormEvent) => {
-    // If the form isn't ready yet, prevent submission and manually check fields
-    if (!formReady) {
-      e.preventDefault();
-      
-      const emailInput = document.querySelector('input[name="email"]') as HTMLInputElement;
-      const passwordInput = document.querySelector('input[name="password"]') as HTMLInputElement;
-      
-      if (emailInput?.value) {
-        setValue('email', emailInput.value, { shouldValidate: false });
-      }
-      
-      if (passwordInput?.value) {
-        setValue('password', passwordInput.value, { shouldValidate: false });
-      }
-      
-      // Trigger validation and then try to submit if valid
-      trigger().then(isValid => {
-        if (isValid) {
-          const formData = { email: emailInput.value, password: passwordInput.value };
-          onSubmit(formData);
+    // Handle autofilled inputs
+    const handleAutofill = () => {
+      // Small delay to ensure autofill has completed
+      setTimeout(() => {
+        if (emailInput?.value) {
+          setValue('email', emailInput.value);
         }
-      });
-    }
-  };
+        
+        if (passwordInput?.value) {
+          setValue('password', passwordInput.value);
+        }
+        
+        clearErrors();
+      }, 100);
+    };
+
+    // Add event listeners for input changes (for autofill detection)
+    emailInput?.addEventListener('input', handleAutofill);
+    passwordInput?.addEventListener('input', handleAutofill);
+
+    // Also run once on mount to catch any pre-filled values
+    handleAutofill();
+    
+    // Mark the form as initialized
+    setFormInitialized(true);
+
+    return () => {
+      emailInput?.removeEventListener('input', handleAutofill);
+      passwordInput?.removeEventListener('input', handleAutofill);
+    };
+  }, [setValue, clearErrors]);
 
   // Get message based on reason
   const getReasonMessage = () => {
@@ -171,13 +147,7 @@ export default function LoginForm({ reason }: LoginFormProps) {
       )}
       <Form 
         className="flex flex-col gap-3" 
-        onSubmit={(e) => {
-          if (!formReady) {
-            onSubmitWrapper(e);
-          } else {
-            handleSubmit(onSubmit)(e);
-          }
-        }}
+        onSubmit={handleSubmit(onSubmit)}
       >
         <InputField
           {...register('email')}
@@ -187,6 +157,7 @@ export default function LoginForm({ reason }: LoginFormProps) {
           isInvalid={!!errors.email}
           errorMessage={errors.email?.message}
           type="email"
+          autoComplete="username"
         />
         <InputPasswordField
           {...register('password')}
@@ -195,6 +166,7 @@ export default function LoginForm({ reason }: LoginFormProps) {
           placeholder="Enter your password"
           isInvalid={!!errors.password}
           errorMessage={errors.password?.message}
+          autoComplete="current-password"
         />
 
         <div className="flex w-full items-center justify-between px-1 py-2">
@@ -210,7 +182,7 @@ export default function LoginForm({ reason }: LoginFormProps) {
           color="primary"
           type="submit"
           isLoading={state.emailLoading}
-          disabled={state.emailLoading || state.googleLoading}
+          disabled={state.emailLoading || state.googleLoading || !formInitialized}
         >
           Log In
         </Button>
